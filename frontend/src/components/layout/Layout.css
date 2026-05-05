@@ -1,0 +1,6 @@
+.sgdc-layout {
+    display: grid;
+    grid-template-columns: min(20%, 200px) 1fr;
+    grid-template-rows: 1fr;
+    gap: 3.2rem;
+}
