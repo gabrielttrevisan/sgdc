@@ -10,7 +10,7 @@ import "./Layout.css";
  */
 
 /** @type {import("react").FC<LayoutProps>} */
-export const Layout = ({ children }) => {
+export const Layout = () => {
   return (
     <div className="sgdc-layout">
       <aside>
