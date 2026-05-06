@@ -1,11 +1,14 @@
 :root {
-  --colors-primary: #5B466C;
-  --colors-primary-1: #905ABC;
+  --colors-primary: #5b466c;
+  --colors-primary-1: #905abc;
   --colors-primary-14: rgba(91, 70, 102, 0.04);
   --colors-primary-15: rgba(91, 70, 102, 0.05);
   --colors-primary-2: rgba(91, 70, 102, 0.15);
   --colors-primary-3: rgba(91, 70, 102, 0.25);
   --colors-text-black: #000000;
+  --colors-background-light: #fefefe;
+  --colors-background-medium: #eeeeee;
+  --colors-foreground-black: #000000;
 
   font-size: 16px;
   line-height: 145%;

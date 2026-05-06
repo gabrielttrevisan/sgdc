@@ -1,0 +1,19 @@
+.data-grid.--beneficiaries {
+  width: 100%;
+}
+
+.beneficiary__col {
+  vertical-align: middle;
+  text-align: left;
+  color: var(--colors-foreground-black);
+  height: 3.3333rem;
+  padding-inline: 1.2rem;
+}
+
+.beneficiary__row {
+  background-color: var(--colors-background-light);
+
+  &:nth-child(even) {
+    background-color: var(--colors-background-medium);
+  }
+}
