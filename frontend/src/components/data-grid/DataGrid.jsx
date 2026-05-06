@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useEffectEvent, useState } from "react";
 import { ActionList } from "../action-list/ActionList";
-import "./DataGrid.css";
 import { PaginationInfo } from "../pagination-info/PaginationInfo";
 import { PaginationLinks } from "../pagination-links/PaginationLinks";
+import "./DataGrid.css";
 
 /**
  * @template T
