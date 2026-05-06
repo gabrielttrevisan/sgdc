@@ -128,8 +128,9 @@ class BeneficiariesService {
 
       if (!parsed.length) return this.#notFound();
 
-      const offset = (query.page - 1) * query.perPage;
-      const limit = offset + query.perPage;
+      const perPage = query.perPage ?? 10;
+      const offset = (query.page - 1) * perPage;
+      const limit = offset + perPage;
       const page = parsed.slice(offset, limit);
 
       if (!page || !page.length) return this.#notFound();
@@ -138,7 +139,7 @@ class BeneficiariesService {
         data: {
           items: page,
           page: query.page,
-          totalPages: Math.ceil(parsed.length / query.perPage),
+          totalPages: Math.ceil(parsed.length / perPage),
           totalRecords: parsed.length,
         },
         error: null,
