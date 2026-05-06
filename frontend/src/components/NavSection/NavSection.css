@@ -1,0 +1,74 @@
+.nav-section {
+    &:not(:last-child) {
+        margin-bottom: 0.5rem;
+    }
+
+    &:not(:has(a.active)) {
+        >button {
+            background-color: var(--colors-primary-14);
+        }
+    }
+
+    >button {
+        padding: 0.4rem 0 0.4rem 3.2rem;
+        color: var(--colors-primary);
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 9px;
+        width: calc(100% + 10px);
+        text-align: left;
+        background-color: var(--colors-primary-2);
+        border: 0;
+        border-radius: 0 0.4rem 0.4rem 0;
+        margin-right: -10px;
+        font-size: 1rem;
+
+        &:hover {
+            background-color: var(--colors-primary-3);
+            color: var(--colors-primary-1);
+        }
+
+        &[aria-expanded="true"] {
+            color: var(--colors-primary-1);
+        }
+    }
+}
+
+.nav-section__content {
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: 5px;
+    background-color: var(--colors-primary-15);
+    border-radius: 0 0 0.4rem 0;
+    padding: 0 0 5px 0;
+    margin: 0;
+    font-size: 0.9rem;
+    height: max-content;
+    interpolate-size: allow-keywords;
+    overflow: hidden;
+    transition: all 200ms ease-out;
+
+    &[hidden] {
+        height: 0;
+        padding: 0;
+    }
+
+    >a {
+        text-decoration: none;
+        color: var(--colors-primary);
+        padding: 5px 14px 5px 64px;
+        text-align: left;
+        display: block;
+
+        &:hover {
+            background-color: var(--colors-primary-3);
+        }
+
+        &.active {
+            color: var(--colors-primary-1);
+        }
+    }
+}
