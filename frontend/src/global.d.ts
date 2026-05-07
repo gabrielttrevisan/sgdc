@@ -29,3 +29,9 @@ export type PaginatedSearchCallback<T> = (
 export type PaginatableService<T> = {
   list: PaginatedSearchCallback<T>;
 };
+
+export type IconProps = {
+  size?: number;
+  width?: number;
+  height?: number;
+};

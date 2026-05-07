@@ -7,13 +7,40 @@
   text-align: left;
   color: var(--colors-foreground-black);
   height: 3.3333rem;
-  padding-inline: 1.2rem;
+  padding: 0 0 0 1.2rem;
+
+  &.--has-request {
+    text-align: center;
+  }
+
+  &.--national-id {
+    width: 17%;
+    padding: 0 0 0 1.2rem;
+  }
+
+  &.--name {
+    white-space: nowrap;
+
+    span {
+      max-width: calc(100% - 1.2rem);
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
 }
 
-.beneficiary__row {
-  background-color: var(--colors-background-light);
+.beneficiary__request-badge {
+  padding: 0.34rem 0.5rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  font-size: 0.8rem;
 
-  &:nth-child(even) {
-    background-color: var(--colors-background-medium);
+  &.--warn {
+    background-color: var(--colors-status-warning);
+  }
+
+  &.--none {
+    background-color: var(--colors-status-good);
   }
 }

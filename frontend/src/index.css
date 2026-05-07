@@ -7,17 +7,22 @@
   --colors-primary-3: rgba(91, 70, 102, 0.25);
   --colors-primary-4: rgba(146, 149, 215, 0.4);
   --colors-primary-45: rgba(146, 149, 215, 0.65);
-  --colors-text-black: #000000;
+  --colors-text-dark: #000000;
+  --colors-text-medium: #666666;
   --colors-background-light: #fefefe;
   --colors-background-medium: #eeeeee;
   --colors-foreground-black: #000000;
+
+  --colors-status-warning: #f8e094;
+  --colors-status-good: rgba(61, 174, 118, 0.2);
+  --transitions-calm: all 200ms ease-out;
 
   font-size: 16px;
   line-height: 145%;
   font-family: "Open Sans", sans-serif;
   letter-spacing: 0.18px;
   color-scheme: light;
-  color: var(--colors-text-black);
+  color: var(--colors-text-dark);
   background: #ffffff;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -27,7 +32,7 @@
 
 a,
 button {
-  transition: all 200ms ease-out;
+  transition: var(--transitions-calm);
   cursor: pointer;
 }
 

@@ -7,6 +7,7 @@
 
 const BENEFICIARIES_MOCK_ID = "beneficiaries";
 
+/** @implements {import("../../global").PaginatableService<Beneficiary>} */
 class BeneficiariesService {
   constructor() {
     if (!localStorage.getItem(BENEFICIARIES_MOCK_ID))
@@ -148,8 +149,6 @@ class BeneficiariesService {
       return this.#internal("Erro inesperado");
     }
   }
-
-  show(nationalId) {}
 }
 
 export default new BeneficiariesService();

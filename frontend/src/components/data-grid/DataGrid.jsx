@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useEffectEvent, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ActionList } from "../action-list/ActionList";
 import { PaginationInfo } from "../pagination-info/PaginationInfo";
 import { PaginationLinks } from "../pagination-links/PaginationLinks";
@@ -6,11 +6,22 @@ import "./DataGrid.css";
 
 /**
  * @template T
+ * @typedef {Object} DataGridColumn
+ * @prop {string} title
+ * @prop {import("react").ElementType<T>} DataGridCell
+ * @prop {string} [className]
+ * @prop {string} id
+ */
+
+/**
+ * @template T
  * @typedef {Object} DataGridProps
  * @prop {import("../action-list/ActionList").ActionConfig<T>[]} [actionsConfig]
  * @prop {import("../../global").PaginatableService<T>} paginatableService
+ * @prop {DataGridColumn[]} columns
  * @prop {string} [singularName]
  * @prop {string} [pluralName]
+ * @prop {string} [title]
  */
 
 /**
@@ -23,6 +34,8 @@ export function DataGrid({
   paginatableService,
   pluralName,
   singularName,
+  title,
+  columns,
 }) {
   /** @type {[PageData<T>, import("react").Dispatch<import("react").SetStateAction<import("../../global").PageData<T>>>]} */
   const [page, setPage] = useState({
@@ -58,27 +71,42 @@ export function DataGrid({
   }, [goToPage]);
 
   return (
-    <>
-      <table className="data-grid --beneficiaries">
-        <tbody>
-          {page.items.map((item) => (
-            <tr key={item.nationalId} className="beneficiary__row">
-              <td className="beneficiary__col --name">{item.name}</td>
-              <td className="beneficiary__col --national-id">
-                {item.nationalId}
-              </td>
-              <td className="beneficiary__col --has-request">
-                {item.hasOpenRequest ? "SIM" : "NÃO"}
-              </td>
-              {actionsConfig && (
-                <td className="beneficiary__col --actions">
-                  <ActionList target={item} actions={actionsConfig} />
-                </td>
-              )}
+    <section className="data-grid">
+      <div className="data-grid__header">
+        <h2 className="data-grid__title">{title ?? pluralName}</h2>
+      </div>
+
+      <div className="data-grid__table-wrapper">
+        <table className="data-grid__table --beneficiaries">
+          <thead>
+            <tr>
+              {columns.map((column) => (
+                <th>{column.title}</th>
+              ))}
+
+              <th>Ações</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {page.items.map((item) => (
+              <tr key={item.nationalId} className="beneficiary__row">
+                {columns.map((column) => (
+                  <td key={column.id} className={column.className}>
+                    <column.DataGridCell {...item} />
+                  </td>
+                ))}
+
+                {actionsConfig && (
+                  <td className="beneficiary__col --actions">
+                    <ActionList target={item} actions={actionsConfig} />
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <div className="data-grid__pagination">
         <PaginationInfo
@@ -94,6 +122,6 @@ export function DataGrid({
           totalPages={page.totalPages}
         />
       </div>
-    </>
+    </section>
   );
 }
