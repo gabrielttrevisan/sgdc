@@ -6,6 +6,7 @@ import "./ActionList.css";
  * @param {string} type
  * @param {T} target
  * @param {import("react").MouseEvent<HTMLButtonElement, MouseEvent>} event
+ * @returns {Promise<void>}
  */
 
 /**

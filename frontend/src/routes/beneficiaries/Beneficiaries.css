@@ -11,10 +11,10 @@
 
   &.--has-request {
     text-align: center;
+    padding-left: 0;
   }
 
   &.--national-id {
-    width: 17%;
     padding: 0 0 0 1.2rem;
   }
 
@@ -28,6 +28,10 @@
       text-overflow: ellipsis;
     }
   }
+}
+
+th.--has-request {
+  padding-left: 0 !important;
 }
 
 .beneficiary__request-badge {

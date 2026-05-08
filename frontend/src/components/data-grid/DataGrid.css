@@ -24,6 +24,27 @@
       &:last-child {
         border-radius: 0 var(--data-grid-radius) 0 0;
       }
+
+      > div {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 0.34rem;
+
+        > button {
+          border: 0;
+          background-color: transparent;
+          border-radius: 50%;
+          width: 16px;
+          height: 16px;
+          border-radius: 8px;
+          padding: 0;
+
+          &:hover {
+            background-color: var(--colors-primary-2);
+          }
+        }
+      }
     }
   }
 
@@ -31,7 +52,7 @@
     background-color: var(--colors-background-light);
     transition: var(--transitions-calm);
 
-    &:nth-child(even) {
+    &:nth-child(odd) {
       background-color: var(--colors-background-medium);
     }
 

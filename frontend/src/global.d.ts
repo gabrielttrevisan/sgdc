@@ -18,6 +18,7 @@ export type PageData<T> = {
 
 export type PaginatedQuery = {
   query?: string;
+  sortBy?: string;
   page: number;
   perPage: number;
 };

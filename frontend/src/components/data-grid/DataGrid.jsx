@@ -1,8 +1,17 @@
-import { useCallback, useEffect, useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { ActionList } from "../action-list/ActionList";
 import { PaginationInfo } from "../pagination-info/PaginationInfo";
 import { PaginationLinks } from "../pagination-links/PaginationLinks";
 import "./DataGrid.css";
+
+/**
+ * @typedef {"none"|"asc"|"desc"} SortState
+ */
+
+/**
+ * @typedef {Record<SortState, import("react").ReactNode>} SortIcons
+ */
 
 /**
  * @template T
@@ -10,9 +19,18 @@ import "./DataGrid.css";
  * @prop {string} title
  * @prop {import("react").ElementType<T>} DataGridCell
  * @prop {string} [className]
+ * @prop {string} [headingClassName]
  * @prop {string} id
+ * @prop {boolean} [sortable]
+ * @prop {SortIcons} [sortIcon]
+ * @prop {keyof T} [sortKey]
  */
 
+/**
+ * @template T
+ * @typedef {Object} DataGridRef
+ * @prop {VoidFunction} update
+ */
 /**
  * @template T
  * @typedef {Object} DataGridProps
@@ -22,6 +40,7 @@ import "./DataGrid.css";
  * @prop {string} [singularName]
  * @prop {string} [pluralName]
  * @prop {string} [title]
+ * @prop {DataGridRef<T>} [ref]
  */
 
 /**
@@ -36,39 +55,52 @@ export function DataGrid({
   singularName,
   title,
   columns,
+  ref,
 }) {
   /** @type {[PageData<T>, import("react").Dispatch<import("react").SetStateAction<import("../../global").PageData<T>>>]} */
   const [page, setPage] = useState({
     items: [],
     page: 1,
+    sortBy: undefined,
     totalPages: 1,
     totalRecords: 0,
   });
 
-  const goToPage = useCallback(
-    (count = 1) => {
+  const getPage = useCallback(
+    (count = 1, sortBy = undefined) => {
       paginatableService
         .list({
           page: count,
+          sortBy: sortBy,
         })
         .then((response) => {
-          console.log(response);
           setPage(
             response.data ?? {
               items: [],
               page: 1,
+              sortBy,
               totalPages: 1,
               totalRecords: 0,
             },
           );
         });
     },
-    [setPage, paginatableService],
+    [paginatableService],
   );
 
   useEffect(() => {
-    goToPage(1);
-  }, [goToPage]);
+    getPage(1);
+  }, []);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      update() {
+        getPage(1);
+      },
+    }),
+    [getPage],
+  );
 
   return (
     <section className="data-grid">
@@ -81,7 +113,24 @@ export function DataGrid({
           <thead>
             <tr>
               {columns.map((column) => (
-                <th>{column.title}</th>
+                <th key={column.id} className={column.headingClassName}>
+                  <div>
+                    <span>{column.title}</span>
+
+                    {column.sortable && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (page.sortBy !== column.sortKey)
+                            getPage(1, column.sortKey);
+                          else getPage(1);
+                        }}
+                      >
+                        {column.sortIcon}
+                      </button>
+                    )}
+                  </div>
+                </th>
               ))}
 
               <th>Ações</th>
@@ -118,7 +167,7 @@ export function DataGrid({
 
         <PaginationLinks
           currentPage={page.page}
-          onPaginate={(toPage) => goToPage(toPage)}
+          onPaginate={(toPage) => getPage(toPage, page.sortBy)}
           totalPages={page.totalPages}
         />
       </div>

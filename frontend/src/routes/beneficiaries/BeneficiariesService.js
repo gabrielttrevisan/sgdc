@@ -42,12 +42,12 @@ class BeneficiariesService {
           {
             nationalId: "140.476.001-64",
             name: "Nelson Eduardo Rafael Moreira",
-            hasOpenRequest: false,
+            hasOpenRequest: true,
           },
           {
             nationalId: "428.706.224-81",
             name: "Gabriela Emilly Stefany Mendes",
-            hasOpenRequest: false,
+            hasOpenRequest: true,
           },
           {
             nationalId: "314.832.932-54",
@@ -77,7 +77,7 @@ class BeneficiariesService {
           {
             nationalId: "803.016.236-78",
             name: "Mariana Joana Almeida",
-            hasOpenRequest: false,
+            hasOpenRequest: true,
           },
         ]),
       );
@@ -113,21 +113,46 @@ class BeneficiariesService {
   }
 
   /**
-   * @param {PaginatedQuery} query
+   * @returns {Beneficiary[]}
+   */
+  #getFromLocalStorage() {
+    const rawStr = localStorage.getItem(BENEFICIARIES_MOCK_ID);
+
+    if (!rawStr) return this.#notFound();
+
+    const parsed = JSON.parse(rawStr);
+
+    return parsed;
+  }
+
+  /**
+   * @param {import("../../global").PaginatedQuery} query
    * @returns {Promise<APIResponse<import("../../components/data-grid/DataGrid").PageData<Beneficiary[]>>>}
    */
   async list(query = { page: 1, perPage: 10 }) {
     try {
-      const rawStr = localStorage.getItem(BENEFICIARIES_MOCK_ID);
-
-      if (!rawStr) return this.#notFound();
-
-      const parsed = JSON.parse(rawStr);
+      let parsed = this.#getFromLocalStorage();
 
       if (!parsed || !Array.isArray(parsed))
         return this.#internal("Erro ao obter dados");
 
       if (!parsed.length) return this.#notFound();
+
+      if (query.sortBy) {
+        const [first] = parsed;
+        const type = typeof first[query.sortBy];
+
+        if (type === "number" || type === "bigint")
+          parsed = parsed.sort((a, b) => a[query.sortBy] - b[query.sortBy]);
+        else if (type === "string")
+          parsed = parsed.sort((a, b) =>
+            a[query.sortBy]
+              .toLowerCase()
+              .localeCompare(b[query.sortBy].toLowerCase()),
+          );
+        else if (type === "boolean")
+          parsed = parsed.sort((a) => (a[query.sortBy] ? -1 : 1));
+      }
 
       const perPage = query.perPage ?? 10;
       const offset = (query.page - 1) * perPage;
@@ -142,9 +167,27 @@ class BeneficiariesService {
           page: query.page,
           totalPages: Math.ceil(parsed.length / perPage),
           totalRecords: parsed.length,
+          sortBy: query.sortBy,
         },
         error: null,
       };
+    } catch {
+      return this.#internal("Erro inesperado");
+    }
+  }
+
+  async delete(id) {
+    try {
+      const parsed = this.#getFromLocalStorage();
+
+      if (!parsed || !Array.isArray(parsed))
+        return this.#internal("Erro ao obter dados");
+
+      if (!parsed.length) return this.#notFound();
+
+      const filtered = parsed.filter((item) => item.nationalId !== id);
+
+      localStorage.setItem(BENEFICIARIES_MOCK_ID, JSON.stringify(filtered));
     } catch {
       return this.#internal("Erro inesperado");
     }
