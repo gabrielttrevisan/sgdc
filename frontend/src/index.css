@@ -11,8 +11,11 @@
   --colors-text-medium: #666666;
   --colors-background-light: #fefefe;
   --colors-background-medium: #eeeeee;
+  --colors-background-backdrop: rgba(0, 0, 0, 0.65);
   --colors-foreground-black: #000000;
 
+  --colors-state-error: #a22e4b;
+  --colors-state-error-05: rgba(162, 46, 75, 0.05);
   --colors-status-warning: #f8e094;
   --colors-status-good: rgba(61, 174, 118, 0.2);
   --transitions-calm: all 200ms ease-out;

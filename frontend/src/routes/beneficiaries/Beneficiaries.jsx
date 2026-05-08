@@ -8,9 +8,11 @@ import { DonateIcon } from "../../components/icons/DonateIcon";
 import { ArrowDownIcon } from "../../components/icons/ArrowDown";
 import { AtoZIcon } from "../../components/icons/AtoZIcon";
 import { useRef } from "react";
+import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
 
 export const Beneficiaries = () => {
   const dataGridRef = useRef(null);
+  const modalRef = useRef(null);
 
   /** @type {import("../../components/data-grid/DataGrid").DataGridColumn<import("./BeneficiariesService").Beneficiary>[]} */
   const columns = [
@@ -48,53 +50,60 @@ export const Beneficiaries = () => {
   ];
 
   return (
-    <DataGrid
-      ref={dataGridRef}
-      columns={columns}
-      paginatableService={BeneficiariesService}
-      singularName="beneficiário"
-      pluralName="beneficiários"
-      actionsConfig={[
-        {
-          type: "show",
-          content: <ShowIcon />,
-          onAction: console.log,
-        },
-        {
-          type: "edit",
-          content: (
-            <>
-              <EditIcon />
-              <span>Editar</span>
-            </>
-          ),
-          onAction: console.log,
-        },
-        {
-          type: "donate",
-          content: (
-            <>
-              <DonateIcon />
-              <span>Doar</span>
-            </>
-          ),
-          onAction: console.log,
-        },
-        {
-          type: "delete",
-          content: (
-            <>
-              <DeleteIcon />
-              <span>Deletar</span>
-            </>
-          ),
-          onAction: (type, target) => {
-            BeneficiariesService.delete(target.nationalId).then(() =>
-              dataGridRef.current?.update(),
-            );
+    <>
+      <SensitiveModal ref={modalRef} />
+
+      <DataGrid
+        ref={dataGridRef}
+        columns={columns}
+        paginatableService={BeneficiariesService}
+        singularName="beneficiário"
+        pluralName="beneficiários"
+        actionsConfig={[
+          {
+            type: "show",
+            content: <ShowIcon />,
+            onAction: console.log,
           },
-        },
-      ]}
-    />
+          {
+            type: "edit",
+            content: (
+              <>
+                <EditIcon />
+                <span>Editar</span>
+              </>
+            ),
+            onAction: console.log,
+          },
+          {
+            type: "donate",
+            content: (
+              <>
+                <DonateIcon />
+                <span>Doar</span>
+              </>
+            ),
+            onAction: console.log,
+          },
+          {
+            type: "delete",
+            content: (
+              <>
+                <DeleteIcon />
+                <span>Deletar</span>
+              </>
+            ),
+            onAction: (type, target) => {
+              modalRef.current?.open().then((confirmed) => {
+                if (confirmed)
+                  BeneficiariesService.delete(target.nationalId).then(() =>
+                    dataGridRef.current?.update(),
+                  );
+              });
+            },
+          },
+        ]}
+      />
+    </>
   );
 };
