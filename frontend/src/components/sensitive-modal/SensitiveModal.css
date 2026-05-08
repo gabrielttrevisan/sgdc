@@ -5,10 +5,18 @@
   padding: 0;
   width: max-content;
   box-sizing: border-box;
+  opacity: 1;
+  transform: translate(0, 0);
+  transition: all 300ms ease-out;
 
   &::backdrop {
     background-color: var(--colors-background-backdrop);
     backdrop-filter: blur(2px);
+  }
+
+  @starting-style {
+    opacity: 0;
+    transform: translate(0, -10%);
   }
 }
 
