@@ -28,6 +28,10 @@
       text-overflow: ellipsis;
     }
   }
+
+  &.--actions {
+    padding: 0 1.2rem;
+  }
 }
 
 th.--has-request {

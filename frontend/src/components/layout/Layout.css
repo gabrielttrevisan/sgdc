@@ -1,11 +1,22 @@
 .sgdc-layout {
+  --sgdc-logo-mr: 0;
+  --sgdc-logo-ml: 2.6rem;
+  --sgdc-grid-col-w: min(30vw, 300px);
+
+  overflow-y: auto;
   display: grid;
-  grid-template-columns: min(30vw, 300px) 1fr;
+  grid-template-columns: var(--sgdc-grid-col-w) 1fr;
   grid-template-rows: 1fr;
   gap: 1.5rem;
+  height: 100%;
 
   > aside {
-    position: relative;
+    position: sticky;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    background: var(--colors-background-light);
+    height: 100%;
 
     &::after {
       content: " ";
@@ -25,11 +36,12 @@
 
   > main {
     padding: 0 1.5rem 1.5rem 0;
+    grid-column: 2 / 3;
   }
-}
 
-.sgdc-logo {
-  margin: 1.5rem 0 1.5rem 2.6rem;
-  width: 100px;
-  height: auto;
+  .sgdc-logo {
+    margin: 1.5rem var(--sgdc-logo-mr) 1.5rem var(--sgdc-logo-ml);
+    width: 100px;
+    height: auto;
+  }
 }

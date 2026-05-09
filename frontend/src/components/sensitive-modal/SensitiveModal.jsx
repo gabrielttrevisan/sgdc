@@ -24,6 +24,8 @@ import "./SensitiveModal.css";
 export const SensitiveModal = ({
   ref,
   message = "Deseja realmente deletar esse registro?",
+  cancelLabel = "Cancelar",
+  confirmLabel = "Deletar",
 }) => {
   /** @type {import("react").RefObject<HTMLDialogElement>} */
   const dialogRef = useRef(null);
@@ -82,7 +84,7 @@ export const SensitiveModal = ({
           ref={deleteRef}
           className="sensitive-modal__action --delete"
         >
-          Deletar
+          {confirmLabel}
         </button>
 
         <button
@@ -90,7 +92,7 @@ export const SensitiveModal = ({
           ref={cancelRef}
           className="sensitive-modal__action --cancel"
         >
-          Cancelar
+          {cancelLabel}
         </button>
       </div>
     </dialog>

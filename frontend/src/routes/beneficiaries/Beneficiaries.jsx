@@ -59,6 +59,8 @@ export const Beneficiaries = () => {
         paginatableService={BeneficiariesService}
         singularName="beneficiário"
         pluralName="beneficiários"
+        rowClassName="beneficiary__row"
+        actionsCellClassName="beneficiary__col --actions"
         actionsConfig={[
           {
             type: "show",

@@ -41,6 +41,8 @@ import "./DataGrid.css";
  * @prop {string} [pluralName]
  * @prop {string} [title]
  * @prop {DataGridRef<T>} [ref]
+ * @prop {string} [rowClassName]
+ * @prop {string} [actionsCellClassName]
  */
 
 /**
@@ -56,6 +58,8 @@ export function DataGrid({
   title,
   columns,
   ref,
+  actionsCellClassName,
+  rowClassName,
 }) {
   /** @type {[PageData<T>, import("react").Dispatch<import("react").SetStateAction<import("../../global").PageData<T>>>]} */
   const [page, setPage] = useState({
@@ -139,7 +143,7 @@ export function DataGrid({
 
           <tbody>
             {page.items.map((item) => (
-              <tr key={item.nationalId} className="beneficiary__row">
+              <tr key={item.nationalId} className={rowClassName}>
                 {columns.map((column) => (
                   <td key={column.id} className={column.className}>
                     <column.DataGridCell {...item} />
@@ -147,7 +151,7 @@ export function DataGrid({
                 ))}
 
                 {actionsConfig && (
-                  <td className="beneficiary__col --actions">
+                  <td className={actionsCellClassName}>
                     <ActionList target={item} actions={actionsConfig} />
                   </td>
                 )}
