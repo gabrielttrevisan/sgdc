@@ -1,5 +1,6 @@
 import { useImperativeHandle, useRef } from "react";
 import "./SensitiveModal.css";
+import { CloseIconLarge } from "../icons/CloseIconLarge";
 
 /**
  * @callback OpenSensitiveModal
@@ -14,18 +15,22 @@ import "./SensitiveModal.css";
 
 /**
  * @typedef {Object} SensitiveModalProps
- * @prop {string} [message]
+ * @prop {string} [title]
  * @prop {string} [confirmLabel]
  * @prop {string} [cancelLabel]
  * @prop {SensitiveModalRef} [ref]
+ * @prop {import("react")} [children]
+ * @prop {string} [showCloseButton]
  */
 
 /** @type {import("react").FC<SensitiveModalProps>} */
 export const SensitiveModal = ({
   ref,
-  message = "Deseja realmente deletar esse registro?",
+  title = "Deseja realmente deletar esse registro?",
   cancelLabel = "Cancelar",
   confirmLabel = "Deletar",
+  children,
+  showCloseButton,
 }) => {
   /** @type {import("react").RefObject<HTMLDialogElement>} */
   const dialogRef = useRef(null);
@@ -33,6 +38,8 @@ export const SensitiveModal = ({
   const deleteRef = useRef(null);
   /** @type {import("react").RefObject<HTMLButtonElement>} */
   const cancelRef = useRef(null);
+  /** @type {import("react").RefObject<HTMLButtonElement>} */
+  const closeRef = useRef(null);
 
   useImperativeHandle(
     ref,
@@ -42,6 +49,9 @@ export const SensitiveModal = ({
     () => ({
       open() {
         if (dialogRef.current && deleteRef.current && cancelRef.current) {
+          if (showCloseButton && !closeRef.current)
+            return Promise.reject(new Error("DOM elements unavailable"));
+
           dialogRef.current.showModal();
 
           return new Promise((resolve) => {
@@ -62,6 +72,15 @@ export const SensitiveModal = ({
               },
               { once: true },
             );
+
+            closeRef.current.addEventListener(
+              "click",
+              () => {
+                dialogRef.current.close();
+                resolve(false);
+              },
+              { once: true },
+            );
           });
         } else {
           return Promise.reject(new Error("DOM elements unavailable"));
@@ -71,12 +90,24 @@ export const SensitiveModal = ({
         return dialogRef.current;
       },
     }),
-    [dialogRef, deleteRef, cancelRef],
+    [dialogRef, deleteRef, cancelRef, closeRef, showCloseButton],
   );
 
   return (
     <dialog ref={dialogRef} className="sensitive-modal">
-      <div className="sensitive-modal__content">{message}</div>
+      <div className="sensitive-modal__content">
+        <header>
+          <span>{title}</span>
+
+          {showCloseButton && (
+            <button type="button" ref={closeRef}>
+              <CloseIconLarge />
+            </button>
+          )}
+        </header>
+
+        {children && <p>{children}</p>}
+      </div>
 
       <div className="sensitive-modal__actions">
         <button

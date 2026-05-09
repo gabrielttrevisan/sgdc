@@ -5,7 +5,7 @@ import { ShowIcon } from "../../components/icons/ShowIcon";
 import { EditIcon } from "../../components/icons/EditIcon";
 import { DeleteIcon } from "../../components/icons/DeleteIcon";
 import { DonateIcon } from "../../components/icons/DonateIcon";
-import { ArrowDownIcon } from "../../components/icons/ArrowDown";
+import { ArrowDownIcon } from "../../components/icons/ArrowDownIcon";
 import { AtoZIcon } from "../../components/icons/AtoZIcon";
 import { useRef } from "react";
 import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
@@ -51,7 +51,9 @@ export const Beneficiaries = () => {
 
   return (
     <>
-      <SensitiveModal ref={modalRef} />
+      <SensitiveModal ref={modalRef} showCloseButton>
+        Os registros vinculados ao beneficiário não poderão ser recuperados.
+      </SensitiveModal>
 
       <DataGrid
         ref={dataGridRef}
