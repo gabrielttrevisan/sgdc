@@ -2,8 +2,19 @@
  * @typedef {Object} Beneficiary
  * @prop {string} nationalId
  * @prop {string} name
+ * @prop {string} phone
+ * @prop {"m"|"f"|"o"} gender
+ * @prop {string} family
+ * @prop {string} street
+ * @prop {string} number
+ * @prop {string} complement
+ * @prop {string} neighborhood
+ * @prop {string} city
+ * @prop {string} state
  * @prop {boolean} hasOpenRequest
  */
+
+import { BENEFICIARIES_MOCK } from "./mock";
 
 const BENEFICIARIES_MOCK_ID = "beneficiaries";
 
@@ -13,73 +24,7 @@ class BeneficiariesService {
     if (!localStorage.getItem(BENEFICIARIES_MOCK_ID))
       localStorage.setItem(
         BENEFICIARIES_MOCK_ID,
-        JSON.stringify([
-          {
-            nationalId: "241.236.019-79",
-            name: "Isabel Isis Bernardes",
-            hasOpenRequest: true,
-          },
-          {
-            nationalId: "051.161.292-33",
-            name: "Julio Juan de Paula",
-            hasOpenRequest: true,
-          },
-          {
-            nationalId: "770.129.294-21",
-            name: "Marcos Vinicius Cláudio Victor Freitas",
-            hasOpenRequest: true,
-          },
-          {
-            nationalId: "629.674.515-09",
-            name: "Julia Mariana Lopes",
-            hasOpenRequest: false,
-          },
-          {
-            nationalId: "349.292.802-14",
-            name: "Ryan Diego Guilherme Ramos",
-            hasOpenRequest: false,
-          },
-          {
-            nationalId: "140.476.001-64",
-            name: "Nelson Eduardo Rafael Moreira",
-            hasOpenRequest: true,
-          },
-          {
-            nationalId: "428.706.224-81",
-            name: "Gabriela Emilly Stefany Mendes",
-            hasOpenRequest: true,
-          },
-          {
-            nationalId: "314.832.932-54",
-            name: "Lucas Enrico Nathan Almeida",
-            hasOpenRequest: false,
-          },
-          {
-            nationalId: "746.837.251-93",
-            name: "Jaqueline Isabela Liz Martins",
-            hasOpenRequest: false,
-          },
-          {
-            nationalId: "491.344.599-52",
-            name: "Renan Renan Márcio da Mota",
-            hasOpenRequest: false,
-          },
-          {
-            nationalId: "871.100.626-94",
-            name: "Enrico Henry Lorenzo da Rocha",
-            hasOpenRequest: false,
-          },
-          {
-            nationalId: "468.412.465-78",
-            name: "Benjamin José Theo Barros",
-            hasOpenRequest: false,
-          },
-          {
-            nationalId: "803.016.236-78",
-            name: "Mariana Joana Almeida",
-            hasOpenRequest: true,
-          },
-        ]),
+        JSON.stringify(BENEFICIARIES_MOCK),
       );
   }
 
@@ -207,8 +152,7 @@ class BeneficiariesService {
       if (!parsed.length) return this.#notFound();
 
       parsed.push({
-        name: beneficiary.name,
-        nationalId: beneficiary.nationalId,
+        ...beneficiary,
         hasOpenRequest: Math.random() * 1000 > 901 ? true : false,
       });
 

@@ -9,6 +9,8 @@ import { AtoZIcon } from "../../components/icons/AtoZIcon";
 import { useRef } from "react";
 import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
 import { BeneficiaryFormModal } from "./components/beneficiary-form-modal/BeneficiaryFormModal";
+import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
+import { FormControllerProvider } from "../../components/form/context/FormControllerProvider";
 import "./Beneficiaries.css";
 
 export const Beneficiaries = () => {
@@ -58,18 +60,16 @@ export const Beneficiaries = () => {
         Os registros vinculados ao beneficiário não poderão ser recuperados.
       </SensitiveModal>
 
-      <BeneficiaryFormModal
-        ref={formModalRef}
-        onSubmit={async (data) => {
-          await BeneficiariesService.create(data);
-          dataGridRef.current?.update();
-          formModalRef.current?.close();
-        }}
-      />
-
-      <button type="button" onClick={() => formModalRef.current?.toggle()}>
-        cadastrar
-      </button>
+      <FormControllerProvider>
+        <BeneficiaryFormModal
+          ref={formModalRef}
+          onSubmit={async (data) => {
+            await BeneficiariesService.create(data);
+            dataGridRef.current?.update();
+            formModalRef.current?.close();
+          }}
+        />
+      </FormControllerProvider>
 
       <DataGrid
         ref={dataGridRef}
@@ -123,7 +123,17 @@ export const Beneficiaries = () => {
             },
           },
         ]}
-      />
+      >
+        <button
+          type="button"
+          onClick={() => formModalRef.current?.toggle()}
+          className="button-block --solid --btn-safe"
+        >
+          <AddLargeIcon />
+
+          <span>Cadastrar Beneficiário</span>
+        </button>
+      </DataGrid>
     </>
   );
 };

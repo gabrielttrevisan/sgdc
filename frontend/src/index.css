@@ -17,8 +17,10 @@
   --colors-state-error: #a22e4b;
   --colors-state-error-05: rgba(162, 46, 75, 0.05);
   --colors-state-error-60: rgba(162, 46, 75, 0.6);
-  --colors-status-warning: #f8e094;
+  --colors-status-warning: rgba(248, 224, 148, 1);
   --colors-status-good: rgba(61, 174, 118, 0.2);
+  --colors-status-safe: rgba(61, 174, 118, 1);
+  --colors-status-safe-90: rgba(61, 174, 118, 0.9);
   --transitions-calm: all 200ms ease-out;
 
   font-size: 16px;
@@ -94,12 +96,16 @@ dialog {
   --bb-base-bg: var(--colors-primary-4);
   --bb-base-color: var(--colors-foreground-black);
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0.4rem 0.9rem;
   border: 1px solid var(--bb-base-bg);
   background: var(--bb-base-bg);
   color: var(--bb-base-color);
   border-radius: 0.4rem;
   font-weight: 500;
+  gap: 0.4rem;
 
   &.--solid {
     &.--primary {
@@ -108,6 +114,16 @@ dialog {
 
       &:hover {
         --bb-base-bg: var(--colors-primary-1);
+      }
+    }
+
+    &.--btn-safe {
+      --bb-base-bg: var(--colors-status-safe);
+      --bb-base-color: var(--colors-background-light);
+
+      &:hover {
+        --bb-base-bg: var(--colors-status-safe-90);
+        border-color: var(--bb-base-bg);
       }
     }
   }

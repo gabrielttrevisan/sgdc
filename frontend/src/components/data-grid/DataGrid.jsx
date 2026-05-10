@@ -43,6 +43,7 @@ import "./DataGrid.css";
  * @prop {DataGridRef<T>} [ref]
  * @prop {string} [rowClassName]
  * @prop {string} [actionsCellClassName]
+ * @prop {import("react").ReactNode} [children]
  */
 
 /**
@@ -60,6 +61,7 @@ export function DataGrid({
   ref,
   actionsCellClassName,
   rowClassName,
+  children,
 }) {
   /** @type {[PageData<T>, import("react").Dispatch<import("react").SetStateAction<import("../../global").PageData<T>>>]} */
   const [page, setPage] = useState({
@@ -110,6 +112,8 @@ export function DataGrid({
     <section className="data-grid">
       <div className="data-grid__header">
         <h2 className="data-grid__title">{title ?? pluralName}</h2>
+
+        <div className="data-grid__header-actions">{children}</div>
       </div>
 
       <div className="data-grid__table-wrapper">

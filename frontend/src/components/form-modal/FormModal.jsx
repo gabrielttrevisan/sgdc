@@ -1,9 +1,8 @@
 import { useCallback, useImperativeHandle, useRef } from "react";
 import { CloseIconLarge } from "../icons/CloseIconLarge";
-import "./FormModal.css";
 import { Form } from "../form/Form";
-import { FormControllerProvider } from "../form/context/FormControllerProvider";
 import { FormGrid } from "../form/grid/FormGrid";
+import "./FormModal.css";
 
 /**
  * @typedef {Object} FormModalRef
@@ -68,37 +67,31 @@ export const FormModal = ({
 
   return (
     <dialog ref={dialogRef} className={`form-modal ${className ?? ""}`}>
-      <FormControllerProvider>
-        <Form onSubmit={onSubmit} className="form-modal__form">
-          <header>
-            <h2>{title}</h2>
+      <Form onSubmit={onSubmit} className="form-modal__form">
+        <header>
+          <h2>{title}</h2>
 
-            <button
-              type="button"
-              onClick={handleClose}
-              className="button-close"
-            >
-              <CloseIconLarge />
-            </button>
-          </header>
+          <button type="button" onClick={handleClose} className="button-close">
+            <CloseIconLarge />
+          </button>
+        </header>
 
-          <FormGrid className="form-modal__content">{children}</FormGrid>
+        <FormGrid className="form-modal__content">{children}</FormGrid>
 
-          <footer>
-            <button
-              type="button"
-              onClick={handleClose}
-              className="button-block --outline --primary"
-            >
-              {cancelLabel}
-            </button>
+        <footer>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="button-block --outline --primary"
+          >
+            {cancelLabel}
+          </button>
 
-            <button type="submit" className="button-block --solid --primary">
-              {submitLabel}
-            </button>
-          </footer>
-        </Form>
-      </FormControllerProvider>
+          <button type="submit" className="button-block --solid --primary">
+            {submitLabel}
+          </button>
+        </footer>
+      </Form>
     </dialog>
   );
 };
