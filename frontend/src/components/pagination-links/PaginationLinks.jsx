@@ -3,6 +3,8 @@
  * @param {number} page
  */
 
+import { VisuallyHidden } from "../accessibility/visually-hidden/VisuallyHidden";
+
 /**
  * @typedef {Object} PaginationLinksProps
  * @prop {number} currentPage
@@ -26,6 +28,7 @@ export const PaginationLinks = ({ onPaginate, currentPage, totalPages }) => {
               onPaginate(iterPage);
             }}
           >
+            <VisuallyHidden>Ir para a página&nbsp;</VisuallyHidden>
             {iterPage}
           </button>
         );

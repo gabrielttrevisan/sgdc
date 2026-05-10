@@ -12,6 +12,7 @@ import { BeneficiaryFormModal } from "./components/beneficiary-form-modal/Benefi
 import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
 import { FormControllerProvider } from "../../components/form/context/FormControllerProvider";
 import "./Beneficiaries.css";
+import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
 
 export const Beneficiaries = () => {
   const dataGridRef = useRef(null);
@@ -27,7 +28,12 @@ export const Beneficiaries = () => {
       id: "name",
       className: "beneficiary__col --name",
       sortable: true,
-      sortIcon: <AtoZIcon />,
+      sortIcon: (
+        <>
+          <AtoZIcon />
+          <VisuallyHidden>Ordenar por nome</VisuallyHidden>
+        </>
+      ),
       sortKey: "name",
     },
     {
@@ -41,6 +47,7 @@ export const Beneficiaries = () => {
         <span
           className={`beneficiary__request-badge ${hasOpenRequest ? "--warn" : "--none"}`}
         >
+          <VisuallyHidden>Beneficiário possui atendimento: </VisuallyHidden>
           {hasOpenRequest ? "SIM" : "NÃO"}
         </span>
       ),
@@ -48,7 +55,14 @@ export const Beneficiaries = () => {
       id: "has-open-request",
       className: "beneficiary__col --has-request",
       sortable: true,
-      sortIcon: <ArrowDownIcon />,
+      sortIcon: (
+        <>
+          <ArrowDownIcon />
+          <VisuallyHidden>
+            Mostrar beneficiários com atendimento aberto primeiro
+          </VisuallyHidden>
+        </>
+      ),
       sortKey: "hasOpenRequest",
       headingClassName: "--has-request",
     },
@@ -89,7 +103,12 @@ export const Beneficiaries = () => {
         actionsConfig={[
           {
             type: "show",
-            content: <ShowIcon />,
+            content: (
+              <>
+                <ShowIcon />
+                <VisuallyHidden>Ver Beneficiário</VisuallyHidden>
+              </>
+            ),
             onAction: console.log,
           },
           {

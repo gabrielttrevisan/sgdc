@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { SearchIcon } from "../icons/SearchIcon";
 import { CloseIconLarge } from "../icons/CloseIconLarge";
 import "./SearchBox.css";
+import { VisuallyHidden } from "../accessibility/visually-hidden/VisuallyHidden";
 
 /**
  * @callback OnSearchCallback
@@ -40,6 +41,7 @@ export const SearchBox = ({
 
         <button type="reset" onClick={onReset}>
           <CloseIconLarge size={10} />
+          <VisuallyHidden>Limpar Busca</VisuallyHidden>
         </button>
       </div>
 
@@ -52,6 +54,7 @@ export const SearchBox = ({
         className="button-block --solid --primary"
       >
         <SearchIcon />
+        <VisuallyHidden>Fazer busca</VisuallyHidden>
       </button>
     </form>
   );
