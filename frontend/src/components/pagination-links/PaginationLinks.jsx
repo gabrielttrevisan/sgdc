@@ -3,8 +3,6 @@
  * @param {number} page
  */
 
-import { VisuallyHidden } from "../accessibility/visually-hidden/VisuallyHidden";
-
 /**
  * @typedef {Object} PaginationLinksProps
  * @prop {number} currentPage
@@ -15,7 +13,7 @@ import { VisuallyHidden } from "../accessibility/visually-hidden/VisuallyHidden"
 /** @type {import("react").FC<PaginationLinksProps>} */
 export const PaginationLinks = ({ onPaginate, currentPage, totalPages }) => {
   return (
-    <div className="data-grid__pagination-links">
+    <nav role="navigation" className="data-grid__pagination-links">
       {Array.from({ length: totalPages }).map((_, index) => {
         const iterPage = index + 1;
 
@@ -24,15 +22,15 @@ export const PaginationLinks = ({ onPaginate, currentPage, totalPages }) => {
             key={iterPage}
             className="data-grid__pagination-link"
             aria-current={iterPage === currentPage ? "page" : undefined}
+            aria-label={`Ir para a página ${iterPage}`}
             onClick={() => {
               onPaginate(iterPage);
             }}
           >
-            <VisuallyHidden>Ir para a página&nbsp;</VisuallyHidden>
             {iterPage}
           </button>
         );
       })}
-    </div>
+    </nav>
   );
 };

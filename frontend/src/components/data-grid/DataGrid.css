@@ -6,6 +6,14 @@
     display: flex;
     gap: 0.5rem;
   }
+
+  .data-grid__no-results {
+    padding: 1rem;
+    color: #333333;
+    background-color: var(--colors-background-medium);
+    text-align: center;
+    text-transform: capitalize;
+  }
 }
 
 .data-grid__table {
@@ -71,6 +79,7 @@
   border-radius: var(--data-grid-radius);
   box-shadow: var(--data-grid-shadow);
   overflow: hidden;
+  position: relative;
 }
 
 .data-grid__header {

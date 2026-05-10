@@ -18,6 +18,8 @@ export type PageData<T> = {
   sortBy?: string;
 };
 
+export type AsyncPageData<T> = PageData<T> & { loading: boolean };
+
 export type PaginatedQuery = {
   query?: string;
   sortBy?: string;

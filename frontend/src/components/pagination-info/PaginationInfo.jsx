@@ -15,7 +15,7 @@ export const PaginationInfo = ({
 }) => {
   console.log("paginatiion-info");
   return (
-    <div>
+    <div aria-live="polite">
       Exibindo {perPage} de {totalRecords}&nbsp;
       {perPage > 1 ? pluralName : singularName}
     </div>

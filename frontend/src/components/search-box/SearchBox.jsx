@@ -15,6 +15,7 @@ import { VisuallyHidden } from "../accessibility/visually-hidden/VisuallyHidden"
  * @prop {OnSearchCallback} onSearch
  * @prop {VoidFunction} onReset
  * @prop {string} [placeholder]
+ * @prop {string} gridId
  */
 
 /** @type {import("react").FC<SearchBoxProps>} */
@@ -22,6 +23,7 @@ export const SearchBox = ({
   onSearch,
   onReset,
   placeholder = " ",
+  gridId,
   ...props
 }) => {
   /** @type {import("react").Ref<HTMLInputElement>} */
@@ -37,6 +39,7 @@ export const SearchBox = ({
           placeholder={placeholder}
           {...props}
           ref={inputRef}
+          aria-controls={gridId}
         />
 
         <button type="reset" onClick={onReset}>
