@@ -1,7 +1,8 @@
 import { NavLink, Outlet } from "react-router";
-import { NavSection } from "../nav-section/NavSection";
+import { NavSection } from "../nav/section/NavSection";
 import { Nav } from "../Nav/Nav";
 import sgdcLogo from "../../assets/sgdc-logo.png";
+import { ToastTray } from "../toast/ToastTray";
 import "./Layout.css";
 
 /**
@@ -77,6 +78,8 @@ export const Layout = () => {
       <main>
         <Outlet />
       </main>
+
+      <ToastTray />
     </div>
   );
 };

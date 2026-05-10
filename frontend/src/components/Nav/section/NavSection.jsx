@@ -1,5 +1,5 @@
 import { useLocation } from "react-router";
-import { useNavContext } from "../nav/context/useNavContext";
+import { useNavContext } from "../context/useNavContext";
 import "./NavSection.css";
 
 /**

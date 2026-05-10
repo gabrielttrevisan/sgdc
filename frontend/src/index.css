@@ -18,9 +18,13 @@
   --colors-state-error-05: rgba(162, 46, 75, 0.05);
   --colors-state-error-60: rgba(162, 46, 75, 0.6);
   --colors-status-warning: rgba(248, 224, 148, 1);
+  --colors-status-warning-60: rgba(248, 224, 148, 0.6);
+  --colors-status-warning-75: rgba(248, 224, 148, 0.75);
+  --colors-status-warning-90: rgba(248, 224, 148, 0.9);
   --colors-status-good: rgba(61, 174, 118, 0.2);
   --colors-status-safe: rgba(61, 174, 118, 1);
   --colors-status-safe-90: rgba(61, 174, 118, 0.9);
+  --colors-status-safe-60: rgba(61, 174, 118, 0.6);
   --transitions-calm: all 200ms ease-out;
 
   font-size: 16px;

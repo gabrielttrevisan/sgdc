@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export type APIError = {
   code: number;
   message: string;
@@ -39,4 +41,21 @@ export type IconProps = {
   size?: number;
   width?: number;
   height?: number;
+};
+
+export type ToastType = "error" | "success" | "warn" | "none";
+
+export type ToastMessage = {
+  type: ToastType;
+  message: ReactNode;
+  key: string;
+} & ToastMessageOptions;
+
+export type ToastMessageOptions = {
+  customTimeout?: number;
+};
+
+export type ToastOptions = {
+  timeout: number;
+  animationDuration: number;
 };

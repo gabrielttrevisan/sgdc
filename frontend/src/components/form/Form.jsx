@@ -12,7 +12,7 @@ import { useFormRegistry } from "./context/useFormRegistry";
  */
 export function Form({ children, onSubmit, ...props }) {
   return (
-    <form {...props} {...useFormRegistry(onSubmit, console.log)}>
+    <form {...props} {...useFormRegistry(onSubmit)}>
       {children}
     </form>
   );
