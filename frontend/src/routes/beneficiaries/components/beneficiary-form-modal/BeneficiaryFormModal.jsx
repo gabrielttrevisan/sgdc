@@ -7,7 +7,7 @@ import "./BeneficiaryFormModal.css";
 /**
  * @typedef {Object} BeneficiaryFormModalProps
  * @prop {import("../../../../components/form-modal/FormModal").FormModalRef} [ref]
- * @prop {import("../../../../components/form/context/FormController").CustomOnSubmitHandler} onSubmit
+ * @prop {Record<"create"|"edit",import("../../../../components/form/context/FormController").CustomOnSubmitHandler>} onSubmit
  */
 
 /** @type {import("react").FC<BeneficiaryFormModalProps>} */

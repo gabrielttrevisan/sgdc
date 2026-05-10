@@ -13,6 +13,7 @@ export const PaginationInfo = ({
   pluralName = "registros",
   singularName = "registro",
 }) => {
+  console.log("paginatiion-info");
   return (
     <div>
       Exibindo {perPage} de {totalRecords}&nbsp;

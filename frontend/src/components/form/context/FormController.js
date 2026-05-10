@@ -60,6 +60,10 @@ class FormController extends EventTarget {
   #validating = false;
   /** @type {OnSubmitHandler|null} */
   #handleSubmit = null;
+  /** @type {CustomOnSubmitHandler|null} */
+  #onSubmit = null;
+  /** @type {OnErrorHandler|null} */
+  #onSubmitError = null;
 
   constructor() {
     super();
@@ -141,7 +145,15 @@ class FormController extends EventTarget {
    * @param {OnErrorHandler} [errorHandler]
    */
   handleSubmit(handler, errorHandler) {
-    if (this.#handleSubmit) return this.#handleSubmit;
+    if (
+      this.#handleSubmit &&
+      this.#onSubmit === handler &&
+      this.#onSubmitError === errorHandler
+    )
+      return this.#handleSubmit;
+
+    this.#onSubmit = handler;
+    this.#onSubmitError = errorHandler;
 
     return (this.#handleSubmit = async (e) => {
       e.preventDefault();
@@ -159,13 +171,37 @@ class FormController extends EventTarget {
 
         await handler(formData, e);
 
-        this.#form.reset();
+        this.reset();
       } catch (e) {
         errorHandler?.("error", e);
       }
 
       this.dispatchEvent(
         new CustomEvent("form-submit", { detail: { isSubmitting: false } }),
+      );
+    });
+  }
+
+  reset() {
+    this.#form.reset();
+
+    Object.entries(this.#fields).forEach(([, field]) => {
+      const required = field.required ?? false;
+      const valid = !required;
+
+      field.required = required;
+      field.valid = valid;
+      field.touched = false;
+      field.error = null;
+
+      this.dispatchEvent(
+        new CustomEvent(`validity-change:${field.name}`, {
+          detail: {
+            isValid: field.valid,
+            errorMessage: field.error,
+            isTouched: field.touched,
+          },
+        }),
       );
     });
   }
@@ -210,6 +246,7 @@ class FormController extends EventTarget {
   setForm(form) {
     if (form instanceof HTMLFormElement && !this.#form) this.#form = form;
   }
+
   /**
    * @param {HTMLFormElement} form
    */
@@ -217,6 +254,14 @@ class FormController extends EventTarget {
     if (form instanceof HTMLFormElement && !this.#form) {
       this.#form = form;
     }
+  }
+
+  fill(data) {
+    Object.entries(this.#fields).forEach(([, field]) => {
+      const value = data[field.name];
+
+      if (value) field.input.value = value;
+    });
   }
 
   static create() {

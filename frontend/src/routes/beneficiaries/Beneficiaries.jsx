@@ -63,10 +63,17 @@ export const Beneficiaries = () => {
       <FormControllerProvider>
         <BeneficiaryFormModal
           ref={formModalRef}
-          onSubmit={async (data) => {
-            await BeneficiariesService.create(data);
-            dataGridRef.current?.update();
-            formModalRef.current?.close();
+          onSubmit={{
+            create: async (data) => {
+              await BeneficiariesService.create(data);
+              dataGridRef.current?.update();
+              formModalRef.current?.close();
+            },
+            edit: async (data) => {
+              await BeneficiariesService.edit(data);
+              dataGridRef.current?.update();
+              formModalRef.current?.close();
+            },
           }}
         />
       </FormControllerProvider>
@@ -93,7 +100,9 @@ export const Beneficiaries = () => {
                 <span>Editar</span>
               </>
             ),
-            onAction: console.log,
+            onAction: (type, target) => {
+              formModalRef.current?.toggle(target);
+            },
           },
           {
             type: "donate",

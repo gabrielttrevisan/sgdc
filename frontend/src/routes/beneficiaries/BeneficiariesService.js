@@ -29,14 +29,15 @@ class BeneficiariesService {
   }
 
   /**
+   * @param {string} [message]
    * @returns {APIResponse<import("../../components/data-grid/DataGrid").PageData<Beneficiary[]>>}
    */
-  #notFound() {
+  #notFound(message = "Nenhum registro encontrado") {
     return {
       data: null,
       error: {
         code: 404,
-        message: "Nenhum registro encontrado",
+        message,
         issues: [],
       },
     };
@@ -157,6 +158,43 @@ class BeneficiariesService {
       });
 
       localStorage.setItem(BENEFICIARIES_MOCK_ID, JSON.stringify(parsed));
+
+      return {
+        data: { success: true },
+        error: null,
+      };
+    } catch {
+      return this.#internal("Erro inesperado");
+    }
+  }
+
+  /**
+   * @param {Beneficiary} beneficiary
+   * @returns
+   */
+  async edit(beneficiary) {
+    try {
+      const parsed = this.#getFromLocalStorage();
+
+      if (!parsed || !Array.isArray(parsed))
+        return this.#internal("Erro ao obter dados");
+
+      if (!parsed.length) return this.#notFound();
+
+      const targetIndex = parsed.findIndex(
+        (i) => i.nationalId === beneficiary.nationalId,
+      );
+
+      if (targetIndex === -1) this.#notFound("Beneficiário não encontrado");
+
+      parsed[targetIndex] = Object.assign({}, parsed[targetIndex], beneficiary);
+
+      localStorage.setItem(BENEFICIARIES_MOCK_ID, JSON.stringify(parsed));
+
+      return {
+        data: { success: true },
+        error: null,
+      };
     } catch {
       return this.#internal("Erro inesperado");
     }
