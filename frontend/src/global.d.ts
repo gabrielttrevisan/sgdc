@@ -14,6 +14,8 @@ export type PageData<T> = {
   page: number;
   totalPages: number;
   totalRecords: number;
+  query?: string;
+  sortBy?: string;
 };
 
 export type PaginatedQuery = {

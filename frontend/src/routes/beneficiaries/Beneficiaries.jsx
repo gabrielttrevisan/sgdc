@@ -12,7 +12,6 @@ import { BeneficiaryFormModal } from "./components/beneficiary-form-modal/Benefi
 import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
 import { FormControllerProvider } from "../../components/form/context/FormControllerProvider";
 import "./Beneficiaries.css";
-import { SearchBox } from "../../components/search-box/SearchBox";
 
 export const Beneficiaries = () => {
   const dataGridRef = useRef(null);
@@ -134,8 +133,6 @@ export const Beneficiaries = () => {
           },
         ]}
       >
-        <SearchBox onSearch={(query) => BeneficiariesService.list({ query })} />
-
         <button
           type="button"
           onClick={() => formModalRef.current?.toggle()}

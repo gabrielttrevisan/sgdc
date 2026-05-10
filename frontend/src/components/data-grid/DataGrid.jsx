@@ -3,6 +3,7 @@ import { useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { ActionList } from "../action-list/ActionList";
 import { PaginationInfo } from "../pagination-info/PaginationInfo";
 import { PaginationLinks } from "../pagination-links/PaginationLinks";
+import { SearchBox } from "../search-box/SearchBox";
 import "./DataGrid.css";
 
 /**
@@ -44,6 +45,7 @@ import "./DataGrid.css";
  * @prop {string} [rowClassName]
  * @prop {string} [actionsCellClassName]
  * @prop {import("react").ReactNode} [children]
+ * @prop {string} [searchBoxPlaceholder]
  */
 
 /**
@@ -62,6 +64,7 @@ export function DataGrid({
   actionsCellClassName,
   rowClassName,
   children,
+  searchBoxPlaceholder,
 }) {
   /** @type {[PageData<T>, import("react").Dispatch<import("react").SetStateAction<import("../../global").PageData<T>>>]} */
   const [page, setPage] = useState({
@@ -70,14 +73,16 @@ export function DataGrid({
     sortBy: undefined,
     totalPages: 1,
     totalRecords: 0,
+    query: undefined,
   });
 
   const getPage = useCallback(
-    (count = 1, sortBy = undefined) => {
+    (count = 1, sortBy = undefined, query = undefined) => {
       paginatableService
         .list({
           page: count,
           sortBy: sortBy,
+          query,
         })
         .then((response) => {
           setPage(
@@ -87,6 +92,7 @@ export function DataGrid({
               sortBy,
               totalPages: 1,
               totalRecords: 0,
+              query,
             },
           );
         });
@@ -113,7 +119,19 @@ export function DataGrid({
       <div className="data-grid__header">
         <h2 className="data-grid__title">{title ?? pluralName}</h2>
 
-        <div className="data-grid__header-actions">{children}</div>
+        <div className="data-grid__header-actions">
+          <SearchBox
+            onSearch={(query) => getPage(1, undefined, query)}
+            onReset={() => getPage(1, undefined, undefined)}
+            placeholder={
+              searchBoxPlaceholder
+                ? searchBoxPlaceholder
+                : `Buscar ${pluralName?.toLocaleLowerCase() ?? "registros"}...`
+            }
+          />
+
+          {children}
+        </div>
       </div>
 
       <div className="data-grid__table-wrapper">

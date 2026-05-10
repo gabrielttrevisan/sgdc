@@ -14,6 +14,7 @@
  * @prop {boolean} hasOpenRequest
  */
 
+import { unmaskDigits } from "../../lib/functions/unmask";
 import { BENEFICIARIES_MOCK } from "./mock";
 
 const BENEFICIARIES_MOCK_ID = "beneficiaries";
@@ -84,6 +85,18 @@ class BeneficiariesService {
 
       if (!parsed.length) return this.#notFound();
 
+      if (query.query && typeof query.query === "string") {
+        const regex = new RegExp(`(${query.query.toLowerCase()})`, "i");
+
+        parsed = parsed.filter((item) => {
+          const hasMatchingNationalID =
+            unmaskDigits(item.nationalId).match(regex) !== null;
+          const hasMatchingName = item.name.match(regex) !== null;
+
+          return hasMatchingName || hasMatchingNationalID;
+        });
+      }
+
       if (query.sortBy) {
         const [first] = parsed;
         const type = typeof first[query.sortBy];
@@ -114,6 +127,7 @@ class BeneficiariesService {
           totalPages: Math.ceil(parsed.length / perPage),
           totalRecords: parsed.length,
           sortBy: query.sortBy,
+          query: query.query,
         },
         error: null,
       };
