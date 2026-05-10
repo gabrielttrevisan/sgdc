@@ -1,0 +1,27 @@
+.input-field {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-direction: column;
+  gap: 0.2rem;
+
+  label {
+    font-size: 0.8rem;
+  }
+
+  input {
+    border: 1px solid var(--colors-primary);
+    border-radius: 0.2rem;
+    padding: 0.4rem 0.2rem;
+    font-size: 0.9rem;
+
+    &[aria-invalid="true"] {
+      border-color: var(--colors-state-error);
+    }
+  }
+
+  .field-error-message {
+    font-size: 0.8rem;
+    color: var(--colors-state-error);
+  }
+}

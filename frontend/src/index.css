@@ -11,7 +11,7 @@
   --colors-text-medium: #666666;
   --colors-background-light: #fefefe;
   --colors-background-medium: #eeeeee;
-  --colors-background-backdrop: rgba(0, 0, 0, 0.65);
+  --colors-background-backdrop: rgba(0, 0, 0, 0.75);
   --colors-foreground-black: #000000;
 
   --colors-state-error: #a22e4b;
@@ -34,6 +34,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+* {
+  font-family: "Open Sans", sans-serif;
+}
+
 a,
 button {
   transition: var(--transitions-calm);
@@ -48,4 +52,83 @@ html,
 body,
 #root {
   height: 100dvh;
+}
+
+dialog {
+  opacity: 1;
+  transform: translate(0, 0);
+  transition: all 300ms ease-out;
+
+  &::backdrop {
+    background-color: var(--colors-background-backdrop);
+    backdrop-filter: blur(4px);
+  }
+
+  @starting-style {
+    opacity: 0;
+    transform: translate(0, -10%);
+  }
+}
+
+.button-close {
+  --button-close-color: var(--colors-primary);
+  --button-close-bg: transparent;
+  --button-close-bg-hover: var(--colors-primary-3);
+
+  padding: 1rem;
+  border: 0;
+  border-radius: 50%;
+  width: calc(16px + 2rem);
+  height: calc(16px + 2rem);
+  margin-top: -1rem;
+  margin-right: -1rem;
+  background-color: var(--button-close-bg);
+  color: var(--button-close-color);
+
+  &:hover {
+    background-color: var(--button-close-bg-hover);
+  }
+}
+
+.button-block {
+  --bb-base-bg: var(--colors-primary-4);
+  --bb-base-color: var(--colors-foreground-black);
+
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--bb-base-bg);
+  background: var(--bb-base-bg);
+  color: var(--bb-base-color);
+  border-radius: 0.4rem;
+  font-weight: 500;
+
+  &.--solid {
+    &.--primary {
+      --bb-base-bg: var(--colors-primary);
+      --bb-base-color: var(--colors-background-light);
+
+      &:hover {
+        --bb-base-bg: var(--colors-primary-1);
+      }
+    }
+  }
+
+  &.--outline {
+    --bbo-color-normal: var(--colors-foreground-black);
+    --bbo-color-hover: var(--colors-foreground-black);
+    --bbo-thickness: 1px;
+
+    border: var(--bbo-thickness) solid var(--bbo-color-normal);
+    background: transparent;
+    color: var(--bbo-color-normal);
+
+    &:hover {
+      border-color: var(--bbo-color-hover);
+      color: var(--bbo-color-hover);
+    }
+
+    &.--primary {
+      --bbo-color-normal: var(--colors-primary);
+      --bbo-color-hover: var(--colors-primary-1);
+    }
+  }
 }

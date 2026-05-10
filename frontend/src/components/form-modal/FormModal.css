@@ -1,0 +1,37 @@
+.form-modal {
+  --form-modal-padding: 1.5rem;
+
+  box-shadow: 0 2 10px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--colors-primary);
+  background: linear-gradient(to bottom, #f3eff6 0%, #ffffff 100%);
+  border-radius: 0.4rem;
+  padding: 0;
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--form-modal-padding);
+    padding-bottom: 0;
+
+    h2 {
+      margin: 0;
+      color: var(--colors-primary);
+      font-weight: 400;
+      font-size: 1rem;
+    }
+  }
+
+  .form-modal__content {
+    padding: var(--form-modal-padding);
+  }
+
+  footer {
+    padding: var(--form-modal-padding);
+    background-color: var(--colors-state-error-05);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+}

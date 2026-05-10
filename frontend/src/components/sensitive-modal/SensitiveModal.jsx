@@ -100,7 +100,7 @@ export const SensitiveModal = ({
           <span>{title}</span>
 
           {showCloseButton && (
-            <button type="button" ref={closeRef}>
+            <button type="button" ref={closeRef} className="button-close">
               <CloseIconLarge />
             </button>
           )}

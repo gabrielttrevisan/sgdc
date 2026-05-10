@@ -1,5 +1,4 @@
 import BeneficiariesService from "./BeneficiariesService";
-import "./Beneficiaries.css";
 import { DataGrid } from "../../components/data-grid/DataGrid";
 import { ShowIcon } from "../../components/icons/ShowIcon";
 import { EditIcon } from "../../components/icons/EditIcon";
@@ -9,10 +8,14 @@ import { ArrowDownIcon } from "../../components/icons/ArrowDownIcon";
 import { AtoZIcon } from "../../components/icons/AtoZIcon";
 import { useRef } from "react";
 import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
+import { BeneficiaryFormModal } from "./components/beneficiary-form-modal/BeneficiaryFormModal";
+import "./Beneficiaries.css";
 
 export const Beneficiaries = () => {
   const dataGridRef = useRef(null);
   const modalRef = useRef(null);
+  /** @type {import("react").RefObject<import("../../components/form-modal/FormModal").FormModalRef>} */
+  const formModalRef = useRef(null);
 
   /** @type {import("../../components/data-grid/DataGrid").DataGridColumn<import("./BeneficiariesService").Beneficiary>[]} */
   const columns = [
@@ -54,6 +57,12 @@ export const Beneficiaries = () => {
       <SensitiveModal ref={modalRef} showCloseButton>
         Os registros vinculados ao beneficiário não poderão ser recuperados.
       </SensitiveModal>
+
+      <BeneficiaryFormModal ref={formModalRef} />
+
+      <button type="button" onClick={() => formModalRef.current?.toggle()}>
+        cadastrar
+      </button>
 
       <DataGrid
         ref={dataGridRef}
