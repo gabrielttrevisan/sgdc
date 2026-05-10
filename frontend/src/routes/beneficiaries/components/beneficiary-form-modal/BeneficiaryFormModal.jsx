@@ -33,6 +33,7 @@ export const BeneficiaryFormModal = ({ ref }) => {
         required={true}
         id="nationalId"
         label="CPF"
+        inputMode="numeric"
         mask={(input) =>
           unmaskDigits(input)
             .slice(0, 11)
@@ -51,6 +52,8 @@ export const BeneficiaryFormModal = ({ ref }) => {
           const trimmed = value.trim();
           const message = "CPF inválido";
 
+          if (trimmed.length < 11) return message;
+
           return true;
         }}
       />
@@ -60,6 +63,7 @@ export const BeneficiaryFormModal = ({ ref }) => {
         required={true}
         id="phone"
         label="Telefone"
+        inputMode="numeric"
         mask={(input) =>
           unmaskDigits(input)
             .slice(0, 11)
@@ -78,6 +82,58 @@ export const BeneficiaryFormModal = ({ ref }) => {
           const message = "Telefone inválido";
 
           if (trimmed.length < 10) return message;
+
+          return true;
+        }}
+      />
+
+      <InputField
+        name="street"
+        required={true}
+        id="street"
+        label="Logradouro"
+        validate={(value) => {
+          const trimmed = value.trim();
+
+          if (trimmed.length < 4) return "Logradouro muito curto";
+          else if (trimmed.length > 140) return "Logradouro muito longo";
+
+          return true;
+        }}
+      />
+
+      <InputField
+        name="number"
+        required={true}
+        id="number"
+        label="Número"
+        inputMode="numeric"
+        validate={(value) => {
+          const trimmed = value.trim();
+
+          if (!trimmed.length) return "Número inválido";
+
+          return true;
+        }}
+      />
+
+      <InputField
+        name="complement"
+        required={false}
+        id="complement"
+        label="Complemento"
+        validate={() => true}
+      />
+
+      <InputField
+        name="neighborhood"
+        required={true}
+        id="neighborhood"
+        label="Bairro"
+        validate={(value) => {
+          const trimmed = value.trim();
+
+          if (!trimmed.length) return "Bairro inválido";
 
           return true;
         }}

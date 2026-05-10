@@ -20,7 +20,10 @@ export const InputField = ({
 }) => {
   return (
     <div className="input-field">
-      <label htmlFor={id}>{label}</label>
+      <label htmlFor={id}>
+        {label}{" "}
+        {required ? <span className="input-field__required">*</span> : null}
+      </label>
 
       <input
         name={name}

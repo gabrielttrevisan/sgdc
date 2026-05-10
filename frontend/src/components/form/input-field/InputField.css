@@ -7,6 +7,11 @@
 
   label {
     font-size: 0.8rem;
+
+    .input-field__required {
+      color: var(--colors-state-error);
+      font-weight: bold;
+    }
   }
 
   input {
