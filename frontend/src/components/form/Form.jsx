@@ -1,5 +1,4 @@
-import { useCallback } from "react";
-import { useFormController } from "./context/useFormController";
+import { useFormRegistry } from "./context/useFormRegistry";
 
 /**
  * @template FieldData
@@ -21,26 +20,8 @@ import { useFormController } from "./context/useFormController";
  * @returns {import("react").JSX.Element}
  */
 export function Form({ children, onSubmit, ...props }) {
-  const controller = useFormController();
-
-  const handleSubmit = useCallback(
-    /**
-     * @param {SubmitEvent} e
-     */
-    (e) => {
-      e.preventDefault();
-
-      onSubmit({}, e);
-    },
-    [onSubmit],
-  );
-
   return (
-    <form
-      ref={(form) => controller.setForm(form)}
-      onSubmit={handleSubmit}
-      {...props}
-    >
+    <form {...props} {...useFormRegistry(onSubmit, console.log)}>
       {children}
     </form>
   );

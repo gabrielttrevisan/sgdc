@@ -17,6 +17,7 @@ export const BeneficiaryFormModal = ({ ref }) => {
       title="Beneficiário"
       editLabel="Atualizar Dados"
       className="beneficiary-form-modal"
+      onSubmit={console.log}
     >
       <InputField
         name="name"

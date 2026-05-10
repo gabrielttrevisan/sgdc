@@ -5,7 +5,7 @@ export function useRegisterField(name, stateInit) {
 
   return {
     ref: (instance) => {
-      if (instance) controller.pushField(name, stateInit, instance);
+      if (instance) controller.registerField(name, stateInit, instance);
     },
   };
 }
