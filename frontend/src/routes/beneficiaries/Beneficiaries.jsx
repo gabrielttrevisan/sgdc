@@ -58,7 +58,14 @@ export const Beneficiaries = () => {
         Os registros vinculados ao beneficiário não poderão ser recuperados.
       </SensitiveModal>
 
-      <BeneficiaryFormModal ref={formModalRef} />
+      <BeneficiaryFormModal
+        ref={formModalRef}
+        onSubmit={async (data) => {
+          await BeneficiariesService.create(data);
+          dataGridRef.current?.update();
+          formModalRef.current?.close();
+        }}
+      />
 
       <button type="button" onClick={() => formModalRef.current?.toggle()}>
         cadastrar

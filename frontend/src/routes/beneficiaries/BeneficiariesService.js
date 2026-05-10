@@ -192,6 +192,31 @@ class BeneficiariesService {
       return this.#internal("Erro inesperado");
     }
   }
+
+  /**
+   * @param {Beneficiary} beneficiary
+   * @returns
+   */
+  async create(beneficiary) {
+    try {
+      const parsed = this.#getFromLocalStorage();
+
+      if (!parsed || !Array.isArray(parsed))
+        return this.#internal("Erro ao obter dados");
+
+      if (!parsed.length) return this.#notFound();
+
+      parsed.push({
+        name: beneficiary.name,
+        nationalId: beneficiary.nationalId,
+        hasOpenRequest: Math.random() * 1000 > 901 ? true : false,
+      });
+
+      localStorage.setItem(BENEFICIARIES_MOCK_ID, JSON.stringify(parsed));
+    } catch {
+      return this.#internal("Erro inesperado");
+    }
+  }
 }
 
 export default new BeneficiariesService();

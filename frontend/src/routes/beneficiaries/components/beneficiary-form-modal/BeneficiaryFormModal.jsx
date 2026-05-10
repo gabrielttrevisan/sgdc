@@ -7,17 +7,18 @@ import "./BeneficiaryFormModal.css";
 /**
  * @typedef {Object} BeneficiaryFormModalProps
  * @prop {import("../../../../components/form-modal/FormModal").FormModalRef} [ref]
+ * @prop {import("../../../../components/form/context/FormController").CustomOnSubmitHandler} onSubmit
  */
 
 /** @type {import("react").FC<BeneficiaryFormModalProps>} */
-export const BeneficiaryFormModal = ({ ref }) => {
+export const BeneficiaryFormModal = ({ ref, onSubmit }) => {
   return (
     <FormModal
       ref={ref}
       title="Beneficiário"
       editLabel="Atualizar Dados"
       className="beneficiary-form-modal"
-      onSubmit={console.log}
+      onSubmit={onSubmit}
     >
       <InputField
         name="name"

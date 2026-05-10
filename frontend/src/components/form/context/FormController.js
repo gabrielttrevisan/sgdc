@@ -158,6 +158,8 @@ class FormController extends EventTarget {
         );
 
         await handler(formData, e);
+
+        this.#form.reset();
       } catch (e) {
         errorHandler?.("error", e);
       }

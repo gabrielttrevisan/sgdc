@@ -20,7 +20,7 @@ import { FormGrid } from "../form/grid/FormGrid";
  * @prop {string} [editLabel]
  * @prop {string} [createLabel]
  * @prop {VoidFunction} [onClose]
- * @prop {VoidFunction} [onSubmit]
+ * @prop {import("../form/context/FormController").CustomOnSubmitHandler} [onSubmit]
  * @prop {import("react").Ref<FormModalRef>} [ref]
  * @prop {import("react").ReactNode} children
  * @prop {string} [className]
