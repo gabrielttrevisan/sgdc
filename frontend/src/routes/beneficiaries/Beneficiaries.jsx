@@ -16,7 +16,7 @@ import "./Beneficiaries.css";
 export const Beneficiaries = () => {
   const dataGridRef = useRef(null);
   const modalRef = useRef(null);
-  /** @type {import("react").RefObject<import("../../components/form-modal/FormModal").FormModalRef>} */
+  /** @type {import("react").RefObject<import("../../components/form/modal/FormModal").FormModalRef>} */
   const formModalRef = useRef(null);
 
   /** @type {import("../../components/data-grid/DataGrid").DataGridColumn<import("./BeneficiariesService").Beneficiary>[]} */

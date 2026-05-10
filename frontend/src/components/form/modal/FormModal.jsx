@@ -1,9 +1,9 @@
 import { useCallback, useImperativeHandle, useRef, useState } from "react";
-import { CloseIconLarge } from "../icons/CloseIconLarge";
-import { Form } from "../form/Form";
-import { FormGrid } from "../form/grid/FormGrid";
+import { CloseIconLarge } from "../../icons/CloseIconLarge";
+import { Form } from "../Form";
+import { FormGrid } from "../grid/FormGrid";
 import "./FormModal.css";
-import { useFormController } from "../form/context/useFormController";
+import { useFormController } from "../context/useFormController";
 
 /**
  * @callback OpenFormModalCallback
@@ -26,7 +26,7 @@ import { useFormController } from "../form/context/useFormController";
  * @prop {string} [editLabel]
  * @prop {string} [createLabel]
  * @prop {VoidFunction} [onClose]
- * @prop {Record<"create"|"edit", import("../form/context/FormController").CustomOnSubmitHandler>} [onSubmit]
+ * @prop {Record<"create"|"edit", import("../context/FormController").CustomOnSubmitHandler>} [onSubmit]
  * @prop {import("react").Ref<FormModalRef>} [ref]
  * @prop {import("react").ReactNode} children
  * @prop {string} [className]

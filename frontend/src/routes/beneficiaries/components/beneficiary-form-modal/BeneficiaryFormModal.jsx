@@ -1,4 +1,4 @@
-import { FormModal } from "../../../../components/form-modal/FormModal";
+import { FormModal } from "../../../../components/form/modal/FormModal";
 import { InputField } from "../../../../components/form/input-field/InputField";
 import { SelectField } from "../../../../components/form/input-field/SelectField";
 import { unmaskDigits } from "../../../../lib/functions/unmask";
@@ -6,7 +6,7 @@ import "./BeneficiaryFormModal.css";
 
 /**
  * @typedef {Object} BeneficiaryFormModalProps
- * @prop {import("../../../../components/form-modal/FormModal").FormModalRef} [ref]
+ * @prop {import("../../../../components/form/modal/FormModal").FormModalRef} [ref]
  * @prop {Record<"create"|"edit",import("../../../../components/form/context/FormController").CustomOnSubmitHandler>} onSubmit
  */
 
