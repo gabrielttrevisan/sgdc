@@ -1,6 +1,8 @@
 import { FormModal } from "../../../../components/form-modal/FormModal";
 import { InputField } from "../../../../components/form/input-field/InputField";
+import { SelectField } from "../../../../components/form/input-field/SelectField";
 import { unmaskDigits } from "../../../../lib/functions/unmask";
+import "./BeneficiaryFormModal.css";
 
 /**
  * @typedef {Object} BeneficiaryFormModalProps
@@ -10,7 +12,12 @@ import { unmaskDigits } from "../../../../lib/functions/unmask";
 /** @type {import("react").FC<BeneficiaryFormModalProps>} */
 export const BeneficiaryFormModal = ({ ref }) => {
   return (
-    <FormModal ref={ref} title="Beneficiário" editLabel="Atualizar Dados">
+    <FormModal
+      ref={ref}
+      title="Beneficiário"
+      editLabel="Atualizar Dados"
+      className="beneficiary-form-modal"
+    >
       <InputField
         name="name"
         required={true}
@@ -28,12 +35,31 @@ export const BeneficiaryFormModal = ({ ref }) => {
         }}
       />
 
+      <SelectField
+        name="gender"
+        id="gender"
+        required={true}
+        label="Sexo"
+        validate={(value) => {
+          if (!["f", "m", "o"].includes(value)) return "Sexo inválido";
+
+          return true;
+        }}
+        options={[
+          { label: "Feminino", value: "f" },
+          { label: "Masculino", value: "m" },
+          { label: "Não Informado", value: "o" },
+        ]}
+        variant="half-left"
+      />
+
       <InputField
         name="nationalId"
         required={true}
         id="nationalId"
         label="CPF"
         inputMode="numeric"
+        variant="half-right"
         mask={(input) =>
           unmaskDigits(input)
             .slice(0, 11)
@@ -64,6 +90,7 @@ export const BeneficiaryFormModal = ({ ref }) => {
         id="phone"
         label="Telefone"
         inputMode="numeric"
+        variant="half-left"
         mask={(input) =>
           unmaskDigits(input)
             .slice(0, 11)
@@ -87,6 +114,16 @@ export const BeneficiaryFormModal = ({ ref }) => {
         }}
       />
 
+      <SelectField
+        name="family"
+        id="family"
+        required={true}
+        label="Família"
+        disabled
+        options={[]}
+        variant="half-right"
+      />
+
       <InputField
         name="street"
         required={true}
@@ -108,6 +145,7 @@ export const BeneficiaryFormModal = ({ ref }) => {
         id="number"
         label="Número"
         inputMode="numeric"
+        variant="half-left"
         validate={(value) => {
           const trimmed = value.trim();
 
@@ -122,7 +160,7 @@ export const BeneficiaryFormModal = ({ ref }) => {
         required={false}
         id="complement"
         label="Complemento"
-        validate={() => true}
+        variant="half-right"
       />
 
       <InputField
@@ -130,6 +168,7 @@ export const BeneficiaryFormModal = ({ ref }) => {
         required={true}
         id="neighborhood"
         label="Bairro"
+        variant="half-left"
         validate={(value) => {
           const trimmed = value.trim();
 
@@ -137,6 +176,26 @@ export const BeneficiaryFormModal = ({ ref }) => {
 
           return true;
         }}
+      />
+
+      <SelectField
+        name="state"
+        id="state"
+        required={true}
+        label="Estado"
+        disabled
+        options={[{ label: "São Paulo", value: "sp" }]}
+        variant="half-right"
+      />
+
+      <SelectField
+        name="city"
+        id="city"
+        required={true}
+        label="Cidade"
+        disabled
+        options={[{ label: "Presidente Prudente", value: 1 }]}
+        variant="half-left"
       />
     </FormModal>
   );

@@ -15,7 +15,7 @@
  * @typedef {Object} FieldStateInit
  * @prop {boolean} required
  * @prop {MaskStringCallback} [mask]
- * @prop {ValidateFieldCallback} validate
+ * @prop {ValidateFieldCallback} [validate]
  */
 
 /**
@@ -59,17 +59,17 @@ class FormController extends EventTarget {
       },
     };
 
-    if (field.mask) {
-      let timeout = null;
+    let timeout = null;
 
-      input.addEventListener("input", () => {
-        const field = this.#fields[name];
+    input.addEventListener("input", () => {
+      const field = this.#fields[name];
 
-        field.touched = true;
-        clearTimeout(timeout);
+      field.touched = true;
+      clearTimeout(timeout);
 
-        input.value = field.mask(input.value);
+      if (field.mask) input.value = field.mask(input.value);
 
+      if (field.validate)
         timeout = setTimeout(() => {
           const trimmed = input.value.trim();
           const result = field.validate(trimmed);
@@ -97,8 +97,7 @@ class FormController extends EventTarget {
             }),
           );
         }, 10);
-      });
-    }
+    });
   }
 
   setForm(form) {

@@ -3,6 +3,7 @@ import { CloseIconLarge } from "../icons/CloseIconLarge";
 import "./FormModal.css";
 import { Form } from "../form/Form";
 import { FormControllerProvider } from "../form/context/FormControllerProvider";
+import { FormGrid } from "../form/grid/FormGrid";
 
 /**
  * @typedef {Object} FormModalRef
@@ -22,6 +23,7 @@ import { FormControllerProvider } from "../form/context/FormControllerProvider";
  * @prop {VoidFunction} [onSubmit]
  * @prop {import("react").Ref<FormModalRef>} [ref]
  * @prop {import("react").ReactNode} children
+ * @prop {string} [className]
  */
 
 /** @type {import("react").FC<FormModalProps>} */
@@ -35,6 +37,7 @@ export const FormModal = ({
   editLabel = "Alterar",
   onClose,
   onSubmit,
+  className,
 }) => {
   /** @type {import("react").Ref<HTMLDialogElement>} */
   const dialogRef = useRef();
@@ -64,7 +67,7 @@ export const FormModal = ({
   const submitLabel = mode === "create" ? createLabel : editLabel;
 
   return (
-    <dialog ref={dialogRef} className="form-modal">
+    <dialog ref={dialogRef} className={`form-modal ${className ?? ""}`}>
       <FormControllerProvider>
         <Form onSubmit={onSubmit} className="form-modal__form">
           <header>
@@ -79,7 +82,7 @@ export const FormModal = ({
             </button>
           </header>
 
-          <div className="form-modal__content">{children}</div>
+          <FormGrid className="form-modal__content">{children}</FormGrid>
 
           <footer>
             <button
