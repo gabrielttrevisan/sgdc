@@ -1,5 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, useEffect, useImperativeHandle, useState } from "react";
+import {
+  Activity,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import { ActionList } from "../action-list/ActionList";
 import { PaginationInfo } from "../pagination-info/PaginationInfo";
 import { PaginationLinks } from "../pagination-links/PaginationLinks";
@@ -141,7 +147,16 @@ export function DataGrid({
         </div>
       </div>
 
-      <div className="data-grid__table-wrapper" aria-busy={page.loading}>
+      <div
+        className="data-grid__table-wrapper data-grid__has-overlay"
+        aria-busy={page.loading}
+      >
+        <Activity mode={page.loading ? "visible" : "hidden"}>
+          <div className="data-grid__loading-overlay">
+            <p>Carregando</p>
+          </div>
+        </Activity>
+
         <table
           className="data-grid__table --beneficiaries"
           role="grid"

@@ -16,6 +16,64 @@
   }
 }
 
+.data-grid__has-overlay {
+  .data-grid__loading-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-image: linear-gradient(
+      to right,
+      var(--colors-primary-4) 0%,
+      var(--colors-primary-2) 10%,
+      var(--colors-primary-4) 20%,
+      var(--colors-primary-4) 100%
+    );
+    background-size: 200% 100%;
+    animation: skelly 3s infinite;
+    backdrop-filter: blur(4px);
+
+    &::before {
+      content: " ";
+      width: 2rem;
+      height: 2rem;
+      border: 4px solid vaR(--colors-primary);
+      border-right-color: transparent;
+      background-color: transparent;
+      display: block;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    p {
+      display: block;
+      color: var(--colors-primary);
+    }
+  }
+}
+
+@keyframes skelly {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .data-grid__table {
   border-collapse: separate;
   border-spacing: 0;

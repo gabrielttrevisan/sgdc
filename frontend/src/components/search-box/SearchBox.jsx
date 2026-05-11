@@ -40,6 +40,14 @@ export const SearchBox = ({
           {...props}
           ref={inputRef}
           aria-controls={gridId}
+          onInput={(e) => {
+            if (
+              e.target.value.length === 0 &&
+              e.nativeEvent.inputType === "deleteContentBackward"
+            ) {
+              onReset();
+            }
+          }}
         />
 
         <button type="reset" onClick={onReset}>
