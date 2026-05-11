@@ -74,7 +74,7 @@ class BeneficiariesService {
 
   /**
    * @param {import("../../global").PaginatedQuery} query
-   * @returns {Promise<APIResponse<import("../../components/data-grid/DataGrid").PageData<Beneficiary[]>>>}
+   * @returns {Promise<import("../../global").APIResponse<import("../../components/data-grid/DataGrid").PageData<Beneficiary[]>>>}
    */
   async list(query = { page: 1, perPage: 10 }) {
     try {
@@ -136,6 +136,11 @@ class BeneficiariesService {
     }
   }
 
+  /**
+   *
+   * @param {string} id
+   * @returns {Promise<import("../../global").APIResponse<{success:boolean}>>}
+   */
   async delete(id) {
     try {
       const parsed = this.#getFromLocalStorage();
@@ -148,6 +153,11 @@ class BeneficiariesService {
       const filtered = parsed.filter((item) => item.nationalId !== id);
 
       localStorage.setItem(BENEFICIARIES_MOCK_ID, JSON.stringify(filtered));
+
+      return {
+        data: { success: true },
+        error: null,
+      };
     } catch {
       return this.#internal("Erro inesperado");
     }
@@ -155,7 +165,7 @@ class BeneficiariesService {
 
   /**
    * @param {Beneficiary} beneficiary
-   * @returns
+   * @returns {Promise<import("../../global").APIResponse<{success:boolean}>>}
    */
   async create(beneficiary) {
     try {
@@ -184,7 +194,7 @@ class BeneficiariesService {
 
   /**
    * @param {Beneficiary} beneficiary
-   * @returns
+   * @returns {Promise<import("../../global").APIResponse<{success:boolean}>>}
    */
   async edit(beneficiary) {
     try {

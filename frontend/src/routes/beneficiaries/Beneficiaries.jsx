@@ -13,6 +13,7 @@ import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
 import { FormControllerProvider } from "../../components/form/context/FormControllerProvider";
 import "./Beneficiaries.css";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
+import Toaster from "../../components/toast/ToastStorage";
 
 export const Beneficiaries = () => {
   const dataGridRef = useRef(null);
@@ -79,14 +80,26 @@ export const Beneficiaries = () => {
           ref={formModalRef}
           onSubmit={{
             create: async (data) => {
-              await BeneficiariesService.create(data);
-              dataGridRef.current?.update();
-              formModalRef.current?.close();
+              const response = await BeneficiariesService.create(data);
+
+              if (response.data?.success) {
+                dataGridRef.current?.update();
+                formModalRef.current?.close();
+                Toaster.success("Beneficiário cadastrado com sucesso");
+              } else if (response.error) {
+                Toaster.error("Falha ao cadastrar beneficiário");
+              }
             },
             edit: async (data) => {
-              await BeneficiariesService.edit(data);
-              dataGridRef.current?.update();
-              formModalRef.current?.close();
+              const reponse = await BeneficiariesService.edit(data);
+
+              if (reponse.data?.success) {
+                dataGridRef.current?.update();
+                formModalRef.current?.close();
+                Toaster.success("Beneficiário editado com sucesso");
+              } else if (reponse.error) {
+                Toaster.error("Falha ao editar beneficiário");
+              }
             },
           }}
         />
@@ -144,8 +157,15 @@ export const Beneficiaries = () => {
             onAction: (type, target) => {
               modalRef.current?.open().then((confirmed) => {
                 if (confirmed)
-                  BeneficiariesService.delete(target.nationalId).then(() =>
-                    dataGridRef.current?.update(),
+                  BeneficiariesService.delete(target.nationalId).then(
+                    ({ data, error }) => {
+                      if (data?.success) {
+                        Toaster.success("Beneficiário deletado com sucesso");
+                        dataGridRef.current?.update();
+                      }
+
+                      if (error?.message) Toaster.error(error.message);
+                    },
                   );
               });
             },
