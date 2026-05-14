@@ -3,6 +3,7 @@ import { InputField } from "../../../../components/form/input-field/InputField";
 import { SelectField } from "../../../../components/form/input-field/SelectField";
 import { unmaskDigits } from "../../../../lib/functions/unmask";
 import "./BeneficiaryFormModal.css";
+import { isNationalIdValid } from "../../../../lib/validation/isNationalIdValid";
 
 /**
  * @typedef {Object} BeneficiaryFormModalProps
@@ -77,12 +78,12 @@ export const BeneficiaryFormModal = ({ ref, onSubmit }) => {
             )
         }
         validate={(value) => {
-          const trimmed = value.trim();
+          const trimmed = unmaskDigits(value);
           const message = "CPF inválido";
 
           if (trimmed.length < 11) return message;
 
-          return true;
+          return isNationalIdValid(trimmed) || message;
         }}
       />
 

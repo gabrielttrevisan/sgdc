@@ -99,8 +99,6 @@ class ToastStorage {
 
 const Toaster = new ToastStorage();
 
-window.Toaster = Toaster;
-
 export default Toaster;
 
 export function useToasties() {
