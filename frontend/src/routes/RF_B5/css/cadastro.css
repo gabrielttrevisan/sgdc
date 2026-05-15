@@ -1,0 +1,82 @@
+.cadastro-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.cadastro-card {
+  width: 500px;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+}
+
+.cadastro-title {
+  margin-bottom: 10px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.cadastro-erro {
+  color: #e74c3c;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.formulario input,
+.formulario textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.formulario textarea {
+  resize: none;
+  min-height: 80px;
+}
+
+.botoes {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-salvar {
+  flex: 1;
+  padding: 10px;
+  background: #2ecc71;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-salvar.editar {
+  background: #f1c40f;
+  color: #2c2c2c;
+}
+
+.btn-salvar:hover {
+  background: #27ae60;
+}
+
+.btn-cancelar {
+  flex: 1;
+  padding: 10px;
+  background: #e74c3c;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-cancelar:hover {
+  background: #c0392b;
+}

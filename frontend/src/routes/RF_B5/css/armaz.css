@@ -1,0 +1,80 @@
+body {
+  background: #f4f6f9;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.container {
+  max-width: 1050px;
+  margin: 30px auto;
+}
+
+.card {
+  border: none !important;
+  border-radius: 18px !important;
+  background: #ffffff;
+  padding: 10px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06) !important;
+}
+
+
+.armaz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 25px;
+}
+
+.armaz-search {
+  width: 320px;
+}
+
+.armaz-search input {
+  width: 100%;
+}
+
+.btn-cadastrar {
+  background: #2fb36d;
+  color: white;
+  border: none;
+  padding: 11px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s ease;
+  font-weight: 600;
+}
+
+.btn-cadastrar:hover {
+  background: #27985d;
+}
+
+.alert {
+  margin-top: 10px;
+}
+
+.lista {
+  margin-top: 10px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 999;
+}
+
+.modal-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  width: 420px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
