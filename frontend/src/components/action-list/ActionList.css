@@ -1,0 +1,63 @@
+.action-list {
+  display: flex;
+}
+
+.action-list__action {
+  padding: 0.5rem 1rem;
+  border-radius: 0;
+  border: 0;
+  background-color: var(--colors-primary-3);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  color: var(--colors-background-light);
+  gap: 0.3333rem;
+
+  > * {
+    display: block;
+  }
+
+  &:hover {
+    background-color: var(--colors-primary-2);
+  }
+
+  &:first-child {
+    border-radius: 0.3333rem 0 0 0.3333rem;
+  }
+
+  &:last-child {
+    border-radius: 0 0.3333rem 0.3333rem 0;
+  }
+
+  &.--show {
+    background-color: rgba(91, 70, 108, 0.6);
+
+    &:hover {
+      background-color: rgba(91, 70, 108, 0.7);
+    }
+  }
+
+  &.--edit {
+    background-color: rgba(131, 138, 229, 0.85);
+
+    &:hover {
+      background-color: rgba(131, 138, 229, 1);
+    }
+  }
+
+  &.--donate {
+    background-color: rgba(61, 174, 118, 0.85);
+
+    &:hover {
+      background-color: rgba(61, 174, 118, 1);
+    }
+  }
+
+  &.--delete {
+    background-color: rgba(162, 46, 75, 0.6);
+
+    &:hover {
+      background-color: rgba(162, 46, 75, 0.7);
+    }
+  }
+}
