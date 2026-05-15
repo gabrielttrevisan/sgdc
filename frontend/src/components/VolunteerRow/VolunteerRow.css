@@ -1,0 +1,33 @@
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.actions-cell button {
+  border: none;
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: filter 0.2s;
+  color: white;
+}
+
+.actions-cell button:hover {
+  filter: brightness(0.9);
+}
+
+.actions-cell button svg {
+  width: 14px;
+  height: 14px;
+}
+
+.btn-icon-view { background-color: #a0aec0; }
+.btn-edit { background-color: #7c5cc4; }
+.btn-alocar { background-color: #9370db; }
+.btn-delete { background-color: #d98282; }
