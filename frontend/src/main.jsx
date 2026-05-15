@@ -4,6 +4,7 @@ import "./index.css";
 import { BrowserRouter, Routes, Route } from "react-router";
 import { Layout } from "./components/layout/Layout.jsx";
 import { Beneficiarios } from "./routes/Beneficiarios.jsx";
+import { Voluntarios } from "./routes/Voluntarios/Voluntarios.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -22,7 +23,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="/beneficiarios" element={<Beneficiarios />} />
           <Route path="/familias" element={<Fragment />} />
           <Route path="/doadores" element={<Fragment />} />
-          <Route path="/voluntarios" element={<Fragment />} />
+          <Route path="/voluntarios" element={<Voluntarios />} />
         </Route>
       </Routes>
     </BrowserRouter>
