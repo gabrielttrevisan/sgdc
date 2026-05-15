@@ -1,0 +1,54 @@
+.data-grid.--beneficiaries {
+  width: 100%;
+}
+
+.beneficiary__col {
+  vertical-align: middle;
+  text-align: left;
+  color: var(--colors-foreground-black);
+  height: 3.3333rem;
+  padding: 0 0 0 1.2rem;
+
+  &.--has-request {
+    text-align: center;
+    padding-left: 0;
+  }
+
+  &.--national-id {
+    padding: 0 0 0 1.2rem;
+  }
+
+  &.--name {
+    white-space: nowrap;
+
+    span {
+      max-width: calc(100% - 1.2rem);
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  &.--actions {
+    padding: 0 1.2rem;
+  }
+}
+
+th.--has-request {
+  padding-left: 0 !important;
+}
+
+.beneficiary__request-badge {
+  padding: 0.34rem 0.5rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+
+  &.--warn {
+    background-color: var(--colors-status-warning);
+  }
+
+  &.--none {
+    background-color: var(--colors-status-good);
+  }
+}

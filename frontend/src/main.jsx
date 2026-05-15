@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { Layout } from "./components/layout/Layout.jsx";
-import { Beneficiarios } from "./routes/Beneficiarios.jsx";
+import { Beneficiaries } from "./routes/beneficiaries/Beneficiaries.jsx";
 
 import Armaz from "./routes/RF_B5/armaz.jsx";
 import CadastroRFB5 from "./routes/RF_B5/cadastro.jsx";
@@ -26,7 +26,7 @@ createRoot(document.getElementById("root")).render(
           <Route path="/unidades-de-medida" element={<Fragment />} />
           <Route path="/tipos-de-alocacao" element={<Fragment />} />
 
-          <Route path="/beneficiarios" element={<Beneficiarios />} />
+          <Route path="/beneficiarios" element={<Beneficiaries />} />
           <Route path="/familias" element={<Fragment />} />
           <Route path="/doadores" element={<Fragment />} />
           <Route path="/voluntarios" element={<Fragment />} />

@@ -1,18 +1,38 @@
 :root {
-  --colors-primary: #5B466C;
-  --colors-primary-1: #905ABC;
+  --colors-primary: #5b466c;
+  --colors-primary-1: #905abc;
   --colors-primary-14: rgba(91, 70, 102, 0.04);
   --colors-primary-15: rgba(91, 70, 102, 0.05);
   --colors-primary-2: rgba(91, 70, 102, 0.15);
   --colors-primary-3: rgba(91, 70, 102, 0.25);
-  --colors-text-black: #000000;
+  --colors-primary-4: rgba(146, 149, 215, 0.4);
+  --colors-primary-45: rgba(146, 149, 215, 0.65);
+  --colors-text-dark: #000000;
+  --colors-text-medium: #666666;
+  --colors-background-light: #fefefe;
+  --colors-background-medium: #eeeeee;
+  --colors-background-backdrop: rgba(0, 0, 0, 0.75);
+  --colors-foreground-black: #000000;
+
+  --colors-state-error: #a22e4b;
+  --colors-state-error-05: rgba(162, 46, 75, 0.05);
+  --colors-state-error-60: rgba(162, 46, 75, 0.6);
+  --colors-status-warning: rgba(248, 224, 148, 1);
+  --colors-status-warning-60: rgba(248, 224, 148, 0.6);
+  --colors-status-warning-75: rgba(248, 224, 148, 0.75);
+  --colors-status-warning-90: rgba(248, 224, 148, 0.9);
+  --colors-status-good: rgba(61, 174, 118, 0.2);
+  --colors-status-safe: rgba(61, 174, 118, 1);
+  --colors-status-safe-90: rgba(61, 174, 118, 0.9);
+  --colors-status-safe-60: rgba(61, 174, 118, 0.6);
+  --transitions-calm: all 200ms ease-out;
 
   font-size: 16px;
   line-height: 145%;
   font-family: "Open Sans", sans-serif;
   letter-spacing: 0.18px;
   color-scheme: light;
-  color: var(--colors-text-black);
+  color: var(--colors-text-dark);
   background: #ffffff;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -20,12 +40,130 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+* {
+  font-family: "Open Sans", sans-serif;
+}
+
 a,
 button {
-  transition: all 200ms ease-out;
+  transition: var(--transitions-calm);
   cursor: pointer;
 }
 
 body {
   margin: 0;
+}
+
+html,
+body,
+#root {
+  height: 100dvh;
+}
+
+dialog {
+  opacity: 1;
+  transform: translate(0, 0);
+  transition: all 300ms ease-out;
+
+  &::backdrop {
+    background-color: var(--colors-background-backdrop);
+    backdrop-filter: blur(4px);
+  }
+
+  @starting-style {
+    opacity: 0;
+    transform: translate(0, -10%);
+  }
+}
+
+.button-close {
+  --button-close-color: var(--colors-primary);
+  --button-close-bg: transparent;
+  --button-close-bg-hover: var(--colors-primary-3);
+
+  padding: 1rem;
+  border: 0;
+  border-radius: 50%;
+  width: calc(16px + 2rem);
+  height: calc(16px + 2rem);
+  margin-top: -1rem;
+  margin-right: -1rem;
+  background-color: var(--button-close-bg);
+  color: var(--button-close-color);
+
+  &:hover {
+    background-color: var(--button-close-bg-hover);
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  border: 0;
+  padding: 0;
+  outline: transparent;
+  outline-offset: 0;
+  white-space: nowrap;
+  clip-path: inset(100%);
+  clip: rect(0 0 0 0);
+  overflow: hidden;
+}
+
+.button-block {
+  --bb-base-bg: var(--colors-primary-4);
+  --bb-base-color: var(--colors-foreground-black);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--bb-base-bg);
+  background: var(--bb-base-bg);
+  color: var(--bb-base-color);
+  border-radius: 0.4rem;
+  font-weight: 500;
+  gap: 0.4rem;
+
+  &.--solid {
+    &.--primary {
+      --bb-base-bg: var(--colors-primary);
+      --bb-base-color: var(--colors-background-light);
+
+      &:hover {
+        --bb-base-bg: var(--colors-primary-1);
+      }
+    }
+
+    &.--btn-safe {
+      --bb-base-bg: var(--colors-status-safe);
+      --bb-base-color: var(--colors-background-light);
+
+      &:hover {
+        --bb-base-bg: var(--colors-status-safe-90);
+        border-color: var(--bb-base-bg);
+      }
+    }
+  }
+
+  &.--outline {
+    --bbo-color-normal: var(--colors-foreground-black);
+    --bbo-color-hover: var(--colors-foreground-black);
+    --bbo-thickness: 1px;
+
+    border: var(--bbo-thickness) solid var(--bbo-color-normal);
+    background: transparent;
+    color: var(--bbo-color-normal);
+
+    &:hover {
+      border-color: var(--bbo-color-hover);
+      color: var(--bbo-color-hover);
+    }
+
+    &.--primary {
+      --bbo-color-normal: var(--colors-primary);
+      --bbo-color-hover: var(--colors-primary-1);
+    }
+  }
 }

@@ -1,0 +1,62 @@
+.sensitive-modal {
+  border-color: var(--colors-state-error);
+  border-radius: 0.4rem;
+  border-width: 1px;
+  padding: 0;
+  width: max-content;
+  box-sizing: border-box;
+  max-width: 50vw;
+}
+
+.sensitive-modal__actions {
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--colors-state-error-05);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  box-sizing: border-box;
+  gap: 0.5rem;
+}
+
+.sensitive-modal__content {
+  padding: 2rem;
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    color: var(--colors-state-error);
+
+    .button-close {
+      --button-close-color: var(--colors-state-error);
+      --button-close-bg-hover: var(--colors-state-error-05);
+    }
+  }
+
+  p {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    color: var(--colors-state-error-60);
+  }
+}
+
+.sensitive-modal__action {
+  padding: 0.34rem 0.6rem;
+  border: 0;
+  border-radius: 0.2rem;
+  font-weight: 500;
+
+  &.--cancel {
+    background-color: var(--colors-state-error);
+    color: var(--colors-background-light);
+    border: 1px solid var(--colors-state-error);
+  }
+
+  &.--delete {
+    background-color: transparent;
+    color: var(--colors-state-error);
+    border: 1px solid var(--colors-state-error);
+  }
+}
