@@ -1,9 +1,12 @@
 import { Fragment, StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import { BrowserRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { Layout } from "./components/layout/Layout.jsx";
 import { Beneficiarios } from "./routes/Beneficiarios.jsx";
+
+import Armaz from "./routes/RF_B5/armaz.jsx";
+import CadastroRFB5 from "./routes/RF_B5/cadastro.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -13,7 +16,11 @@ createRoot(document.getElementById("root")).render(
           <Route path="/donativos" element={<Fragment />} />
           <Route path="/arrecadacoes" element={<Fragment />} />
           <Route path="/doacoes" element={<Fragment />} />
-          <Route path="/locais-de-armazenamento" element={<Fragment />} />
+          
+          <Route path="/"element={<Navigate to="/locais-de-armazenamento" replace />}/>
+          <Route path="/locais-de-armazenamento" element={<Armaz />} />
+          <Route path="/locais-de-armazenamento/cadastro/:id?" element={<CadastroRFB5 />} />
+
           <Route path="/produtos" element={<Fragment />} />
           <Route path="/metas" element={<Fragment />} />
           <Route path="/unidades-de-medida" element={<Fragment />} />

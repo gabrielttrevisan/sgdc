@@ -1,0 +1,42 @@
+.busca-container {
+  display: flex;
+  align-items: center;
+}
+
+.busca-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.busca-input {
+  width: 100%;
+  padding: 10px 38px 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #dcdcdc;
+  outline: none;
+  transition: 0.2s ease;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.busca-input:focus {
+  border-color: #7b5ea7;
+  box-shadow: 0 0 0 2px rgba(123, 94, 167, 0.2);
+}
+
+.busca-limpar {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  color: #888;
+  line-height: 1;
+}
+
+.busca-limpar:hover {
+  color: #000;
+}
