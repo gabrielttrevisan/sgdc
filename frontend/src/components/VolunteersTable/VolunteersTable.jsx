@@ -1,9 +1,9 @@
 import { ArrowDownAZ } from 'lucide-react';
-import { VoluntarioRow } from '../VoluntarioRow/VoluntarioRow';
-import './VoluntariosTable.css';
+import { VolunteerRow } from '../VolunteerRow/VolunteerRow';
+import './VolunteersTable.css';
 
 /** 
- * @typedef {Object} VoluntariosTableProps
+ * @typedef {Object} VolunteersTableProps
  * @property {Voluntario[]} data
  * @property {(voluntario: Voluntario) => void} onEdit
  * @property {(id: number|string) => void} onDelete
@@ -11,10 +11,10 @@ import './VoluntariosTable.css';
  * @property {(voluntario: Voluntario) => void} onView
  */
 
-/** @param {VoluntariosTableProps} props */
-export const VoluntariosTable = ({ data, onEdit, onDelete, onAlocar, onView }) => (
+/** @param {VolunteersTableProps} props */
+export const VolunteersTable = ({ data, onEdit, onDelete, onAlocar, onView }) => (
   <div className="table-wrapper">
-    <table className="voluntarios-table">
+    <table className="volunteers-table">
       <thead>
         <tr>
           <th>Nome <ArrowDownAZ /></th>
@@ -25,9 +25,9 @@ export const VoluntariosTable = ({ data, onEdit, onDelete, onAlocar, onView }) =
       </thead>
       <tbody>
         {data.map(v => (
-          <VoluntarioRow 
+          <VolunteerRow 
             key={v.id} 
-            voluntario={v} 
+            volunteer={v} 
             onEdit={onEdit} 
             onDelete={onDelete}
             onAlocar={onAlocar}

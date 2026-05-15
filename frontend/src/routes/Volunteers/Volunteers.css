@@ -1,4 +1,4 @@
-.voluntarios-container {
+.volunteers-container {
   padding: 2rem 3rem;
   background-color: #fcfcfc;
   display: flex;
@@ -7,7 +7,7 @@
   box-sizing: border-box;
 }
 
-.voluntarios-footer {
+.volunteers-footer {
   margin-top: 2rem;
   display: flex;
   justify-content: space-between;
