@@ -11,10 +11,10 @@ import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal"
 import { BeneficiaryFormModal } from "./components/beneficiary-form-modal/BeneficiaryFormModal";
 import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
 import { FormControllerProvider } from "../../components/form/context/FormControllerProvider";
-import "./Beneficiaries.css";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
 import Toaster from "../../components/toast/ToastStorage";
-import { TestComponent } from "../../components/media-query/TestComponent";
+
+import "./Beneficiaries.css";
 
 export const Beneficiaries = () => {
   const dataGridRef = useRef(null);
@@ -105,8 +105,6 @@ export const Beneficiaries = () => {
           }}
         />
       </FormControllerProvider>
-
-      <TestComponent />
 
       <DataGrid
         ref={dataGridRef}

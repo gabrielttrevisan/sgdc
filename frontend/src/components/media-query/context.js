@@ -25,6 +25,12 @@ export const MediaQueryContext = createContext(null);
 
 /**
  * @typedef {Object} MediaQueryContextState
- * @prop {Map<string, MediaQueryList} breakpoints
+ * @prop {Map<string, MediaQueryState>} breakpoints
  * @prop {MediaQueryMatchCheckCallback} matches
+ */
+
+/**
+ * @typedef {Object} MediaQueryState
+ * @prop {Set<OnMediaQueryMatchChangeHandler>} listeners
+ * @prop {MediaQueryList} list
  */

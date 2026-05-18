@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 import { MediaQueryContext } from "./context";
 
 export const MatchMediaProvider = ({ children }) => {
-  /** @type {[Map<string, MediaQueryList>, import("react").Dispatch<import("react").SetStateAction<Map<string, MediaQueryList>>>]} */
-  const [breakpoints, setBreakpoints] = useState(new Map());
+  /** @type {[Map<string, import("./context").MediaQueryState>, import("react").Dispatch<import("react").SetStateAction<Map<string, import("./context").MediaQueryState>>>]} */
+  const [mediaQueryStates, setMediaQueryStates] = useState(new Map());
 
   /** @type {MapUpdaterCallback} */
-  const updateMap = (breakpoint, mediaQueryList) => {
-    setBreakpoints((prev) => {
+  const updateMap = (breakpoint, mediaQueryState) => {
+    setMediaQueryStates((prev) => {
       const newMap = new Map(prev.entries());
 
-      newMap.set(breakpoint, mediaQueryList);
+      newMap.set(breakpoint, mediaQueryState);
 
       return newMap;
     });
@@ -18,46 +18,45 @@ export const MatchMediaProvider = ({ children }) => {
 
   /** @type {import("./context").MediaQueryMatchCheckCallback} */
   const matches = (query, changeHandler) => {
-    let mediaQueryList = breakpoints.get(query);
+    let mediaQueryState = mediaQueryStates.get(query);
+    const listener = (e) => {
+      changeHandler({ matches: e.matches, query, nativeEvent: e });
+    };
 
-    if (!mediaQueryList) {
-      mediaQueryList = window.matchMedia(query);
-
-      mediaQueryList.onchange = (e) => {
-        changeHandler({ matches: e.matches, query, nativeEvent: e });
+    if (!mediaQueryState) {
+      mediaQueryState = {
+        list: window.matchMedia(query),
+        listeners: [listener],
       };
 
-      updateMap(query, mediaQueryList);
+      mediaQueryState.list.addEventListener("change", listener);
+
+      updateMap(query, mediaQueryState);
+    } else {
+      mediaQueryState.listeners.add(listener);
     }
 
-    return mediaQueryList.matches;
+    return mediaQueryState.list.matches;
   };
 
   useEffect(() => {
     return () => {
-      for (const mediaQueryList of breakpoints.values()) {
-        mediaQueryList.onchange = null;
+      for (const [, mediaQueryState] of mediaQueryStates) {
+        mediaQueryState.listeners.forEach((listener) =>
+          mediaQueryState.list.removeEventListener("change", listener),
+        );
       }
 
-      breakpoints.clear();
+      mediaQueryStates.clear();
     };
   }, []);
 
-  return (
-    <MediaQueryContext
-      value={{
-        breakpoints,
-        matches,
-      }}
-    >
-      {children}
-    </MediaQueryContext>
-  );
+  return <MediaQueryContext value={{ matches }}>{children}</MediaQueryContext>;
 };
 
 /**
  * @callback MapUpdaterCallback
  * @param {string} query
- * @param {MediaQueryList} mediaQueryList
+ * @param {import("./context").MediaQueryState} mediaQueryState
  * @returns {void}
  */
