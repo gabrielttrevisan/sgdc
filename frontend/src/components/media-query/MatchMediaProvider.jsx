@@ -2,22 +2,15 @@ import { useEffect, useState } from "react";
 import { MediaQueryContext } from "./context";
 
 export const MatchMediaProvider = ({ children }) => {
-  /** @type {[Map<string, import("./context").MediaQueryState>, import("react").Dispatch<import("react").SetStateAction<Map<string, import("./context").MediaQueryState>>>]} */
-  const [mediaQueryStates, setMediaQueryStates] = useState(new Map());
+  /** @type {[Map<string, MediaQueryList>, import("react").Dispatch<import("react").SetStateAction<Map<string, MediaQueryList>>>]} */
+  const [mediaQueries, setMediaQueries] = useState(new Map());
 
   /** @type {MapUpdaterCallback} */
-  const updateMap = (breakpoint, mediaQueryState) => {
-    setMediaQueryStates((prev) => {
+  const updateMap = (query, mediaQueryState) => {
+    setMediaQueries((prev) => {
       const newMap = new Map(prev.entries());
-      const previous = prev.get(breakpoint);
 
-      if (previous)
-        mediaQueryState.listeners = new Set([
-          ...mediaQueryState.listeners,
-          ...previous.listeners,
-        ]);
-
-      newMap.set(breakpoint, mediaQueryState);
+      newMap.set(query, mediaQueryState);
 
       return newMap;
     });
@@ -25,36 +18,27 @@ export const MatchMediaProvider = ({ children }) => {
 
   /** @type {import("./context").MediaQueryMatchCheckCallback} */
   const matches = (query, changeHandler) => {
-    let mediaQueryState = mediaQueryStates.get(query);
+    let mediaQueryList = mediaQueries.get(query);
     const listener = (e) => {
       changeHandler({ matches: e.matches, query, nativeEvent: e });
     };
 
-    if (!mediaQueryState) {
-      mediaQueryState = {
-        list: window.matchMedia(query),
-        listeners: [listener],
-      };
+    if (!mediaQueryList) {
+      mediaQueryList = window.matchMedia(query);
 
-      mediaQueryState.list.addEventListener("change", listener);
-
-      updateMap(query, mediaQueryState);
-    } else {
-      mediaQueryState.listeners.add(listener);
+      updateMap(query, mediaQueryList);
     }
 
-    return mediaQueryState.list.matches;
+    mediaQueryList.addEventListener("change", listener);
+
+    return () => {
+      mediaQueryList.removeEventListener("change", listener);
+    };
   };
 
   useEffect(() => {
     return () => {
-      for (const [, mediaQueryState] of mediaQueryStates) {
-        mediaQueryState.listeners.forEach((listener) =>
-          mediaQueryState.list.removeEventListener("change", listener),
-        );
-      }
-
-      mediaQueryStates.clear();
+      mediaQueries?.clear();
     };
   }, []);
 
@@ -64,6 +48,6 @@ export const MatchMediaProvider = ({ children }) => {
 /**
  * @callback MapUpdaterCallback
  * @param {string} query
- * @param {import("./context").MediaQueryState} mediaQueryState
+ * @param {MediaQueryList} mediaQueryList
  * @returns {void}
  */

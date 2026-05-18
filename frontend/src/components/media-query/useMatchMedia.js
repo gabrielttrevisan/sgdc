@@ -11,9 +11,11 @@ export default function useMatchMedia(query, init = false) {
   const breakpoints = useMatchMediaContext();
 
   useEffect(() => {
-    breakpoints.matches(query, (e) => {
+    const cleanUp = breakpoints.matches(query, (e) => {
       setMatches(e.matches);
     });
+
+    return () => cleanUp();
   }, []);
 
   return matches;

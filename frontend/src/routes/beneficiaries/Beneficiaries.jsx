@@ -15,7 +15,6 @@ import { VisuallyHidden } from "../../components/accessibility/visually-hidden/V
 import Toaster from "../../components/toast/ToastStorage";
 
 import "./Beneficiaries.css";
-import { TestComponent } from "../../components/media-query/TestComponent";
 
 export const Beneficiaries = () => {
   const dataGridRef = useRef(null);
@@ -73,10 +72,6 @@ export const Beneficiaries = () => {
 
   return (
     <>
-      <TestComponent />
-      <TestComponent />
-      <TestComponent />
-
       <SensitiveModal ref={modalRef} showCloseButton>
         Os registros vinculados ao beneficiário não poderão ser recuperados.
       </SensitiveModal>
