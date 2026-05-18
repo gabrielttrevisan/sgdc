@@ -9,6 +9,13 @@ export const MatchMediaProvider = ({ children }) => {
   const updateMap = (breakpoint, mediaQueryState) => {
     setMediaQueryStates((prev) => {
       const newMap = new Map(prev.entries());
+      const previous = prev.get(breakpoint);
+
+      if (previous)
+        mediaQueryState.listeners = new Set([
+          ...mediaQueryState.listeners,
+          ...previous.listeners,
+        ]);
 
       newMap.set(breakpoint, mediaQueryState);
 
