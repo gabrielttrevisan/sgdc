@@ -14,6 +14,7 @@ import { FormControllerProvider } from "../../components/form/context/FormContro
 import "./Beneficiaries.css";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
 import Toaster from "../../components/toast/ToastStorage";
+import { TestComponent } from "../../components/media-query/TestComponent";
 
 export const Beneficiaries = () => {
   const dataGridRef = useRef(null);
@@ -104,6 +105,8 @@ export const Beneficiaries = () => {
           }}
         />
       </FormControllerProvider>
+
+      <TestComponent />
 
       <DataGrid
         ref={dataGridRef}
