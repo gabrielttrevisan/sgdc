@@ -248,6 +248,8 @@ export function DataGrid({
           currentPage={page.page}
           onPaginate={(toPage) => getPage(toPage, page.sortBy)}
           totalPages={page.totalPages}
+          className="data-grid__pagination-links"
+          buttonClassName="data-grid__pagination-link"
         />
       </div>
     </section>

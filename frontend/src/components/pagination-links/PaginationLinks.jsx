@@ -8,19 +8,26 @@
  * @prop {number} currentPage
  * @prop {number} totalPages
  * @prop {OnPaginateCallback} onPaginate
+ * @prop {string} [buttonClassName]
  */
 
-/** @type {import("react").FC<PaginationLinksProps>} */
-export const PaginationLinks = ({ onPaginate, currentPage, totalPages }) => {
+/** @type {import("react").FC<PaginationLinksProps & import("react").HTMLProps<"div">>} */
+export const PaginationLinks = ({
+  onPaginate,
+  currentPage,
+  totalPages,
+  className,
+  buttonClassName,
+}) => {
   return (
-    <nav role="navigation" className="data-grid__pagination-links">
+    <nav role="navigation" className={className}>
       {Array.from({ length: totalPages }).map((_, index) => {
         const iterPage = index + 1;
 
         return (
           <button
             key={iterPage}
-            className="data-grid__pagination-link"
+            className={buttonClassName}
             aria-current={iterPage === currentPage ? "page" : undefined}
             aria-label={`Ir para a página ${iterPage}`}
             onClick={() => {
