@@ -27,6 +27,8 @@ export const MatchMediaProvider = ({ children }) => {
       mediaQueryList = window.matchMedia(query);
 
       updateMap(query, mediaQueryList);
+
+      changeHandler({ matches: mediaQueryList.matches, query });
     }
 
     mediaQueryList.addEventListener("change", listener);

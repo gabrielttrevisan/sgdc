@@ -7,7 +7,7 @@ export const MediaQueryContext = createContext(null);
  * @typedef {Object} MediaQueryMatchChangeEvent
  * @prop {boolean} matches
  * @prop {string} query
- * @prop {MediaQueryListEvent} nativeEvent
+ * @prop {MediaQueryListEvent} [nativeEvent]
  */
 
 /**

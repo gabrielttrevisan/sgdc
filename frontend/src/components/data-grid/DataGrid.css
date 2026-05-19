@@ -167,8 +167,17 @@
     }
 
     .data-grid__item-actions {
-      margin-top: 0.5rem;
+      margin-top: 1rem;
       grid-column: 1 / 3;
+
+      &::before {
+        content: " ";
+        display: block;
+        width: 100%;
+        height: 1px;
+        background-color: var(--colors-border-medium);
+        margin-bottom: 1rem;
+      }
 
       .action-list__action {
         border-radius: 0.3333rem;
@@ -214,7 +223,7 @@ div.data-grid__filter-list {
   overflow: visible;
   position: relative;
 
-  @media (min-width: 1200px) {
+  @media (min-width: 1255px) {
     border-radius: var(--data-grid-radius);
     box-shadow: var(--data-grid-shadow);
     overflow: hidden;
