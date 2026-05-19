@@ -22,6 +22,7 @@ import { DataGridItemActions } from "./table/DataGridItemActions";
 import { DataGridFilter } from "./table/DataGridFilter";
 import { IsDataGridMobileProvider } from "./context/IsDataGridMobileProvider";
 import { DataGridHeader } from "./table/DataGridHeader";
+import { DataGridHeaderActions } from "./table/DataGridHeaderActions";
 
 /**
  * @typedef {"none"|"asc"|"desc"} SortState
@@ -152,7 +153,7 @@ export function DataGrid({
             {title ?? pluralName}
           </h2>
 
-          <div className="data-grid__header-actions">
+          <DataGridHeaderActions>
             <SearchBox
               onSearch={(query) => getPage(1, undefined, query)}
               onReset={() => getPage(1, undefined, undefined)}
@@ -165,7 +166,7 @@ export function DataGrid({
             />
 
             {children}
-          </div>
+          </DataGridHeaderActions>
         </DataGridHeader>
 
         <div
@@ -253,6 +254,7 @@ export function DataGrid({
             totalRecords={page.totalRecords}
             pluralName={pluralName}
             singularName={singularName}
+            className="data-grid__pagination-info"
           />
 
           <PaginationLinks
