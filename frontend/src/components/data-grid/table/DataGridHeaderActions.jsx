@@ -7,7 +7,7 @@ export const DataGridHeaderActions = ({
   className = "",
   ...props
 }) => {
-  const isMobile = useMatchMedia("(max-width: 600px)");
+  const isMobile = useMatchMedia("(max-width: 768px)");
 
   const headerActionsClassName = `data-grid__header-actions ${className}`;
 
