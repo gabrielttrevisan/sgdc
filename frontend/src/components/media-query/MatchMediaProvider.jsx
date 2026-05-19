@@ -17,7 +17,7 @@ export const MatchMediaProvider = ({ children }) => {
   };
 
   /** @type {import("./context").MediaQueryMatchCheckCallback} */
-  const matches = (query, changeHandler) => {
+  const matches = (query, changeHandler, init = false) => {
     let mediaQueryList = mediaQueries.get(query);
     const listener = (e) => {
       changeHandler({ matches: e.matches, query, nativeEvent: e });
@@ -28,7 +28,8 @@ export const MatchMediaProvider = ({ children }) => {
 
       updateMap(query, mediaQueryList);
 
-      changeHandler({ matches: mediaQueryList.matches, query });
+      if (init !== mediaQueryList.matches)
+        changeHandler({ matches: mediaQueryList.matches, query });
     }
 
     mediaQueryList.addEventListener("change", listener);

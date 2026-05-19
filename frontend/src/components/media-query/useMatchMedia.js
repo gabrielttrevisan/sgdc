@@ -11,9 +11,13 @@ export default function useMatchMedia(query, init = false) {
   const mediaQuery = useMatchMediaContext();
 
   useEffect(() => {
-    const cleanUp = mediaQuery.matches(query, (e) => {
-      setMatches(e.matches);
-    });
+    const cleanUp = mediaQuery.matches(
+      query,
+      (e) => {
+        setMatches(e.matches);
+      },
+      init,
+    );
 
     return () => cleanUp();
   }, []);

@@ -20,6 +20,7 @@ export const MediaQueryContext = createContext(null);
  * @callback MediaQueryMatchCheckCallback
  * @param {string} query
  * @param {OnMediaQueryMatchChangeHandler} changeHandler
+ * @param {boolean} [init]
  * @returns {VoidFunction}
  */
 
