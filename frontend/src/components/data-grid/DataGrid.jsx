@@ -12,6 +12,15 @@ import { PaginationLinks } from "../pagination-links/PaginationLinks";
 import { SearchBox } from "../search-box/SearchBox";
 import Toaster from "../toast/ToastStorage";
 import "./DataGrid.css";
+import { DataGridContent } from "./table/DataGridContent";
+import { DataGridFilterList } from "./table/DataGridFilterList";
+import { DataGridItemList } from "./table/DataGridItemList";
+import { DataGridEmptyMessage } from "./table/DataGridEmptyMessage";
+import { DataGridItem } from "./table/DataGridItem";
+import { DataGridItemProp } from "./table/DataGridItemProp";
+import { DataGridItemActions } from "./table/DataGridItemActions";
+import { DataGridFilter } from "./table/DataGridFilter";
+import { IsDataGridMobileProvider } from "./context/IsDataGridMobileProvider";
 
 /**
  * @typedef {"none"|"asc"|"desc"} SortState
@@ -69,7 +78,7 @@ export function DataGrid({
   columns,
   ref,
   actionsCellClassName,
-  rowClassName,
+  rowClassName = "",
   children,
   searchBoxPlaceholder,
 }) {
@@ -135,123 +144,125 @@ export function DataGrid({
   );
 
   return (
-    <section className="data-grid">
-      <div className="data-grid__header">
-        <h2 className="data-grid__title" id={`data-grid-title-${pluralName}`}>
-          {title ?? pluralName}
-        </h2>
+    <IsDataGridMobileProvider>
+      <section className="data-grid">
+        <div className="data-grid__header">
+          <h2 className="data-grid__title" id={`data-grid-title-${pluralName}`}>
+            {title ?? pluralName}
+          </h2>
 
-        <div className="data-grid__header-actions">
-          <SearchBox
-            onSearch={(query) => getPage(1, undefined, query)}
-            onReset={() => getPage(1, undefined, undefined)}
-            placeholder={
-              searchBoxPlaceholder
-                ? searchBoxPlaceholder
-                : `Buscar ${pluralName?.toLocaleLowerCase() ?? "registros"}...`
-            }
-            gridId={`data-grid-${pluralName}`}
-          />
+          <div className="data-grid__header-actions">
+            <SearchBox
+              onSearch={(query) => getPage(1, undefined, query)}
+              onReset={() => getPage(1, undefined, undefined)}
+              placeholder={
+                searchBoxPlaceholder
+                  ? searchBoxPlaceholder
+                  : `Buscar ${pluralName?.toLocaleLowerCase() ?? "registros"}...`
+              }
+              gridId={`data-grid-${pluralName}`}
+            />
 
-          {children}
-        </div>
-      </div>
-
-      <div
-        className="data-grid__table-wrapper data-grid__has-overlay"
-        aria-busy={page.loading}
-      >
-        <Activity mode={page.loading ? "visible" : "hidden"}>
-          <div className="data-grid__loading-overlay">
-            <p>Carregando</p>
+            {children}
           </div>
-        </Activity>
+        </div>
 
-        <table
-          className="data-grid__table --beneficiaries"
-          role="grid"
-          id={`data-grid-${pluralName}`}
-          aria-rowcount={page.items.length}
-          aria-labelledby={`data-grid-title-${pluralName}`}
+        <div
+          className="data-grid__table-wrapper data-grid__has-overlay"
+          aria-busy={page.loading}
         >
-          <thead>
-            <tr role="row">
+          <Activity mode={page.loading ? "visible" : "hidden"}>
+            <div className="data-grid__loading-overlay">
+              <p>Carregando</p>
+            </div>
+          </Activity>
+
+          <DataGridContent
+            className="data-grid__table --beneficiaries"
+            role="grid"
+            id={`data-grid-${pluralName}`}
+            aria-rowcount={page.items.length}
+            aria-labelledby={`data-grid-title-${pluralName}`}
+          >
+            <DataGridFilterList>
               {columns.map((column) => (
-                <th
+                <DataGridFilter
                   key={column.id}
                   className={column.headingClassName}
-                  role="columnheader"
+                  sortable={column.sortable}
                 >
-                  <div>
-                    <span>{column.title}</span>
+                  <span>{column.title}</span>
 
-                    {column.sortable && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (page.sortBy !== column.sortKey)
-                            getPage(1, column.sortKey);
-                          else getPage(1);
-                        }}
-                      >
-                        {column.sortIcon}
-                      </button>
-                    )}
-                  </div>
-                </th>
+                  {column.sortable && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (page.sortBy !== column.sortKey)
+                          getPage(1, column.sortKey);
+                        else getPage(1);
+                      }}
+                    >
+                      {column.sortIcon}
+                    </button>
+                  )}
+                </DataGridFilter>
               ))}
+            </DataGridFilterList>
 
-              <th>Ações</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {page.items.length === 0 && (
-              <tr>
-                <td
+            <DataGridItemList>
+              {page.items.length === 0 && (
+                <DataGridEmptyMessage
                   colSpan={1 + columns.length}
                   className="data-grid__no-results"
                 >
                   Nenhum resultado encontrado
-                </td>
-              </tr>
-            )}
+                </DataGridEmptyMessage>
+              )}
 
-            {page.items.map((item) => (
-              <tr key={item.nationalId} className={rowClassName} role="row">
-                {columns.map((column) => (
-                  <td key={column.id} className={column.className}>
-                    <column.DataGridCell {...item} />
-                  </td>
-                ))}
+              {page.items.map((item) => (
+                <DataGridItem
+                  key={item.nationalId}
+                  className={rowClassName}
+                  role="row"
+                >
+                  {columns.map((column) => (
+                    <DataGridItemProp
+                      key={column.id}
+                      className={column.className}
+                      heading={column.title}
+                    >
+                      <column.DataGridCell {...item} />
+                    </DataGridItemProp>
+                  ))}
 
-                {actionsConfig && (
-                  <td className={actionsCellClassName}>
-                    <ActionList target={item} actions={actionsConfig} />
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  {actionsConfig && (
+                    <DataGridItemActions className={actionsCellClassName}>
+                      <ActionList target={item} actions={actionsConfig} />
+                    </DataGridItemActions>
+                  )}
+                </DataGridItem>
+              ))}
+            </DataGridItemList>
+          </DataGridContent>
+        </div>
 
-      <div className="data-grid__pagination">
-        <PaginationInfo
-          perPage={page.items.length}
-          totalRecords={page.totalRecords}
-          pluralName={pluralName}
-          singularName={singularName}
-        />
+        <div className="data-grid__pagination">
+          <PaginationInfo
+            perPage={page.items.length}
+            totalRecords={page.totalRecords}
+            pluralName={pluralName}
+            singularName={singularName}
+          />
 
-        <PaginationLinks
-          currentPage={page.page}
-          onPaginate={(toPage) => getPage(toPage, page.sortBy)}
-          totalPages={page.totalPages}
-          className="data-grid__pagination-links"
-          buttonClassName="data-grid__pagination-link"
-        />
-      </div>
-    </section>
+          <PaginationLinks
+            currentPage={page.page}
+            onPaginate={(toPage) => getPage(toPage, page.sortBy)}
+            totalPages={page.totalPages}
+            className="data-grid__pagination-links"
+            buttonClassName="data-grid__pagination-link"
+          />
+        </div>
+      </section>
+    </IsDataGridMobileProvider>
   );
 }

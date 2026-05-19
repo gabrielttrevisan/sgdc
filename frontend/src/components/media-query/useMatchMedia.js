@@ -8,10 +8,10 @@ import useMatchMediaContext from "./useMatchMediaContext";
  */
 export default function useMatchMedia(query, init = false) {
   const [matches, setMatches] = useState(init);
-  const breakpoints = useMatchMediaContext();
+  const mediaQuery = useMatchMediaContext();
 
   useEffect(() => {
-    const cleanUp = breakpoints.matches(query, (e) => {
+    const cleanUp = mediaQuery.matches(query, (e) => {
       setMatches(e.matches);
     });
 

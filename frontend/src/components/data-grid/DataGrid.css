@@ -74,6 +74,12 @@
   }
 }
 
+.data-grid__item-list {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
 .data-grid__table {
   border-collapse: separate;
   border-spacing: 0;
@@ -119,7 +125,7 @@
     }
   }
 
-  tr {
+  .data-grid__item {
     background-color: var(--colors-background-light);
     transition: var(--transitions-calm);
 
