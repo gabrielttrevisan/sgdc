@@ -40,6 +40,10 @@ li.data-grid__item.beneficiary__row {
   .beneficiary__col {
     height: max-content;
 
+    &.--name {
+      grid-column: 1 / 3;
+    }
+
     &.--national-id {
       grid-column: 1 / 2;
     }

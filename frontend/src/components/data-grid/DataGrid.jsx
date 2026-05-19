@@ -21,6 +21,7 @@ import { DataGridItemProp } from "./table/DataGridItemProp";
 import { DataGridItemActions } from "./table/DataGridItemActions";
 import { DataGridFilter } from "./table/DataGridFilter";
 import { IsDataGridMobileProvider } from "./context/IsDataGridMobileProvider";
+import { DataGridHeader } from "./table/DataGridHeader";
 
 /**
  * @typedef {"none"|"asc"|"desc"} SortState
@@ -146,7 +147,7 @@ export function DataGrid({
   return (
     <IsDataGridMobileProvider>
       <section className="data-grid">
-        <div className="data-grid__header">
+        <DataGridHeader>
           <h2 className="data-grid__title" id={`data-grid-title-${pluralName}`}>
             {title ?? pluralName}
           </h2>
@@ -165,7 +166,7 @@ export function DataGrid({
 
             {children}
           </div>
-        </div>
+        </DataGridHeader>
 
         <div
           className="data-grid__table-wrapper data-grid__has-overlay"
