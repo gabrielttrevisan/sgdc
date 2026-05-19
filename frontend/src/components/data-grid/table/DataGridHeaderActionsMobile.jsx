@@ -1,5 +1,6 @@
 import { Children, useCallback, useState } from "react";
 import { AppsIcon } from "../../icons/AppsIcon";
+import { VisuallyHidden } from "../../accessibility/visually-hidden/VisuallyHidden";
 
 /** @type {import("react").FC<import("react").HTMLProps<"div">>} */
 export const DataGridHeaderActionsMobile = ({
@@ -38,6 +39,9 @@ export const DataGridHeaderActionsMobile = ({
         id="datagrid-actions-button"
       >
         <AppsIcon size={24} />
+        <VisuallyHidden>
+          {isOpen ? "Fechar menu de ações" : "Abrir menu de ações"}
+        </VisuallyHidden>
       </button>
 
       <div
