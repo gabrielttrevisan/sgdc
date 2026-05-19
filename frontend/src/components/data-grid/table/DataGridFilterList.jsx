@@ -1,13 +1,15 @@
 import useIsDataGridMobile from "../context/useIsDataGridMobile";
 
 /** @type {import("react").FC<import("react").HTMLProps<"thead">>} */
-export const DataGridFilterList = ({ children, ...props }) => {
+export const DataGridFilterList = ({ children, className = "", ...props }) => {
   const isMobile = useIsDataGridMobile();
 
-  if (isMobile) return <div>{children}</div>;
+  const filterListClassName = `data-grid__filter-list ${className}`;
+
+  if (isMobile) return <div className={filterListClassName}>{children}</div>;
 
   return (
-    <thead {...props}>
+    <thead className={filterListClassName} {...props}>
       <tr role="row">
         {children}
 

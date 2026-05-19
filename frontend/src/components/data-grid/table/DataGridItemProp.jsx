@@ -8,16 +8,18 @@ import useIsDataGridMobile from "../context/useIsDataGridMobile";
 /** @type {import("react").FC<import("react").HTMLProps<"tr"> & DataGridItemPropProps>} */
 export const DataGridItemProp = ({
   children,
-  className,
+  className = "",
   heading,
   ...props
 }) => {
   const isMobile = useIsDataGridMobile();
 
+  const itemPropClassName = `data-grid__item-prop ${className}`;
+
   if (isMobile) {
     return (
-      <div className={className} {...props}>
-        <p>{heading}</p>
+      <div className={itemPropClassName} {...props}>
+        <p className="data-grid__item-prop-title">{heading}</p>
 
         <div>{children}</div>
       </div>
@@ -25,7 +27,7 @@ export const DataGridItemProp = ({
   }
 
   return (
-    <td className={className} {...props}>
+    <td className={itemPropClassName} {...props}>
       {children}
     </td>
   );
