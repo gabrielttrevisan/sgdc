@@ -1,7 +1,6 @@
 import { useCallback, useImperativeHandle, useRef, useState } from "react";
 import { CloseIconLarge } from "../../icons/CloseIconLarge";
 import { Form } from "../Form";
-import { FormGrid } from "../grid/FormGrid";
 import "./FormModal.css";
 import { useFormController } from "../context/useFormController";
 
@@ -98,7 +97,7 @@ export const FormModal = ({
           </button>
         </header>
 
-        <FormGrid className="form-modal__content">{children}</FormGrid>
+        <div className="form-modal__content">{children}</div>
 
         <footer>
           <button

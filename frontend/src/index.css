@@ -8,7 +8,8 @@
   --colors-primary-4: rgba(146, 149, 215, 0.4);
   --colors-primary-45: rgba(146, 149, 215, 0.65);
   --colors-text-dark: #000000;
-  --colors-text-medium: #666666;
+  --colors-text-medium: rgb(102, 102, 102);
+  --colors-border-medium: rgba(0, 0, 0, 0.1);
   --colors-background-light: #fefefe;
   --colors-background-medium: #eeeeee;
   --colors-background-backdrop: rgba(0, 0, 0, 0.75);

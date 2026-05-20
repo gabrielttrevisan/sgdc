@@ -15,7 +15,9 @@ export const Layout = () => {
   return (
     <div className="sgdc-layout">
       <aside>
-        <img src={sgdcLogo} alt="SGDC" className="sgdc-logo" />
+        <div className="scdc-layout__img-wrapper">
+          <img src={sgdcLogo} alt="SGDC" className="sgdc-logo" />
+        </div>
 
         <Nav>
           <NavSection
