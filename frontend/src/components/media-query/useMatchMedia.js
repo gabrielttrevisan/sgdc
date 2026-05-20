@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import useMatchMediaContext from "./useMatchMediaContext";
+import { useResolvedPath } from "react-router";
 
 /**
  * @param {string} query
@@ -9,6 +10,7 @@ import useMatchMediaContext from "./useMatchMediaContext";
 export default function useMatchMedia(query, init = false) {
   const [matches, setMatches] = useState(init);
   const mediaQuery = useMatchMediaContext();
+  const path = useResolvedPath();
 
   useEffect(() => {
     const cleanUp = mediaQuery.matches(
@@ -20,7 +22,13 @@ export default function useMatchMedia(query, init = false) {
     );
 
     return () => cleanUp();
-  }, []);
+  }, [query]);
+
+  useEffect(() => {
+    const list = window.matchMedia(query);
+
+    setMatches(list.matches);
+  }, [path.pathname]);
 
   return matches;
 }
