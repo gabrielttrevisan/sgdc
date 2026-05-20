@@ -12,17 +12,17 @@ import { PaginationLinks } from "../pagination-links/PaginationLinks";
 import { SearchBox } from "../search-box/SearchBox";
 import Toaster from "../toast/ToastStorage";
 import "./DataGrid.css";
-import { DataGridContent } from "./table/DataGridContent";
-import { DataGridFilterList } from "./table/DataGridFilterList";
-import { DataGridItemList } from "./table/DataGridItemList";
-import { DataGridEmptyMessage } from "./table/DataGridEmptyMessage";
-import { DataGridItem } from "./table/DataGridItem";
-import { DataGridItemProp } from "./table/DataGridItemProp";
-import { DataGridItemActions } from "./table/DataGridItemActions";
-import { DataGridFilter } from "./table/DataGridFilter";
+import { DataGridContent } from "./grid/DataGridContent";
+import { DataGridFilterList } from "./grid/DataGridFilterList";
+import { DataGridItemList } from "./grid/DataGridItemList";
+import { DataGridEmptyMessage } from "./grid/DataGridEmptyMessage";
+import { DataGridItem } from "./grid/DataGridItem";
+import { DataGridItemProp } from "./grid/DataGridItemProp";
+import { DataGridItemActions } from "./grid/DataGridItemActions";
+import { DataGridFilter } from "./grid/DataGridFilter";
 import { IsDataGridMobileProvider } from "./context/IsDataGridMobileProvider";
-import { DataGridHeader } from "./table/DataGridHeader";
-import { DataGridHeaderActions } from "./table/DataGridHeaderActions";
+import { DataGridHeader } from "./grid/DataGridHeader";
+import { DataGridHeaderActions } from "./grid/DataGridHeaderActions";
 
 /**
  * @typedef {"none"|"asc"|"desc"} SortState
