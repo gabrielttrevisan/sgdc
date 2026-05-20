@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { env } from "./config/env.js";
-import healthCheckRoute from "./routes/heanthcheck.route.js";
+import exampleRoute from "./routes/example.route.js";
 import notFoundHandler from "./routes/404.route.js";
 
 const app = express();
@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 app.use(cors({ origin: env.FRONTEND_URL }));
 
-app.get("/healthcheck", healthCheckRoute);
+app.get("/test", exampleRoute);
 
 app.use(notFoundHandler);
 
