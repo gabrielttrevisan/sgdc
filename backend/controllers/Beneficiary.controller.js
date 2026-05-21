@@ -9,7 +9,7 @@ export default class BeneficiaryController {
   static async findAll(req, res) {
     /** @type {import("../models/Beneficiary.model.js").FindAllFilter} */
     const filter = {};
-    const { q, sortKey, sortType } = req.query;
+    const { q, sortKey, sortType, page, perPage } = req.query;
 
     if (q && (typeof q !== "string" || q.trim().length === 0)) {
       return res.status(400).send(
@@ -54,6 +54,36 @@ export default class BeneficiaryController {
         );
       }
     }
+
+    if (page) {
+      const parsedPage = parseInt(page);
+
+      if (isNaN(parsedPage) || parsedPage < 1) {
+        return res.status(400).send(
+          APIResponse.badRequestError({
+            code: "PAGINATION_ERROR",
+            description: "Página inválida",
+          }),
+        );
+      }
+
+      filter.page = parsedPage;
+    } else filter.page = 1;
+
+    if (perPage) {
+      const parsedPerPage = parseInt(perPage);
+
+      if (isNaN(parsedPerPage) || parsedPerPage < 10 || parsedPerPage > 30) {
+        return res.status(400).send(
+          APIResponse.badRequestError({
+            code: "PAGINATION_ERROR",
+            description: "Quantidade paginada inadequada",
+          }),
+        );
+      }
+
+      filter.perPage = parsedPerPage;
+    } else filter.perPage = 10;
 
     const [beneficiaries, error] = await BeneficiaryModel.findAll(filter);
 
