@@ -80,7 +80,6 @@ export default class BeneficiaryController {
     const [beneficiaries, error] = await BeneficiaryModel.findAll(filter);
 
     if (error) {
-      console.error(error);
       return response.internalError();
     } else {
       if (beneficiaries.length === 0)
@@ -128,7 +127,6 @@ export default class BeneficiaryController {
     const [beneficiary, error] = await BeneficiaryModel.findById(parsedId);
 
     if (error) {
-      console.error(error);
       return res.status(500).send(APIResponse.internalError());
     } else {
       if (!beneficiary) return response.notFound("Beneficiário não encontrado");
@@ -171,7 +169,6 @@ export default class BeneficiaryController {
     const [isDeleted, error] = await BeneficiaryModel.delete(parsedId);
 
     if (error) {
-      console.error(error);
       return response.internalError();
     } else {
       if (!isDeleted) return response.notFound("Beneficiário não encontrado");
@@ -214,7 +211,16 @@ export default class BeneficiaryController {
     });
 
     if (error) {
-      console.error(error);
+      if (error?.message.includes("beneficiaries.NATIONAL_ID")) {
+        return response
+          .badRequest()
+          .withIssue(
+            "DUPLICATE_BENEFICIARY",
+            "Já existe um beneficiário cadastrado com esse CPF",
+          )
+          .send();
+      }
+
       return response.internalError();
     } else {
       if (!isCreated)

@@ -109,7 +109,7 @@ export default class BeneficiaryModel {
       /** @type {PersistedBeneficiary} */
       const parsed = {
         id: beneficiary.ID,
-        city: beneficiary.CITY,
+        city: beneficiary.CITY_ID,
         complement: beneficiary.COMPLEMENT,
         family: null,
         gender: {
@@ -175,7 +175,7 @@ export default class BeneficiaryModel {
           INSERT INTO BENEFICIARIES (
             FULL_NAME, GENDER, NATIONAL_ID,
             PHONE, STREET, HOUSE_NUMBER, COMPLEMENT,
-            NEIGHBORHOOD, STATE, CITY
+            NEIGHBORHOOD, STATE, CITY_ID
           ) VALUES (
             ${name}, ${gender}, ${nationalId},
             ${phone}, ${street}, ${number}, ${complement},
@@ -254,7 +254,7 @@ export default class BeneficiaryModel {
  * @prop {string} COMPLEMENT
  * @prop {string} NEIGHBORHOOD
  * @prop {string} STATE
- * @prop {string} CITY
+ * @prop {string} CITY_ID
  * @prop {0|1} HAS_OPEN_REQUEST
  */
 
