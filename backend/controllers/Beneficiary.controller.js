@@ -7,17 +7,16 @@ export default class BeneficiaryController {
    * @param {import("express").Response} res
    */
   static async findAll(req, res) {
+    const response = APIResponse.from(res);
     /** @type {import("../models/Beneficiary.model.js").FindAllFilter} */
     const filter = {};
     const { q, sortKey, sortType, page, perPage } = req.query;
 
     if (q && (typeof q !== "string" || q.trim().length === 0)) {
-      return res.status(400).send(
-        APIResponse.badRequestError({
-          code: "INVALID_QUERY",
-          description: "Texto buscado inválido",
-        }),
-      );
+      return response
+        .badRequest()
+        .withIssue("INVALID_QUERY", "Texto buscado inválido")
+        .send();
     }
 
     filter.query = q;
@@ -25,33 +24,30 @@ export default class BeneficiaryController {
     if (sortKey) {
       if (sortKey === "name") {
         if (!sortType) {
-          return res.status(400).send(
-            APIResponse.badRequestError({
-              code: "SORT_TYPE_MISSING",
-              description: `Tipo de ordenação não informado`,
-            }),
-          );
+          return response
+            .badRequest()
+            .withIssue("SORT_TYPE_MISSING", `Tipo de ordenação não informado`)
+            .send();
         }
 
         if (!["asc", "desc"].includes(sortType))
-          return res.status(400).send(
-            APIResponse.badRequestError({
-              code: "SORT_TYPE_INVALID",
-              description: `Tipo de ordenação não compatível com chave de ordenação`,
-            }),
-          );
+          return response
+            .badRequest()
+            .withIssue(
+              "SORT_TYPE_INVALID",
+              `Tipo de ordenação não compatível com chave de ordenação`,
+            )
+            .send();
 
         filter.sortKey = sortKey;
         filter.sortType = sortType;
       } else if (sortKey === "request") {
         filter.sortKey = sortKey;
       } else {
-        return res.status(400).send(
-          APIResponse.badRequestError({
-            code: "SORT_KEY_INVALID",
-            description: "Chave de ordenação inválida",
-          }),
-        );
+        return response
+          .badRequest()
+          .withIssue("SORT_KEY_INVALID", "Chave de ordenação inválida")
+          .send();
       }
     }
 
@@ -59,12 +55,10 @@ export default class BeneficiaryController {
       const parsedPage = parseInt(page);
 
       if (isNaN(parsedPage) || parsedPage < 1) {
-        return res.status(400).send(
-          APIResponse.badRequestError({
-            code: "PAGINATION_ERROR",
-            description: "Página inválida",
-          }),
-        );
+        return response
+          .badRequest()
+          .withIssue("PAGINATION_ERROR", "Página inválida")
+          .send();
       }
 
       filter.page = parsedPage;
@@ -74,12 +68,10 @@ export default class BeneficiaryController {
       const parsedPerPage = parseInt(perPage);
 
       if (isNaN(parsedPerPage) || parsedPerPage < 10 || parsedPerPage > 30) {
-        return res.status(400).send(
-          APIResponse.badRequestError({
-            code: "PAGINATION_ERROR",
-            description: "Quantidade paginada inadequada",
-          }),
-        );
+        return response
+          .badRequest()
+          .withIssue("PAGINATION_ERROR", "Quantidade paginada inadequada")
+          .send();
       }
 
       filter.perPage = parsedPerPage;
@@ -89,14 +81,12 @@ export default class BeneficiaryController {
 
     if (error) {
       console.error(error);
-      return res.status(500).send(APIResponse.internalError());
+      return response.internalError();
     } else {
       if (beneficiaries.length === 0)
-        return res
-          .status(404)
-          .send(APIResponse.notFound("Nenhum beneficiário encontrado"));
+        return response.notFound("Nenhum beneficiário encontrado");
 
-      return res.status(200).send(APIResponse.success(beneficiaries));
+      return response.success(beneficiaries);
     }
   }
 
@@ -105,33 +95,35 @@ export default class BeneficiaryController {
    * @param {import("express").Response} res
    */
   static async findById(req, res) {
+    const response = APIResponse.from(res);
+
     if (!req.params)
-      return res.status(400).send(
-        APIResponse.badRequestError({
-          code: "MISSING_IDENTIFIER",
-          description: "Identificador do beneficiário não informado",
-        }),
-      );
+      return response
+        .badRequest()
+        .withIssue(
+          "MISSING_IDENTIFIER",
+          "Identificador do beneficiário não informado",
+        )
+        .send();
 
     const { id } = req.params;
 
     if (!id)
-      return res.status(400).send(
-        APIResponse.badRequestError({
-          code: "MISSING_IDENTIFIER",
-          description: "Identificador do beneficiário não informado",
-        }),
-      );
+      return response
+        .badRequest()
+        .withIssue(
+          "MISSING_IDENTIFIER",
+          "Identificador do beneficiário não informado",
+        )
+        .send();
 
     const parsedId = parseInt(id);
 
     if (isNaN(parsedId) || parsedId < 1)
-      return res.status(400).send(
-        APIResponse.badRequestError({
-          code: "INVALID_IDENTIFIER",
-          description: "Identificador inválido",
-        }),
-      );
+      return response
+        .badRequest()
+        .withIssue("INVALID_IDENTIFIER", "Identificador inválido")
+        .send();
 
     const [beneficiary, error] = await BeneficiaryModel.findById(parsedId);
 
@@ -139,12 +131,9 @@ export default class BeneficiaryController {
       console.error(error);
       return res.status(500).send(APIResponse.internalError());
     } else {
-      if (!beneficiary)
-        return res
-          .status(404)
-          .send(APIResponse.notFound("Beneficiário não encontrado"));
+      if (!beneficiary) return response.notFound("Beneficiário não encontrado");
 
-      return res.status(200).send(APIResponse.success(beneficiary));
+      return response.success(beneficiary);
     }
   }
 
@@ -153,46 +142,88 @@ export default class BeneficiaryController {
    * @param {import("express").Response} res
    */
   static async delete(req, res) {
+    const response = APIResponse.from(res);
+
     if (!req.params)
-      return res.status(400).send(
-        APIResponse.badRequestError({
+      return response
+        .badRequest({
           code: "MISSING_IDENTIFIER",
           description: "Identificador do beneficiário não informado",
-        }),
-      );
+        })
+        .send();
 
     const { id } = req.params;
 
     if (!id)
-      return res.status(400).send(
-        APIResponse.badRequestError({
-          code: "MISSING_IDENTIFIER",
-          description: "Identificador do beneficiário não informado",
-        }),
-      );
+      return response.badRequest({
+        code: "MISSING_IDENTIFIER",
+        description: "Identificador do beneficiário não informado",
+      });
 
     const parsedId = parseInt(id);
 
     if (isNaN(parsedId) || parsedId < 1)
-      return res.status(400).send(
-        APIResponse.badRequestError({
-          code: "INVALID_IDENTIFIER",
-          description: "Identificador inválido",
-        }),
-      );
+      return response.badRequest({
+        code: "INVALID_IDENTIFIER",
+        description: "Identificador inválido",
+      });
 
     const [isDeleted, error] = await BeneficiaryModel.delete(parsedId);
 
     if (error) {
       console.error(error);
-      return res.status(500).send(APIResponse.internalError());
+      return response.internalError();
     } else {
-      if (!isDeleted)
-        return res
-          .status(404)
-          .send(APIResponse.notFound("Beneficiário não encontrado"));
+      if (!isDeleted) return response.notFound("Beneficiário não encontrado");
 
-      return res.status(200).send(APIResponse.success({ success: true }));
+      return response.success({ success: true });
+    }
+  }
+
+  /**
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
+  static async create(req, res) {
+    const response = APIResponse.from(res);
+
+    const {
+      name,
+      gender,
+      nationalId,
+      phone,
+      street,
+      number,
+      complement = "",
+      neighborhood,
+      state,
+      city,
+    } = req.body;
+
+    const [isCreated, error] = await BeneficiaryModel.create({
+      name,
+      gender,
+      nationalId,
+      phone,
+      street,
+      number,
+      complement,
+      neighborhood,
+      state,
+      city,
+    });
+
+    if (error) {
+      console.error(error);
+      return response.internalError();
+    } else {
+      if (!isCreated)
+        return response
+          .badRequest()
+          .withIssue("INSERT_FAILURE", "Beneficiário não encontrado")
+          .send();
+
+      return response.success({ success: true });
     }
   }
 }

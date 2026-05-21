@@ -10,11 +10,11 @@ import sql from "./core/sql.js";
  */
 
 /**
- * @typedef {[import("../global.js").PageData<Beneficiary>, null]|[null, Error]} FindAllBeneficiariesTuple
+ * @typedef {[import("../global.js").PageData<TinyBeneficiary>, null]|[null, Error]} FindAllBeneficiariesTuple
  */
 
 /**
- * @typedef {[FullBeneficiary|null, null]|[null, Error]} FindBeneficiaryByIdTuple
+ * @typedef {[PersistedBeneficiary|null, null]|[null, Error]} FindBeneficiaryByIdTuple
  */
 
 /**
@@ -41,7 +41,7 @@ export default class BeneficiaryModel {
         : sql.empty;
       const limitClause = sql`LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
 
-      /** @type {[BeneficiaryRaw[], CountRaw[]]} */
+      /** @type {[TinyBeneficiaryRaw[], CountRaw[]]} */
       const [data, [{ TOTAL: total }]] = await Promise.all([
         sql.query`
           SELECT 
@@ -57,7 +57,7 @@ export default class BeneficiaryModel {
       ]);
 
       const beneficiaries = data.map((datum) => {
-        /** @type {Beneficiary} */
+        /** @type {TinyBeneficiary} */
         const beneficiary = {
           id: datum.ID,
           name: datum.FULL_NAME,
@@ -94,7 +94,7 @@ export default class BeneficiaryModel {
    */
   static async findById(id) {
     try {
-      /** @type {[FullBeneficiaryRaw]} */
+      /** @type {[FullPersistedBeneficiaryRaw]} */
       const data = await sql.query`
           SELECT 
             B.*,
@@ -106,7 +106,7 @@ export default class BeneficiaryModel {
 
       const [beneficiary] = data;
 
-      /** @type {FullBeneficiary} */
+      /** @type {PersistedBeneficiary} */
       const parsed = {
         id: beneficiary.ID,
         city: beneficiary.CITY,
@@ -153,10 +153,48 @@ export default class BeneficiaryModel {
       return [false, error];
     }
   }
+
+  /**
+   * @param {Beneficiary} beneficiary
+   * @returns {Promise<BooleanTuple>}
+   */
+  static async create({
+    name,
+    gender,
+    nationalId,
+    phone,
+    street,
+    number,
+    complement,
+    neighborhood,
+    state,
+    city,
+  }) {
+    try {
+      const created = await sql.exec`
+          INSERT INTO BENEFICIARIES (
+            FULL_NAME, GENDER, NATIONAL_ID,
+            PHONE, STREET, HOUSE_NUMBER, COMPLEMENT,
+            NEIGHBORHOOD, STATE, CITY
+          ) VALUES (
+            ${name}, ${gender}, ${nationalId},
+            ${phone}, ${street}, ${number}, ${complement},
+            ${neighborhood}, ${state}, ${city}
+          )
+        `.run();
+
+      if (created.affectedRows < 1) return [false, null];
+
+      return [true, null];
+    } catch (error) {
+      console.error(error);
+      return [false, error];
+    }
+  }
 }
 
 /**
- * @typedef {Object} Beneficiary
+ * @typedef {Object} TinyBeneficiary
  * @prop {number} id
  * @prop {string} nationalId
  * @prop {string} name
@@ -164,7 +202,7 @@ export default class BeneficiaryModel {
  */
 
 /**
- * @typedef {Object} BeneficiaryRaw
+ * @typedef {Object} TinyBeneficiaryRaw
  * @prop {number} ID
  * @prop {string} NATIONAL_ID
  * @prop {string} FULL_NAME
@@ -172,7 +210,23 @@ export default class BeneficiaryModel {
  */
 
 /**
- * @typedef {Object} FullBeneficiary
+ * @typedef {Object} Beneficiary
+ * @prop {string} nationalId
+ * @prop {string} name
+ * @prop {string} phone
+ * @prop {"m"|"f"|"o"} gender
+ * @prop {string} family
+ * @prop {string} street
+ * @prop {string} number
+ * @prop {string} complement
+ * @prop {string} neighborhood
+ * @prop {string} city
+ * @prop {string} state
+ * @prop {boolean} hasOpenRequest
+ */
+
+/**
+ * @typedef {Object} PersistedBeneficiary
  * @prop {number} id
  * @prop {string} nationalId
  * @prop {string} name
@@ -189,7 +243,7 @@ export default class BeneficiaryModel {
  */
 
 /**
- * @typedef {Object} FullBeneficiaryRaw
+ * @typedef {Object} FullPersistedBeneficiaryRaw
  * @prop {number} ID
  * @prop {string} FULL_NAME
  * @prop {string} GENDER
