@@ -17,6 +17,10 @@ import sql from "./core/sql.js";
  * @typedef {[FullBeneficiary|null, null]|[null, Error]} FindBeneficiaryByIdTuple
  */
 
+/**
+ * @typedef {[boolean, null]|[false, Error]} BooleanTuple
+ */
+
 export default class BeneficiaryModel {
   /**
    * @param {FindAllFilter} [filter]
@@ -26,8 +30,8 @@ export default class BeneficiaryModel {
     try {
       const likeQuery = `%${query}%`;
       const whereClause = query
-        ? sql`WHERE FULL_NAME LIKE ${likeQuery} OR NATIONAL_ID LIKE ${likeQuery}`
-        : sql.empty;
+        ? sql`WHERE DELETED_AT IS NULL AND (FULL_NAME LIKE ${likeQuery} OR NATIONAL_ID LIKE ${likeQuery})`
+        : sql`WHERE DELETED_AT IS NULL`;
       const orderByColumn =
         sortKey === "name" ? sql`FULL_NAME` : sql`HAS_OPEN_REQUEST`;
       const orderBySorting =
@@ -126,6 +130,27 @@ export default class BeneficiaryModel {
       return [parsed, null];
     } catch (error) {
       return [null, error];
+    }
+  }
+
+  /**
+   * @param {number} id
+   * @returns {Promise<BooleanTuple>}
+   */
+  static async delete(id) {
+    try {
+      const deleted = await sql.exec`
+          UPDATE BENEFICIARIES 
+          SET DELETED_AT = CURRENT_TIMESTAMP() 
+          WHERE ID = ${id}
+        `.run();
+
+      if (deleted.affectedRows < 1) return [false, null];
+
+      return [true, null];
+    } catch (error) {
+      console.error(error);
+      return [false, error];
     }
   }
 }

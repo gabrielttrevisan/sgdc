@@ -147,4 +147,52 @@ export default class BeneficiaryController {
       return res.status(200).send(APIResponse.success(beneficiary));
     }
   }
+
+  /**
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
+  static async delete(req, res) {
+    if (!req.params)
+      return res.status(400).send(
+        APIResponse.badRequestError({
+          code: "MISSING_IDENTIFIER",
+          description: "Identificador do beneficiário não informado",
+        }),
+      );
+
+    const { id } = req.params;
+
+    if (!id)
+      return res.status(400).send(
+        APIResponse.badRequestError({
+          code: "MISSING_IDENTIFIER",
+          description: "Identificador do beneficiário não informado",
+        }),
+      );
+
+    const parsedId = parseInt(id);
+
+    if (isNaN(parsedId) || parsedId < 1)
+      return res.status(400).send(
+        APIResponse.badRequestError({
+          code: "INVALID_IDENTIFIER",
+          description: "Identificador inválido",
+        }),
+      );
+
+    const [isDeleted, error] = await BeneficiaryModel.delete(parsedId);
+
+    if (error) {
+      console.error(error);
+      return res.status(500).send(APIResponse.internalError());
+    } else {
+      if (!isDeleted)
+        return res
+          .status(404)
+          .send(APIResponse.notFound("Beneficiário não encontrado"));
+
+      return res.status(200).send(APIResponse.success({ success: true }));
+    }
+  }
 }
