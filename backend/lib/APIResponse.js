@@ -30,6 +30,10 @@ export default class APIResponse {
     return APIResponse.error("INTERNAL_SERVER_ERROR", "Internal server error");
   }
 
+  static notFound(message) {
+    return APIResponse.error("NOT_FOUND", message);
+  }
+
   /**
    * @param {string} message
    * @param {Issue[]} issues

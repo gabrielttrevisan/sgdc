@@ -10,13 +10,17 @@ import sql from "./core/sql.js";
  */
 
 /**
- * @typedef {[import("../global.js").PageData<Beneficiary>, null]|[null, Error]} FindAllTuple
+ * @typedef {[import("../global.js").PageData<Beneficiary>, null]|[null, Error]} FindAllBeneficiariesTuple
+ */
+
+/**
+ * @typedef {[FullBeneficiary|null, null]|[null, Error]} FindBeneficiaryByIdTuple
  */
 
 export default class BeneficiaryModel {
   /**
    * @param {FindAllFilter} [filter]
-   * @returns {Promise<FindAllTuple>}
+   * @returns {Promise<FindAllBeneficiariesTuple>}
    */
   static async findAll({ query, sortKey, sortType, page = 1, perPage = 10 }) {
     try {
@@ -79,22 +83,100 @@ export default class BeneficiaryModel {
       return [null, error];
     }
   }
+
+  /**
+   * @param {number} id
+   * @returns {Promise<FindBeneficiaryByIdTuple>}
+   */
+  static async findById(id) {
+    try {
+      /** @type {[FullBeneficiaryRaw]} */
+      const data = await sql.query`
+          SELECT 
+            B.*,
+            0 AS HAS_OPEN_REQUEST
+          FROM BENEFICIARIES B
+          WHERE B.ID = ${id}`.run();
+
+      if (data.length === 0) return [null, null];
+
+      const [beneficiary] = data;
+
+      /** @type {FullBeneficiary} */
+      const parsed = {
+        id: beneficiary.ID,
+        city: beneficiary.CITY,
+        complement: beneficiary.COMPLEMENT,
+        family: null,
+        gender: {
+          O: "Não Informado",
+          M: "Masculino",
+          F: "Feminino",
+        }[beneficiary.GENDER.toUpperCase()],
+        hasOpenRequest: beneficiary.HAS_OPEN_REQUEST ? "sim" : "não",
+        name: beneficiary.FULL_NAME,
+        nationalId: beneficiary.NATIONAL_ID,
+        neighborhood: beneficiary.NEIGHBORHOOD,
+        number: beneficiary.HOUSE_NUMBER,
+        phone: beneficiary.PHONE,
+        state: beneficiary.STATE,
+        street: beneficiary.street,
+      };
+
+      return [parsed, null];
+    } catch (error) {
+      return [null, error];
+    }
+  }
 }
 
 /**
  * @typedef {Object} Beneficiary
+ * @prop {number} id
  * @prop {string} nationalId
  * @prop {string} name
  * @prop {boolean} hasOpenRequest
- * @prop {number} id
  */
 
 /**
  * @typedef {Object} BeneficiaryRaw
+ * @prop {number} ID
  * @prop {string} NATIONAL_ID
  * @prop {string} FULL_NAME
  * @prop {0|1} HAS_OPEN_REQUEST
+ */
+
+/**
+ * @typedef {Object} FullBeneficiary
+ * @prop {number} id
+ * @prop {string} nationalId
+ * @prop {string} name
+ * @prop {string} phone
+ * @prop {"m"|"f"|"o"} gender
+ * @prop {string} family
+ * @prop {string} street
+ * @prop {string} number
+ * @prop {string} complement
+ * @prop {string} neighborhood
+ * @prop {string} city
+ * @prop {string} state
+ * @prop {boolean} hasOpenRequest
+ */
+
+/**
+ * @typedef {Object} FullBeneficiaryRaw
  * @prop {number} ID
+ * @prop {string} FULL_NAME
+ * @prop {string} GENDER
+ * @prop {string} NATIONAL_ID
+ * @prop {string} PHONE
+ * @prop {string} STREET
+ * @prop {string} HOUSE_NUMBER
+ * @prop {string} COMPLEMENT
+ * @prop {string} NEIGHBORHOOD
+ * @prop {string} STATE
+ * @prop {string} CITY
+ * @prop {0|1} HAS_OPEN_REQUEST
  */
 
 /**

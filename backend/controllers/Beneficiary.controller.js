@@ -88,19 +88,63 @@ export default class BeneficiaryController {
     const [beneficiaries, error] = await BeneficiaryModel.findAll(filter);
 
     if (error) {
-      if (error?.message?.includes("unique")) {
-        return res.status(400).send(
-          APIResponse.badRequestError({
-            code: "UNIQUE_CONSTRAINT",
-            description: "CPF já cadastrado",
-          }),
-        );
-      } else {
-        console.error(error);
-        return res.status(500).send(APIResponse.internalError());
-      }
+      console.error(error);
+      return res.status(500).send(APIResponse.internalError());
     } else {
+      if (beneficiaries.length === 0)
+        return res
+          .status(404)
+          .send(APIResponse.notFound("Nenhum beneficiário encontrado"));
+
       return res.status(200).send(APIResponse.success(beneficiaries));
+    }
+  }
+
+  /**
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
+  static async findById(req, res) {
+    if (!req.params)
+      return res.status(400).send(
+        APIResponse.badRequestError({
+          code: "MISSING_IDENTIFIER",
+          description: "Identificador do beneficiário não informado",
+        }),
+      );
+
+    const { id } = req.params;
+
+    if (!id)
+      return res.status(400).send(
+        APIResponse.badRequestError({
+          code: "MISSING_IDENTIFIER",
+          description: "Identificador do beneficiário não informado",
+        }),
+      );
+
+    const parsedId = parseInt(id);
+
+    if (isNaN(parsedId) || parsedId < 1)
+      return res.status(400).send(
+        APIResponse.badRequestError({
+          code: "INVALID_IDENTIFIER",
+          description: "Identificador inválido",
+        }),
+      );
+
+    const [beneficiary, error] = await BeneficiaryModel.findById(parsedId);
+
+    if (error) {
+      console.error(error);
+      return res.status(500).send(APIResponse.internalError());
+    } else {
+      if (!beneficiary)
+        return res
+          .status(404)
+          .send(APIResponse.notFound("Beneficiário não encontrado"));
+
+      return res.status(200).send(APIResponse.success(beneficiary));
     }
   }
 }
