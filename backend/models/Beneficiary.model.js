@@ -37,6 +37,7 @@ export default class BeneficiaryModel {
       const [data, [{ TOTAL: total }]] = await Promise.all([
         sql.query`
           SELECT 
+            ID,
             NATIONAL_ID, 
             FULL_NAME,
             0 AS HAS_OPEN_REQUEST
@@ -50,6 +51,7 @@ export default class BeneficiaryModel {
       const beneficiaries = data.map((datum) => {
         /** @type {Beneficiary} */
         const beneficiary = {
+          id: datum.ID,
           name: datum.FULL_NAME,
           nationalId: datum.NATIONAL_ID.replace(
             /^(\d{3})(\d{6})(\d{2})$/i,
@@ -84,6 +86,7 @@ export default class BeneficiaryModel {
  * @prop {string} nationalId
  * @prop {string} name
  * @prop {boolean} hasOpenRequest
+ * @prop {number} id
  */
 
 /**
@@ -91,6 +94,7 @@ export default class BeneficiaryModel {
  * @prop {string} NATIONAL_ID
  * @prop {string} FULL_NAME
  * @prop {0|1} HAS_OPEN_REQUEST
+ * @prop {number} ID
  */
 
 /**
