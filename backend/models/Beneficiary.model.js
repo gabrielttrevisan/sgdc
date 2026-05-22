@@ -98,8 +98,10 @@ export default class BeneficiaryModel {
       const data = await sql.query`
           SELECT 
             B.*,
+            C.NAME AS CITY_NAME,
             0 AS HAS_OPEN_REQUEST
           FROM BENEFICIARIES B
+            INNER JOIN CITIES C ON C.ID = B.CITY_ID
           WHERE B.ID = ${id}`.run();
 
       if (data.length === 0) return [null, null];
@@ -109,7 +111,10 @@ export default class BeneficiaryModel {
       /** @type {PersistedBeneficiary} */
       const parsed = {
         id: beneficiary.ID,
-        city: beneficiary.CITY_ID,
+        city: {
+          id: beneficiary.CITY_ID,
+          name: beneficiary.CITY_NAME,
+        },
         complement: beneficiary.COMPLEMENT,
         family: null,
         gender: {
@@ -237,7 +242,7 @@ export default class BeneficiaryModel {
  * @prop {string} number
  * @prop {string} complement
  * @prop {string} neighborhood
- * @prop {string} city
+ * @prop {City} city
  * @prop {string} state
  * @prop {boolean} hasOpenRequest
  */
@@ -255,10 +260,17 @@ export default class BeneficiaryModel {
  * @prop {string} NEIGHBORHOOD
  * @prop {string} STATE
  * @prop {string} CITY_ID
+ * @prop {string} CITY_NAME
  * @prop {0|1} HAS_OPEN_REQUEST
  */
 
 /**
  * @typedef {Object} CountRaw
  * @prop {number} COUNT
+ */
+
+/**
+ * @typedef {Object} City
+ * @prop {string} name
+ * @prop {number} id
  */
