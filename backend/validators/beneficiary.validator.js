@@ -112,3 +112,17 @@ export const CREATE_BENEFICIARY_RULES = [
     validatorErrorMessage: "Cidade inválido ou não fornecido",
   },
 ];
+
+/** @type {import("../middlewares/validator").ValidationRule[]} */
+export const EDIT_BENEFICIARY_PARAM_RULES = [
+  {
+    property: "id",
+    validator: "numericId",
+    validatorErrorMessage: "Identificador não fornecido ou inválido",
+  },
+];
+
+/** @type {import("../middlewares/validator").ValidationRule[]} */
+export const EDIT_BENEFICIARY_BODY_RULES = CREATE_BENEFICIARY_RULES.map(
+  (rule) => ({ ...rule, required: false }),
+);

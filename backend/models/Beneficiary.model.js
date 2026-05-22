@@ -118,10 +118,13 @@ export default class BeneficiaryModel {
         complement: beneficiary.COMPLEMENT,
         family: null,
         gender: {
-          O: "Não Informado",
-          M: "Masculino",
-          F: "Feminino",
-        }[beneficiary.GENDER.toUpperCase()],
+          id: beneficiary.GENDER.toUpperCase(),
+          name: {
+            O: "Não Informado",
+            M: "Masculino",
+            F: "Feminino",
+          }[beneficiary.GENDER.toUpperCase()],
+        },
         hasOpenRequest: beneficiary.HAS_OPEN_REQUEST ? "sim" : "não",
         name: beneficiary.FULL_NAME,
         nationalId: beneficiary.NATIONAL_ID,
@@ -196,6 +199,70 @@ export default class BeneficiaryModel {
       return [false, error];
     }
   }
+
+  /**
+   * @param {BeneficiaryEdit} beneficiary
+   * @returns {Promise<BooleanTuple>}
+   */
+  static async edit({
+    id,
+    name,
+    gender,
+    nationalId,
+    phone,
+    street,
+    number,
+    complement,
+    neighborhood,
+    state,
+    city,
+  }) {
+    try {
+      const setName = name ? sql`FULL_NAME = ${name}` : sql.empty;
+      const setGender = gender ? sql`GENDER = ${gender}` : sql.empty;
+      const setNationalId = nationalId
+        ? sql`NATIONAL_ID = ${nationalId}`
+        : sql.empty;
+      const setPhone = phone ? sql`PHONE = ${phone}` : sql.empty;
+      const setStreet = street ? sql`STREET = ${street}` : sql.empty;
+      const setNumber = number ? sql`HOUSE_NUMBER = ${number}` : sql.empty;
+      const setComplement = complement
+        ? sql`COMPLEMENT = ${complement}`
+        : sql.empty;
+      const setNeighborhood = neighborhood
+        ? sql`NEIGHBORHOOD = ${neighborhood}`
+        : sql.empty;
+      const setState = state ? sql`STATE = ${state}` : sql.empty;
+      const setCity = city ? sql`CITY_ID = ${city}` : sql.empty;
+
+      const setStatements = sql.join(
+        ", ",
+        setName,
+        setGender,
+        setNationalId,
+        setPhone,
+        setStreet,
+        setNumber,
+        setComplement,
+        setNeighborhood,
+        setState,
+        setCity,
+      );
+
+      const updated = await sql.exec`
+          UPDATE BENEFICIARIES
+          SET ${setStatements}
+          WHERE ID = ${id}
+        `.run();
+
+      if (updated.affectedRows < 1) return [false, null];
+
+      return [true, null];
+    } catch (error) {
+      console.error(error);
+      return [false, error];
+    }
+  }
 }
 
 /**
@@ -236,7 +303,7 @@ export default class BeneficiaryModel {
  * @prop {string} nationalId
  * @prop {string} name
  * @prop {string} phone
- * @prop {"m"|"f"|"o"} gender
+ * @prop {Gender} gender
  * @prop {string} family
  * @prop {string} street
  * @prop {string} number
@@ -245,6 +312,12 @@ export default class BeneficiaryModel {
  * @prop {City} city
  * @prop {string} state
  * @prop {boolean} hasOpenRequest
+ */
+
+/**
+ * @typedef {Object} Gender
+ * @prop {string} id
+ * @prop {string} name
  */
 
 /**
@@ -273,4 +346,20 @@ export default class BeneficiaryModel {
  * @typedef {Object} City
  * @prop {string} name
  * @prop {number} id
+ */
+
+/**
+ * @typedef {Object} BeneficiaryEdit
+ * @prop {number} id
+ * @prop {string} [nationalId]
+ * @prop {string} [name]
+ * @prop {string} [phone]
+ * @prop {"m"|"f"|"o"} [gender]
+ * @prop {string} family
+ * @prop {string} [street]
+ * @prop {string} [number]
+ * @prop {string} [complement]
+ * @prop {string} [neighborhood]
+ * @prop {string} [city]
+ * @prop {string} [state]
  */

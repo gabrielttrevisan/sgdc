@@ -53,12 +53,34 @@ class SqlFragment {
     return this.#params;
   }
 
+  get isEmpty() {
+    return this.#params.length === 0 && this.#sql === "";
+  }
+
   static get empty() {
     return SqlFragment.from``;
   }
 
   async run() {
     throw new Error("Sql is not and executable");
+  }
+
+  /**
+   * @param {string|null|undefined} step
+   * @param  {...SqlFragment} fragments
+   */
+  static join(sep, ...fragments) {
+    const nonEmpty = fragments.filter((fragment) => !fragment.isEmpty);
+
+    const joined = nonEmpty.reduce(
+      ({ params, sql }, fragment) => ({
+        params: [...params, ...fragment.params],
+        sql: sql ? sql + (sep ?? " ") + fragment.sql : fragment.sql,
+      }),
+      { params: [], sql: "" },
+    );
+
+    return new SqlFragment(joined.sql, joined.params);
   }
 }
 
@@ -108,6 +130,10 @@ Object.defineProperty(sql, "empty", {
   get() {
     return SqlFragment.empty;
   },
+});
+
+Object.defineProperty(sql, "join", {
+  value: SqlFragment.join,
 });
 
 Object.defineProperty(sql, "query", {

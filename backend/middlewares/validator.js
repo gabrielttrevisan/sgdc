@@ -39,22 +39,24 @@ export default function validator(
 
     for (const rule of rules) {
       const value = target[rule.property];
+      const required = rule.required ?? true;
 
-      if (rule.validate) {
-        const validation = rule.validate(value);
+      if (required || (value !== null && value !== undefined))
+        if (rule.validate) {
+          const validation = rule.validate(value);
 
-        if (typeof validation === "string")
-          errorResponse.withIssue("INVALID_FIELD", validation);
-      } else if (rule.validator) {
-        const validator = COMMON_VALIDATION_CALLBACKS[rule.validator];
+          if (typeof validation === "string")
+            errorResponse.withIssue("INVALID_FIELD", validation);
+        } else if (rule.validator) {
+          const validator = COMMON_VALIDATION_CALLBACKS[rule.validator];
 
-        if (!validator) continue;
+          if (!validator) continue;
 
-        const validation = validator(value, rule.validatorErrorMessage);
+          const validation = validator(value, rule.validatorErrorMessage);
 
-        if (typeof validation === "string")
-          errorResponse.withIssue("INVALID_FIELD", validation);
-      }
+          if (typeof validation === "string")
+            errorResponse.withIssue("INVALID_FIELD", validation);
+        }
     }
 
     if (errorResponse.hasIssues) return errorResponse.send();
@@ -115,6 +117,7 @@ const COMMON_VALIDATION_CALLBACKS = {
  * @prop {"nationalId"|"numericId"|"phone"} [validator]
  * @prop {string} [validatorErrorMessage]
  * @prop {ValidationCallback} [validate]
+ * @prop {boolean} [required]
  */
 
 /**

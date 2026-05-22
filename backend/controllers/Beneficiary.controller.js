@@ -171,7 +171,8 @@ export default class BeneficiaryController {
     if (error) {
       return response.internalError();
     } else {
-      if (!isDeleted) return response.notFound("Beneficiário não encontrado");
+      if (!isDeleted)
+        return response.internalError("Falha ao criar beneficiário");
 
       return response.success({ success: true });
     }
@@ -231,6 +232,72 @@ export default class BeneficiaryController {
       return response.internalError();
     } else {
       if (!isCreated)
+        return response
+          .badRequest()
+          .withIssue("INSERT_FAILURE", "Beneficiário não encontrado")
+          .send();
+
+      return response.success({ success: true });
+    }
+  }
+
+  /**
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
+  static async edit(req, res) {
+    const response = APIResponse.from(res);
+
+    const { id } = req.params;
+
+    const {
+      name,
+      gender,
+      nationalId,
+      phone,
+      street,
+      number,
+      complement = "",
+      neighborhood,
+      state,
+      city,
+    } = req.body;
+
+    const [isUpdated, error] = await BeneficiaryModel.edit({
+      id,
+      name,
+      gender,
+      nationalId,
+      phone,
+      street,
+      number,
+      complement,
+      neighborhood,
+      state,
+      city,
+    });
+
+    if (error) {
+      if (error?.message.includes("beneficiaries.NATIONAL_ID")) {
+        return response
+          .badRequest()
+          .withIssue(
+            "DUPLICATE_BENEFICIARY",
+            "Já existe um beneficiário cadastrado com esse CPF",
+          )
+          .send();
+      }
+
+      if (error?.message.includes("FK_BENEFICIARIES_CITIES")) {
+        return response
+          .badRequest()
+          .withIssue("CITY_NOT_FOUND", "Cidade inexistente")
+          .send();
+      }
+
+      return response.internalError();
+    } else {
+      if (!isUpdated)
         return response
           .badRequest()
           .withIssue("INSERT_FAILURE", "Beneficiário não encontrado")
