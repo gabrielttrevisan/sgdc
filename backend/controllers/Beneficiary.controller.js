@@ -221,6 +221,13 @@ export default class BeneficiaryController {
           .send();
       }
 
+      if (error?.message.includes("FK_BENEFICIARIES_CITIES")) {
+        return response
+          .badRequest()
+          .withIssue("CITY_NOT_FOUND", "Cidade inexistente")
+          .send();
+      }
+
       return response.internalError();
     } else {
       if (!isCreated)
