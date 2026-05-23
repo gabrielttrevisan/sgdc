@@ -9,7 +9,7 @@ export default class CityModel {
     try {
       const likeQuery = `%${query}%`;
       const whereClause = query
-        ? sql`WHERE DELETED_AT IS NULL AND (NAME LIKE ${likeQuery} OR STATE LIKE ${likeQuery})`
+        ? sql`WHERE DELETED_AT IS NULL AND STATE LIKE ${likeQuery}`
         : sql`WHERE DELETED_AT IS NULL`;
       const orderByColumn = sortKey === "name" ? sql`NAME` : sql.empty;
       const orderBySorting =
@@ -28,7 +28,10 @@ export default class CityModel {
               ${whereClause}
               ${orderByClause}
               ${limitClause}`.run(),
-        sql.query`SELECT COUNT(*) AS TOTAL FROM CITIES WHERE DELETED_AT IS NULL`.run(),
+        sql.query`
+          SELECT COUNT(*) AS TOTAL 
+          FROM CITIES 
+          ${whereClause}`.run(),
       ]);
 
       const cities = data.map((datum) => {

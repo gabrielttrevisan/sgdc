@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 
 class ToastStorage {
   /** @type {import("../../global").ToastMessage[]} */
-  #toasties = [];
+  #toasts = [];
   /** @type {Array<VoidFunction>} */
   #subscribers = [];
 
@@ -10,7 +10,7 @@ class ToastStorage {
     this.subscribe = this.subscribe.bind(this);
     this.getSnapshot = this.getSnapshot.bind(this);
 
-    this.burn = this.burn.bind(this);
+    this.burn = this.show.bind(this);
     this.error = this.error.bind(this);
     this.success = this.success.bind(this);
     this.warn = this.warn.bind(this);
@@ -22,25 +22,39 @@ class ToastStorage {
    * @param {string} message
    * @param {import("../../global").ToastMessageOptions} options
    */
-  burn(type, message, options = undefined) {
-    const key = `toasty:${Date.now()}:${this.#slug(message)}`;
+  show(type, message, options = undefined) {
+    const key = `toast:${Date.now()}:${this.#slug(message)}`;
 
-    this.#toasties = [
-      {
-        ...options,
-        type,
-        message,
-        key,
-      },
-      ...this.#toasties,
-    ];
+    const removeToast = () => {
+      this.#toasts = this.#toasts.filter((toasty) => toasty.key !== key);
+      this.#emit();
+    };
+
+    const toast = {
+      ...options,
+      type,
+      message,
+      key,
+      timeout: setTimeout(() => removeToast(), options?.customTimeout ?? 4000),
+    };
+
+    this.#toasts = [toast, ...this.#toasts];
 
     this.#emit();
+  }
 
-    setTimeout(() => {
-      this.#toasties = this.#toasties.filter((toasty) => toasty.key !== key);
-      this.#emit();
-    }, options?.customTimeout ?? 4000);
+  pop(key) {
+    if (typeof key !== "string") return;
+
+    this.#toasts = this.#toasts.filter((toast) => {
+      if (toast.key === key) {
+        clearTimeout(toast.timeout);
+        return false;
+      }
+
+      return true;
+    });
+    this.#emit();
   }
 
   #emit() {
@@ -67,23 +81,23 @@ class ToastStorage {
   }
 
   error(message, options = undefined) {
-    this.burn("error", message, options);
+    this.show("error", message, options);
   }
 
   success(message, options = undefined) {
-    this.burn("success", message, options);
+    this.show("success", message, options);
   }
 
   none(message, options = undefined) {
-    this.burn("none", message, options);
+    this.show("none", message, options);
   }
 
   warn(message, options = undefined) {
-    this.burn("warn", message, options);
+    this.show("warn", message, options);
   }
 
   getSnapshot() {
-    return this.#toasties;
+    return this.#toasts;
   }
 
   subscribe(listener) {
@@ -97,16 +111,10 @@ class ToastStorage {
   }
 }
 
-const Toaster = new ToastStorage();
+const Toast = new ToastStorage();
 
-export default Toaster;
+export default Toast;
 
-export function useToasties() {
-  return useSyncExternalStore(Toaster.subscribe, Toaster.getSnapshot);
-}
-
-export function useToast() {
-  const { burn, success, error, warn, none } = Toaster;
-
-  return { burn, success, error, warn, none };
+export function useToasts() {
+  return useSyncExternalStore(Toast.subscribe, Toast.getSnapshot);
 }

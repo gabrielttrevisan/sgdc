@@ -123,16 +123,6 @@
   }
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .data-grid__item-list {
   list-style-type: none;
   margin: 0;

@@ -53,7 +53,10 @@ export default class BeneficiaryModel {
           ${whereClause}
           ${orderByClause}
           ${limitClause}`.run(),
-        sql.query`SELECT COUNT(*) AS TOTAL FROM BENEFICIARIES WHERE DELETED_AT IS NULL`.run(),
+        sql.query`
+          SELECT COUNT(*) AS TOTAL 
+          FROM BENEFICIARIES 
+          ${whereClause}`.run(),
       ]);
 
       const beneficiaries = data.map((datum) => {
@@ -133,7 +136,7 @@ export default class BeneficiaryModel {
         neighborhood: beneficiary.NEIGHBORHOOD,
         number: beneficiary.HOUSE_NUMBER,
         phone: beneficiary.PHONE,
-        street: beneficiary.street,
+        street: beneficiary.STREET,
       };
 
       return [parsed, null];

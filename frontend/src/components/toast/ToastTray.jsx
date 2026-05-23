@@ -1,14 +1,18 @@
-import { useToasties } from "./ToastStorage";
+import Toast, { useToasts } from "./ToastStorage";
 import "./ToastTray.css";
 
 export const ToastTray = () => {
-  const toasties = useToasties();
+  const toasts = useToasts();
 
   return (
     <div className="toast-tray">
-      {toasties.map((toasty) => (
-        <div className={`toast-tray__toast --${toasty.type}`} key={toasty.key}>
-          {toasty.message}
+      {toasts.map((toast) => (
+        <div
+          className={`toast-tray__toast --${toast.type}`}
+          key={toast.key}
+          onClick={() => Toast.pop(toast.key)}
+        >
+          {toast.message}
         </div>
       ))}
     </div>

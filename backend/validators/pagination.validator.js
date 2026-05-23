@@ -6,7 +6,7 @@ export const PAGINATION_FILTER_RULES = [
       const message = "Página inválida";
 
       if (typeof value === "string") {
-        if (value.trim()) return message;
+        if (value.trim().length === 0) return message;
 
         const parsedPage = parseInt(value);
 
@@ -27,7 +27,7 @@ export const PAGINATION_FILTER_RULES = [
       const max = 40;
 
       if (typeof value === "string") {
-        if (value.trim()) return message;
+        if (value.trim().length === 0) return message;
 
         const parsedPerPage = parseInt(value);
 

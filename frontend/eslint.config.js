@@ -19,9 +19,15 @@ export default defineConfig([
     },
     rules: {
       "react-hooks/exhaustive-deps": "off",
-      // Note: 'set-state-in-effect' is often handled by specific plugin versions
-      // or custom configurations. Here is the standard way to disable it:
       "react-hooks/set-state-in-effect": "off",
+      "no-unused-vars": [
+        "error",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
     },
   },
 ]);

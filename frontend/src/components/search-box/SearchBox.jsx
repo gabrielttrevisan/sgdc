@@ -1,8 +1,9 @@
 import { useRef } from "react";
 import { SearchIcon } from "../icons/SearchIcon";
 import { CloseIconLarge } from "../icons/CloseIconLarge";
-import "./SearchBox.css";
 import { VisuallyHidden } from "../accessibility/visually-hidden/VisuallyHidden";
+import Toast from "../toast/ToastStorage.js";
+import "./SearchBox.css";
 
 /**
  * @callback OnSearchCallback
@@ -42,7 +43,7 @@ export const SearchBox = ({
           aria-controls={gridId}
           onInput={(e) => {
             if (
-              e.target.value.length === 0 &&
+              e.target.value.trim().length === 0 &&
               e.nativeEvent.inputType === "deleteContentBackward"
             ) {
               onReset();
@@ -50,7 +51,13 @@ export const SearchBox = ({
           }}
         />
 
-        <button type="reset" onClick={onReset}>
+        <button
+          type="reset"
+          onClick={() => {
+            if (inputRef.current && inputRef.current.value.trim().length > 0)
+              onReset();
+          }}
+        >
           <CloseIconLarge size={10} />
           <VisuallyHidden>Limpar Busca</VisuallyHidden>
         </button>
@@ -60,7 +67,10 @@ export const SearchBox = ({
         type="submit"
         onClick={(e) => {
           e.preventDefault();
-          onSearch(inputRef.current?.value);
+
+          if (inputRef.current && inputRef.current.value.trim().length > 0)
+            onSearch(inputRef.current.value);
+          else Toast.warn("Campo de busca está vazio.");
         }}
         className="button-block --solid --primary"
       >
