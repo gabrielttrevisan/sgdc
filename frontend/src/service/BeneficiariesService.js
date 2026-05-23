@@ -90,21 +90,9 @@ class BeneficiariesService {
    */
   async delete(id) {
     try {
-      const parsed = this.#getFromLocalStorage();
+      const response = await this.#client.delete(`beneficiaries/${id}`);
 
-      if (!parsed || !Array.isArray(parsed))
-        return this.#internal("Erro ao obter dados");
-
-      if (!parsed.length) return this.#notFound();
-
-      const filtered = parsed.filter((item) => item.nationalId !== id);
-
-      localStorage.setItem(BENEFICIARIES_MOCK_ID, JSON.stringify(filtered));
-
-      return {
-        data: { success: true },
-        error: null,
-      };
+      return response;
     } catch {
       return this.#internal("Erro inesperado");
     }

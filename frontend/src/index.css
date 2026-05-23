@@ -176,16 +176,17 @@ dialog {
     &::before {
       content: " ";
       display: block;
-      width: 24px;
-      height: 24px;
+      width: 16px;
+      height: 16px;
       border: 1px solid var(--bb-base-color);
       border-right-width: 0;
       background-color: transparent;
       animation: spin 1s linear infinite;
-      border-radius: 24px;
+      border-radius: 16px;
     }
 
-    > span {
+    > span,
+    > svg {
       display: none;
     }
   }

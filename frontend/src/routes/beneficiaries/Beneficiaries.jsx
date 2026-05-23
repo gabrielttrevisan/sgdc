@@ -18,6 +18,7 @@ import BeneficiariesService from "../../service/BeneficiariesService";
 
 export const Beneficiaries = () => {
   const dataGridRef = useRef(null);
+  /** @type {import("react").RefObject<import("../../components/sensitive-modal/SensitiveModal").SensitiveModalRef>} */
   const modalRef = useRef(null);
   /** @type {import("react").RefObject<import("../../components/form/modal/FormModal").FormModalRef>} */
   const formModalRef = useRef(null);
@@ -132,7 +133,7 @@ export const Beneficiaries = () => {
                 <VisuallyHidden>Ver Beneficiário</VisuallyHidden>
               </>
             ),
-            onAction: console.log,
+            onAction: async () => {},
           },
           {
             type: "edit",
@@ -142,7 +143,7 @@ export const Beneficiaries = () => {
                 <span>Editar</span>
               </>
             ),
-            onAction: (type, target) => {
+            onAction: async (type, target) => {
               formModalRef.current?.toggle(target);
             },
           },
@@ -154,7 +155,7 @@ export const Beneficiaries = () => {
                 <span>Doar</span>
               </>
             ),
-            onAction: console.log,
+            onAction: async () => {},
           },
           {
             type: "delete",
@@ -164,20 +165,19 @@ export const Beneficiaries = () => {
                 <span>Deletar</span>
               </>
             ),
-            onAction: (type, target) => {
-              modalRef.current?.open().then((confirmed) => {
-                if (confirmed)
-                  BeneficiariesService.delete(target.nationalId).then(
-                    ({ data, error }) => {
-                      if (data?.success) {
-                        Toaster.success("Beneficiário deletado com sucesso");
-                        dataGridRef.current?.update();
-                      }
+            onAction: async (type, target) => {
+              const confirmed = await modalRef.current?.open();
 
-                      if (error?.message) Toaster.error(error.message);
-                    },
-                  );
-              });
+              if (confirmed) {
+                const { data, error } = await BeneficiariesService.delete(
+                  target.id,
+                );
+
+                if (data?.success) {
+                  Toaster.success("Beneficiário deletado com sucesso");
+                  dataGridRef.current?.update();
+                } else if (error?.message) Toaster.error(error.message);
+              }
             },
           },
         ]}

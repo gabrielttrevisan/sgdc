@@ -58,6 +58,21 @@ export default class APIClient {
     return response;
   }
 
+  /**
+   * @param {string} path
+   * @param {import("../../global").FetchOptions} [init]
+   * @returns {import("../../global").APIResponse<any>}
+   */
+  async delete(path, init) {
+    const rawResponse = await fetch(`${this.#url}${path}`, {
+      ...init,
+      method: "DELETE",
+    });
+    const response = await rawResponse.json();
+
+    return response;
+  }
+
   get url() {
     return this.#url;
   }
