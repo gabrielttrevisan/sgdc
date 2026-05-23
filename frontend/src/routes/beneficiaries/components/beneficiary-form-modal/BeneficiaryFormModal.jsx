@@ -5,6 +5,7 @@ import { unmaskDigits } from "../../../../lib/functions/unmask";
 import "./BeneficiaryFormModal.css";
 import { isNationalIdValid } from "../../../../lib/validation/isNationalIdValid";
 import { CitiesSelectInput } from "../cities-select-input/CitiesSelectInput";
+import { InputHidden } from "../../../../components/form/input-field/InputHidden";
 
 /**
  * @typedef {Object} BeneficiaryFormModalProps
@@ -22,6 +23,8 @@ export const BeneficiaryFormModal = ({ ref, onSubmit }) => {
       className="beneficiary-form-modal"
       onSubmit={onSubmit}
     >
+      <InputHidden name="id" id="id" />
+
       <InputField
         name="name"
         required={true}

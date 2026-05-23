@@ -144,7 +144,22 @@ export const Beneficiaries = () => {
               </>
             ),
             onAction: async (type, target) => {
-              formModalRef.current?.toggle(target);
+              const { data, error } = await BeneficiariesService.getById(
+                target.id,
+              );
+
+              if (error?.message) {
+                Toaster.error(error.message);
+              } else if (data) {
+                formModalRef.current?.toggle({
+                  ...data,
+                  gender: data.gender.id.toLowerCase(),
+                  state: data.city.state.toLowerCase(),
+                  city: data.city.id,
+                });
+              } else {
+                Toaster.error(error.message);
+              }
             },
           },
           {

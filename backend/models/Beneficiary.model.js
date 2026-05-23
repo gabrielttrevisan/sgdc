@@ -136,7 +136,7 @@ export default class BeneficiaryModel {
         neighborhood: beneficiary.NEIGHBORHOOD,
         number: beneficiary.HOUSE_NUMBER,
         phone: beneficiary.PHONE,
-        street: beneficiary.street,
+        street: beneficiary.STREET,
       };
 
       return [parsed, null];

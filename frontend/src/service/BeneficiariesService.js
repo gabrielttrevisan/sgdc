@@ -1,5 +1,6 @@
 /**
  * @typedef {Object} Beneficiary
+ * @prop {number} id
  * @prop {string} nationalId
  * @prop {string} name
  * @prop {string} phone
@@ -14,28 +15,48 @@
  * @prop {boolean} hasOpenRequest
  */
 
+/**
+ * @typedef {Object} APIBeneficiary
+ * @prop {number} id
+ * @prop {string} nationalId
+ * @prop {string} name
+ * @prop {string} phone
+ * @prop {Gender} gender
+ * @prop {string} family
+ * @prop {string} street
+ * @prop {string} number
+ * @prop {string} complement
+ * @prop {string} neighborhood
+ * @prop {City} city
+ * @prop {boolean} hasOpenRequest
+ */
+
+/**
+ * @typedef {Object} City
+ * @prop {number} id
+ * @prop {string} name
+ * @prop {string} state
+ */
+
+/**
+ * @typedef {Object} Gender
+ * @prop {string} id
+ * @prop {string} name
+ */
+
+/**
+ * @typedef {Object} TinyBeneficiary
+ * @prop {number} id
+ * @prop {string} name
+ * @prop {string} nationalId
+ * @prop {"sim"|"não"} hasOpenRequest
+ */
+
 import { unmaskDigits } from "../lib/functions/unmask";
 import APIClient from "../lib/services/APIClient";
 
-const BENEFICIARIES_MOCK_ID = "beneficiaries";
-
 /** @implements {import("../../global").PaginatableService<Beneficiary>} */
 class BeneficiariesService {
-  /**
-   * @param {string} [message]
-   * @returns {APIResponse<import("../components/data-grid/DataGrid").PageData<Beneficiary[]>>}
-   */
-  #notFound(message = "Nenhum registro encontrado") {
-    return {
-      data: null,
-      error: {
-        code: 404,
-        message,
-        issues: [],
-      },
-    };
-  }
-
   /**
    * @param {string} [message]
    * @returns {APIResponse<import("../components/data-grid/DataGrid").PageData<Beneficiary[]>>}
@@ -51,24 +72,11 @@ class BeneficiariesService {
     };
   }
 
-  /**
-   * @returns {Beneficiary[]}
-   */
-  #getFromLocalStorage() {
-    const rawStr = localStorage.getItem(BENEFICIARIES_MOCK_ID);
-
-    if (!rawStr) return this.#notFound();
-
-    const parsed = JSON.parse(rawStr);
-
-    return parsed;
-  }
-
   #client = new APIClient();
 
   /**
    * @param {import("../global").PaginatedQuery} query
-   * @returns {Promise<import("../global").APIResponse<import("../components/data-grid/DataGrid").PageData<Beneficiary[]>>>}
+   * @returns {Promise<import("../global").APIResponse<import("../components/data-grid/DataGrid").PageData<TinyBeneficiary[]>>>}
    */
   async list({ query, ...rest } = { page: 1, perPage: 10 }) {
     try {
@@ -102,7 +110,7 @@ class BeneficiariesService {
    * @param {Beneficiary} beneficiary
    * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
    */
-  async create({ phone, nationalId, complement, ...beneficiary }) {
+  async create({ id: _, phone, nationalId, complement, ...beneficiary }) {
     try {
       const response = await this.#client.post("beneficiaries", {
         ...beneficiary,
@@ -118,32 +126,34 @@ class BeneficiariesService {
   }
 
   /**
+   * @param {number} id
+   * @returns {Promise<import("../global").APIResponse<APIBeneficiary>>}
+   */
+  async getById(id) {
+    try {
+      const response = await this.#client.get(`beneficiaries/${id}`);
+
+      return response;
+    } catch (error) {
+      console.log(error);
+      return this.#internal("Erro inesperado");
+    }
+  }
+
+  /**
    * @param {Beneficiary} beneficiary
    * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
    */
-  async edit(beneficiary) {
+  async edit({ id, phone, nationalId, complement, ...beneficiary }) {
     try {
-      const parsed = this.#getFromLocalStorage();
+      const response = await this.#client.patch(`beneficiaries/${id}`, {
+        ...beneficiary,
+        phone: unmaskDigits(phone),
+        nationalId: unmaskDigits(nationalId),
+        ...(complement === "" ? {} : { complement }),
+      });
 
-      if (!parsed || !Array.isArray(parsed))
-        return this.#internal("Erro ao obter dados");
-
-      if (!parsed.length) return this.#notFound();
-
-      const targetIndex = parsed.findIndex(
-        (i) => i.nationalId === beneficiary.nationalId,
-      );
-
-      if (targetIndex === -1) this.#notFound("Beneficiário não encontrado");
-
-      parsed[targetIndex] = Object.assign({}, parsed[targetIndex], beneficiary);
-
-      localStorage.setItem(BENEFICIARIES_MOCK_ID, JSON.stringify(parsed));
-
-      return {
-        data: { success: true },
-        error: null,
-      };
+      return response;
     } catch {
       return this.#internal("Erro inesperado");
     }

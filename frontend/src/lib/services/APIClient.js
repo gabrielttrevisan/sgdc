@@ -11,7 +11,7 @@ export default class APIClient {
    * @param {import("../../global").FetchOptions} [init]
    * @returns {import("../../global").APIResponse<any>}
    */
-  async get(path, query, init) {
+  async get(path, query = {}, init = {}) {
     const params = Object.entries(query).filter(([, value]) => Boolean(value));
     const search = new URLSearchParams(params);
     const url = search.size
@@ -33,7 +33,7 @@ export default class APIClient {
    * @param {import("../../global").FetchOptions} [init]
    * @returns {import("../../global").APIResponse<any>}
    */
-  async post(path, body, init) {
+  async post(path, body = {}, init = {}) {
     let headers = {};
 
     if (init && init.headers) {
@@ -47,6 +47,37 @@ export default class APIClient {
     const rawResponse = await fetch(`${this.#url}${path}`, {
       ...init,
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
+      body: JSON.stringify(body),
+    });
+    const response = await rawResponse.json();
+
+    return response;
+  }
+
+  /**
+   * @param {string} path
+   * @param {Record<string, string>} [body]
+   * @param {import("../../global").FetchOptions} [init]
+   * @returns {import("../../global").APIResponse<any>}
+   */
+  async patch(path, body = {}, init = {}) {
+    let headers = {};
+
+    if (init && init.headers) {
+      if (Array.isArray(init.headers))
+        headers = Object.fromEntries(init.headers);
+      else if (init.headers instanceof Headers)
+        headers = Object.fromEntries(init.headers.entries());
+      else headers = { ...init.headers };
+    }
+
+    const rawResponse = await fetch(`${this.#url}${path}`, {
+      ...init,
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         ...headers,
