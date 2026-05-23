@@ -1,4 +1,4 @@
-/** @type {import("../middlewares/validator").ValidationRule[]} */
+/** @type {import("../middlewares/validator/validator.js").ValidationRule[]} */
 export const CREATE_BENEFICIARY_RULES = [
   {
     property: "name",
@@ -76,6 +76,7 @@ export const CREATE_BENEFICIARY_RULES = [
 
       return true;
     },
+    required: false,
   },
   {
     property: "neighborhood",
@@ -91,21 +92,6 @@ export const CREATE_BENEFICIARY_RULES = [
       return true;
     },
   },
-  {
-    property: "state",
-    validate: (value) => {
-      const message = "Estado inválido ou não fornecido";
-
-      if (typeof value !== "string") return message;
-
-      const trimmed = value.trim();
-
-      if (trimmed.length !== 2) return message;
-
-      return true;
-    },
-  },
-
   {
     property: "city",
     validator: "numericId",

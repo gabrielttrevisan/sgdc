@@ -99,6 +99,7 @@ export default class BeneficiaryModel {
           SELECT 
             B.*,
             C.NAME AS CITY_NAME,
+            C.STATE AS STATE,
             0 AS HAS_OPEN_REQUEST
           FROM BENEFICIARIES B
             INNER JOIN CITIES C ON C.ID = B.CITY_ID
@@ -114,6 +115,7 @@ export default class BeneficiaryModel {
         city: {
           id: beneficiary.CITY_ID,
           name: beneficiary.CITY_NAME,
+          state: beneficiary.STATE,
         },
         complement: beneficiary.COMPLEMENT,
         family: null,
@@ -131,7 +133,6 @@ export default class BeneficiaryModel {
         neighborhood: beneficiary.NEIGHBORHOOD,
         number: beneficiary.HOUSE_NUMBER,
         phone: beneficiary.PHONE,
-        state: beneficiary.STATE,
         street: beneficiary.street,
       };
 
@@ -175,7 +176,6 @@ export default class BeneficiaryModel {
     number,
     complement,
     neighborhood,
-    state,
     city,
   }) {
     try {
@@ -183,11 +183,11 @@ export default class BeneficiaryModel {
           INSERT INTO BENEFICIARIES (
             FULL_NAME, GENDER, NATIONAL_ID,
             PHONE, STREET, HOUSE_NUMBER, COMPLEMENT,
-            NEIGHBORHOOD, STATE, CITY_ID
+            NEIGHBORHOOD, CITY_ID
           ) VALUES (
             ${name}, ${gender}, ${nationalId},
             ${phone}, ${street}, ${number}, ${complement},
-            ${neighborhood}, ${state}, ${city}
+            ${neighborhood}, ${city}
           )
         `.run();
 
@@ -214,7 +214,6 @@ export default class BeneficiaryModel {
     number,
     complement,
     neighborhood,
-    state,
     city,
   }) {
     try {
@@ -232,7 +231,6 @@ export default class BeneficiaryModel {
       const setNeighborhood = neighborhood
         ? sql`NEIGHBORHOOD = ${neighborhood}`
         : sql.empty;
-      const setState = state ? sql`STATE = ${state}` : sql.empty;
       const setCity = city ? sql`CITY_ID = ${city}` : sql.empty;
 
       const setStatements = sql.join(
@@ -245,7 +243,6 @@ export default class BeneficiaryModel {
         setNumber,
         setComplement,
         setNeighborhood,
-        setState,
         setCity,
       );
 
@@ -293,7 +290,6 @@ export default class BeneficiaryModel {
  * @prop {string} complement
  * @prop {string} neighborhood
  * @prop {string} city
- * @prop {string} state
  * @prop {boolean} hasOpenRequest
  */
 
@@ -310,7 +306,6 @@ export default class BeneficiaryModel {
  * @prop {string} complement
  * @prop {string} neighborhood
  * @prop {City} city
- * @prop {string} state
  * @prop {boolean} hasOpenRequest
  */
 
@@ -346,6 +341,7 @@ export default class BeneficiaryModel {
  * @typedef {Object} City
  * @prop {string} name
  * @prop {number} id
+ * @prop {string} state
  */
 
 /**
@@ -361,5 +357,4 @@ export default class BeneficiaryModel {
  * @prop {string} [complement]
  * @prop {string} [neighborhood]
  * @prop {string} [city]
- * @prop {string} [state]
  */

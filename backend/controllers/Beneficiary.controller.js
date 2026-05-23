@@ -194,7 +194,6 @@ export default class BeneficiaryController {
       number,
       complement = "",
       neighborhood,
-      state,
       city,
     } = req.body;
 
@@ -207,7 +206,6 @@ export default class BeneficiaryController {
       number,
       complement,
       neighborhood,
-      state,
       city,
     });
 
@@ -259,7 +257,6 @@ export default class BeneficiaryController {
       number,
       complement = "",
       neighborhood,
-      state,
       city,
     } = req.body;
 
@@ -273,7 +270,6 @@ export default class BeneficiaryController {
       number,
       complement,
       neighborhood,
-      state,
       city,
     });
 

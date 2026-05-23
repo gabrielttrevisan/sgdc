@@ -1,6 +1,6 @@
 import { Router } from "express";
 import BeneficiaryController from "../controllers/Beneficiary.controller.js";
-import validator from "../middlewares/validator.js";
+import validator from "../middlewares/validator/validator.js";
 import {
   CREATE_BENEFICIARY_RULES,
   EDIT_BENEFICIARY_BODY_RULES,
@@ -15,14 +15,14 @@ beneficiariesRouter.delete("/:id", BeneficiaryController.delete);
 
 beneficiariesRouter.post(
   "/",
-  validator(CREATE_BENEFICIARY_RULES, "body"),
+  validator({ rules: CREATE_BENEFICIARY_RULES, targetKey: "body" }),
   BeneficiaryController.create,
 );
 
 beneficiariesRouter.patch(
   "/:id",
-  validator(EDIT_BENEFICIARY_PARAM_RULES, "params"),
-  validator(EDIT_BENEFICIARY_BODY_RULES, "body"),
+  validator({ rules: EDIT_BENEFICIARY_PARAM_RULES, targetKey: "params" }),
+  validator({ rules: EDIT_BENEFICIARY_BODY_RULES, targetKey: "body" }),
   BeneficiaryController.edit,
 );
 
