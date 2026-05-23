@@ -17,14 +17,16 @@ export type PageData<T> = {
   totalPages: number;
   totalRecords: number;
   query?: string;
-  sortBy?: string;
+  sortKey?: string;
+  sortType?: string;
 };
 
 export type AsyncPageData<T> = PageData<T> & { loading: boolean };
 
 export type PaginatedQuery = {
   query?: string;
-  sortBy?: string;
+  sortKey?: string;
+  sortType?: string;
   page: number;
   perPage: number;
 };
@@ -59,3 +61,5 @@ export type ToastOptions = {
   timeout: number;
   animationDuration: number;
 };
+
+export type FetchOptions = Omit<RequestInit, "method" | "body">;

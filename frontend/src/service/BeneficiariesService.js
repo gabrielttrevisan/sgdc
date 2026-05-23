@@ -14,24 +14,15 @@
  * @prop {boolean} hasOpenRequest
  */
 
-import { unmaskDigits } from "../../lib/functions/unmask";
-import { BENEFICIARIES_MOCK } from "./mock";
+import APIClient from "../lib/services/APIClient";
 
 const BENEFICIARIES_MOCK_ID = "beneficiaries";
 
 /** @implements {import("../../global").PaginatableService<Beneficiary>} */
 class BeneficiariesService {
-  constructor() {
-    if (!localStorage.getItem(BENEFICIARIES_MOCK_ID))
-      localStorage.setItem(
-        BENEFICIARIES_MOCK_ID,
-        JSON.stringify(BENEFICIARIES_MOCK),
-      );
-  }
-
   /**
    * @param {string} [message]
-   * @returns {APIResponse<import("../../components/data-grid/DataGrid").PageData<Beneficiary[]>>}
+   * @returns {APIResponse<import("../components/data-grid/DataGrid").PageData<Beneficiary[]>>}
    */
   #notFound(message = "Nenhum registro encontrado") {
     return {
@@ -46,7 +37,7 @@ class BeneficiariesService {
 
   /**
    * @param {string} [message]
-   * @returns {APIResponse<import("../../components/data-grid/DataGrid").PageData<Beneficiary[]>>}
+   * @returns {APIResponse<import("../components/data-grid/DataGrid").PageData<Beneficiary[]>>}
    */
   #internal(message = "Erro inesperado") {
     return {
@@ -72,65 +63,20 @@ class BeneficiariesService {
     return parsed;
   }
 
+  #client = new APIClient();
+
   /**
-   * @param {import("../../global").PaginatedQuery} query
-   * @returns {Promise<import("../../global").APIResponse<import("../../components/data-grid/DataGrid").PageData<Beneficiary[]>>>}
+   * @param {import("../global").PaginatedQuery} query
+   * @returns {Promise<import("../global").APIResponse<import("../components/data-grid/DataGrid").PageData<Beneficiary[]>>>}
    */
-  async list(query = { page: 1, perPage: 10 }) {
+  async list({ query, ...rest } = { page: 1, perPage: 10 }) {
     try {
-      let parsed = this.#getFromLocalStorage();
+      const response = await this.#client.get("beneficiaries", {
+        q: query,
+        ...rest,
+      });
 
-      if (!parsed || !Array.isArray(parsed))
-        return this.#internal("Erro ao obter dados");
-
-      if (!parsed.length) return this.#notFound();
-
-      if (query.query && typeof query.query === "string") {
-        const regex = new RegExp(`(${query.query.toLowerCase()})`, "i");
-
-        parsed = parsed.filter((item) => {
-          const hasMatchingNationalID =
-            unmaskDigits(item.nationalId).match(regex) !== null;
-          const hasMatchingName = item.name.match(regex) !== null;
-
-          return hasMatchingName || hasMatchingNationalID;
-        });
-      }
-
-      if (query.sortBy) {
-        const [first] = parsed;
-        const type = typeof first[query.sortBy];
-
-        if (type === "number" || type === "bigint")
-          parsed = parsed.sort((a, b) => a[query.sortBy] - b[query.sortBy]);
-        else if (type === "string")
-          parsed = parsed.sort((a, b) =>
-            a[query.sortBy]
-              .toLowerCase()
-              .localeCompare(b[query.sortBy].toLowerCase()),
-          );
-        else if (type === "boolean")
-          parsed = parsed.sort((a) => (a[query.sortBy] ? -1 : 1));
-      }
-
-      const perPage = query.perPage ?? 10;
-      const offset = (query.page - 1) * perPage;
-      const limit = offset + perPage;
-      const page = parsed.slice(offset, limit);
-
-      if (!page || !page.length) return this.#notFound();
-
-      return {
-        data: {
-          items: page,
-          page: query.page,
-          totalPages: Math.ceil(parsed.length / perPage),
-          totalRecords: parsed.length,
-          sortBy: query.sortBy,
-          query: query.query,
-        },
-        error: null,
-      };
+      return response;
     } catch {
       return this.#internal("Erro inesperado");
     }
@@ -139,7 +85,7 @@ class BeneficiariesService {
   /**
    *
    * @param {string} id
-   * @returns {Promise<import("../../global").APIResponse<{success:boolean}>>}
+   * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
    */
   async delete(id) {
     try {
@@ -165,7 +111,7 @@ class BeneficiariesService {
 
   /**
    * @param {Beneficiary} beneficiary
-   * @returns {Promise<import("../../global").APIResponse<{success:boolean}>>}
+   * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
    */
   async create(beneficiary) {
     try {
@@ -194,7 +140,7 @@ class BeneficiariesService {
 
   /**
    * @param {Beneficiary} beneficiary
-   * @returns {Promise<import("../../global").APIResponse<{success:boolean}>>}
+   * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
    */
   async edit(beneficiary) {
     try {

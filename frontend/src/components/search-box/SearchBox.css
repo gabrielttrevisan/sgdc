@@ -29,12 +29,18 @@
 
     &:not(:placeholder-shown) + [type="reset"] {
       opacity: 1;
+      display: block;
     }
   }
 
   button {
     &[type="reset"] {
       border-radius: 0.4rem;
+      display: none;
+
+      @starting-style {
+        opacity: 0;
+      }
     }
 
     &[type="submit"] {

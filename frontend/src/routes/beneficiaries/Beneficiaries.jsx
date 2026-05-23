@@ -1,4 +1,3 @@
-import BeneficiariesService from "./BeneficiariesService";
 import { DataGrid } from "../../components/data-grid/DataGrid";
 import { ShowIcon } from "../../components/icons/ShowIcon";
 import { EditIcon } from "../../components/icons/EditIcon";
@@ -15,6 +14,7 @@ import { VisuallyHidden } from "../../components/accessibility/visually-hidden/V
 import Toaster from "../../components/toast/ToastStorage";
 
 import "./Beneficiaries.css";
+import BeneficiariesService from "../../service/BeneficiariesService";
 
 export const Beneficiaries = () => {
   const dataGridRef = useRef(null);
@@ -37,6 +37,7 @@ export const Beneficiaries = () => {
         </>
       ),
       sortKey: "name",
+      sortType: ["asc", "desc"],
     },
     {
       DataGridCell: ({ nationalId }) => <>{nationalId}</>,
@@ -47,10 +48,10 @@ export const Beneficiaries = () => {
     {
       DataGridCell: ({ hasOpenRequest }) => (
         <span
-          className={`beneficiary__request-badge ${hasOpenRequest ? "--warn" : "--none"}`}
+          className={`beneficiary__request-badge ${hasOpenRequest === "sim" ? "--warn" : "--none"}`}
         >
           <VisuallyHidden>Beneficiário possui atendimento: </VisuallyHidden>
-          {hasOpenRequest ? "SIM" : "NÃO"}
+          {hasOpenRequest.toUpperCase()}
         </span>
       ),
       title: "Atendimento",
@@ -65,7 +66,7 @@ export const Beneficiaries = () => {
           </VisuallyHidden>
         </>
       ),
-      sortKey: "hasOpenRequest",
+      sortKey: "request",
       headingClassName: "--has-request",
     },
   ];

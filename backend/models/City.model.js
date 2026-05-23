@@ -28,7 +28,10 @@ export default class CityModel {
               ${whereClause}
               ${orderByClause}
               ${limitClause}`.run(),
-        sql.query`SELECT COUNT(*) AS TOTAL FROM CITIES WHERE DELETED_AT IS NULL`.run(),
+        sql.query`
+          SELECT COUNT(*) AS TOTAL 
+          FROM CITIES 
+          ${whereClause}`.run(),
       ]);
 
       const cities = data.map((datum) => {
