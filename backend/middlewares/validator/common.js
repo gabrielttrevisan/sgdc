@@ -8,7 +8,6 @@ import unmaskDigits from "../../lib/unmaskDigits.js";
  * @returns {true|string}
  */
 
-/** @type {Record<"emptiness"|"nationalId"|"phone"|"numericId"|"state", CommonValidatorCallback>} */
 const COMMON_VALIDATORS = {
   nationalId: (value, customMessage) => {
     const message = customMessage ?? "CPF inválido ou não fornecido";

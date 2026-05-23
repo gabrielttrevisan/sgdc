@@ -4,7 +4,7 @@ CREATE TABLE cities (
 );
 
 INSERT INTO cities (NAME)
-VALUES ("Presidente Prudente");
+    VALUES ("Presidente Prudente");
 
 ALTER TABLE cities 
     ADD COLUMN CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),

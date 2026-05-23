@@ -91,7 +91,7 @@ export default function validator({
 /**
  * @typedef {Object} ValidationRule
  * @prop {string} property
- * @prop {"nationalId"|"numericId"|"phone"} [validator]
+ * @prop {keyof typeof COMMON_VALIDATORS} [validator]
  * @prop {string} [validatorErrorMessage]
  * @prop {ValidationCallback} [validate]
  * @prop {boolean} [required]
@@ -107,7 +107,7 @@ export default function validator({
  * @typedef {Object} ValidatorOptions
  * @prop {ValidationRule[]} rules
  * @prop {"query"|"body"|"params"} [targetKey]
- * @prop {boolean} targetRequired
+ * @prop {boolean} [targetRequired]
  * @prop {boolean} [atLeastOneProp]
  * @prop {string} [atLeastOnePropMessage]
  */

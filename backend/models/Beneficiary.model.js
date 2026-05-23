@@ -1,7 +1,7 @@
 import sql from "./core/sql.js";
 
 /**
- * @typedef {Object} FindAllFilter
+ * @typedef {Object} FindAllBeneficiariesFilter
  * @prop {string} [query]
  * @prop {string} [sortKey]
  * @prop {string} [sortType]
@@ -23,7 +23,7 @@ import sql from "./core/sql.js";
 
 export default class BeneficiaryModel {
   /**
-   * @param {FindAllFilter} [filter]
+   * @param {FindAllBeneficiariesFilter} [filter]
    * @returns {Promise<FindAllBeneficiariesTuple>}
    */
   static async findAll({ query, sortKey, sortType, page = 1, perPage = 10 }) {
@@ -53,7 +53,7 @@ export default class BeneficiaryModel {
           ${whereClause}
           ${orderByClause}
           ${limitClause}`.run(),
-        sql.query`SELECT COUNT(*) AS TOTAL FROM BENEFICIARIES`.run(),
+        sql.query`SELECT COUNT(*) AS TOTAL FROM BENEFICIARIES WHERE DELETED_AT IS NULL`.run(),
       ]);
 
       const beneficiaries = data.map((datum) => {
@@ -164,6 +164,27 @@ export default class BeneficiaryModel {
   }
 
   /**
+   * @param {number} id
+   * @returns {Promise<BooleanTuple>}
+   */
+  static async restore(id) {
+    try {
+      const restored = await sql.exec`
+          UPDATE BENEFICIARIES 
+          SET DELETED_AT = NULL
+          WHERE ID = ${id}
+        `.run();
+
+      if (restored.affectedRows < 1) return [false, null];
+
+      return [true, null];
+    } catch (error) {
+      console.error(error);
+      return [false, error];
+    }
+  }
+
+  /**
    * @param {Beneficiary} beneficiary
    * @returns {Promise<BooleanTuple>}
    */
@@ -217,38 +238,38 @@ export default class BeneficiaryModel {
     city,
   }) {
     try {
-      const setName = name ? sql`FULL_NAME = ${name}` : sql.empty;
-      const setGender = gender ? sql`GENDER = ${gender}` : sql.empty;
-      const setNationalId = nationalId
+      const updateName = name ? sql`FULL_NAME = ${name}` : sql.empty;
+      const updateGender = gender ? sql`GENDER = ${gender}` : sql.empty;
+      const updateNationalId = nationalId
         ? sql`NATIONAL_ID = ${nationalId}`
         : sql.empty;
-      const setPhone = phone ? sql`PHONE = ${phone}` : sql.empty;
-      const setStreet = street ? sql`STREET = ${street}` : sql.empty;
-      const setNumber = number ? sql`HOUSE_NUMBER = ${number}` : sql.empty;
-      const setComplement = complement
+      const updatePhone = phone ? sql`PHONE = ${phone}` : sql.empty;
+      const updateStreet = street ? sql`STREET = ${street}` : sql.empty;
+      const updateNumber = number ? sql`HOUSE_NUMBER = ${number}` : sql.empty;
+      const updateComplement = complement
         ? sql`COMPLEMENT = ${complement}`
         : sql.empty;
-      const setNeighborhood = neighborhood
+      const updateNeighborhood = neighborhood
         ? sql`NEIGHBORHOOD = ${neighborhood}`
         : sql.empty;
-      const setCity = city ? sql`CITY_ID = ${city}` : sql.empty;
+      const updateCity = city ? sql`CITY_ID = ${city}` : sql.empty;
 
-      const setStatements = sql.join(
+      const updateStatements = sql.join(
         ", ",
-        setName,
-        setGender,
-        setNationalId,
-        setPhone,
-        setStreet,
-        setNumber,
-        setComplement,
-        setNeighborhood,
-        setCity,
+        updateName,
+        updateGender,
+        updateNationalId,
+        updatePhone,
+        updateStreet,
+        updateNumber,
+        updateComplement,
+        updateNeighborhood,
+        updateCity,
       );
 
       const updated = await sql.exec`
           UPDATE BENEFICIARIES
-          SET ${setStatements}
+          SET ${updateStatements}
           WHERE ID = ${id}
         `.run();
 
