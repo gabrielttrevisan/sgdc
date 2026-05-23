@@ -14,6 +14,7 @@
  * @prop {boolean} hasOpenRequest
  */
 
+import { unmaskDigits } from "../lib/functions/unmask";
 import APIClient from "../lib/services/APIClient";
 
 const BENEFICIARIES_MOCK_ID = "beneficiaries";
@@ -113,26 +114,16 @@ class BeneficiariesService {
    * @param {Beneficiary} beneficiary
    * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
    */
-  async create(beneficiary) {
+  async create({ phone, nationalId, complement, ...beneficiary }) {
     try {
-      const parsed = this.#getFromLocalStorage();
-
-      if (!parsed || !Array.isArray(parsed))
-        return this.#internal("Erro ao obter dados");
-
-      if (!parsed.length) return this.#notFound();
-
-      parsed.push({
+      const response = await this.#client.post("beneficiaries", {
         ...beneficiary,
-        hasOpenRequest: Math.random() * 1000 > 901 ? true : false,
+        phone: unmaskDigits(phone),
+        nationalId: unmaskDigits(nationalId),
+        ...(complement === "" ? {} : { complement }),
       });
 
-      localStorage.setItem(BENEFICIARIES_MOCK_ID, JSON.stringify(parsed));
-
-      return {
-        data: { success: true },
-        error: null,
-      };
+      return response;
     } catch {
       return this.#internal("Erro inesperado");
     }

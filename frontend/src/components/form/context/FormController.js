@@ -33,7 +33,7 @@
  * @callback CustomOnSubmitHandler
  * @param {Record<string, string>} data
  * @param {SubmitEvent} event
- * @returns {Promise<void>}
+ * @returns {Promise<boolean>}
  */
 
 /**
@@ -169,9 +169,9 @@ class FormController extends EventTarget {
           {},
         );
 
-        await handler(formData, e);
+        const result = await handler(formData, e);
 
-        this.reset();
+        if (result) this.reset();
       } catch (e) {
         errorHandler?.("error", e);
       }

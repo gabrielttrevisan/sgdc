@@ -27,6 +27,37 @@ export default class APIClient {
     return response;
   }
 
+  /**
+   * @param {string} path
+   * @param {Record<string, string>} [body]
+   * @param {import("../../global").FetchOptions} [init]
+   * @returns {import("../../global").APIResponse<any>}
+   */
+  async post(path, body, init) {
+    let headers = {};
+
+    if (init && init.headers) {
+      if (Array.isArray(init.headers))
+        headers = Object.fromEntries(init.headers);
+      else if (init.headers instanceof Headers)
+        headers = Object.fromEntries(init.headers.entries());
+      else headers = { ...init.headers };
+    }
+
+    const rawResponse = await fetch(`${this.#url}${path}`, {
+      ...init,
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
+      body: JSON.stringify(body),
+    });
+    const response = await rawResponse.json();
+
+    return response;
+  }
+
   get url() {
     return this.#url;
   }

@@ -167,4 +167,36 @@ dialog {
       --bbo-color-hover: var(--colors-primary-1);
     }
   }
+
+  &[disabled] {
+    opacity: 0.6;
+  }
+
+  &.--loading {
+    &::before {
+      content: " ";
+      display: block;
+      width: 24px;
+      height: 24px;
+      border: 1px solid var(--bb-base-color);
+      border-right-width: 0;
+      background-color: transparent;
+      animation: spin 1s linear infinite;
+      border-radius: 24px;
+    }
+
+    > span {
+      display: none;
+    }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }

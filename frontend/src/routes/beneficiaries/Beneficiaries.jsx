@@ -88,9 +88,13 @@ export const Beneficiaries = () => {
                 dataGridRef.current?.update();
                 formModalRef.current?.close();
                 Toaster.success("Beneficiário cadastrado com sucesso");
+
+                return true;
               } else if (response.error) {
                 Toaster.error("Falha ao cadastrar beneficiário");
               }
+
+              return false;
             },
             edit: async (data) => {
               const reponse = await BeneficiariesService.edit(data);
@@ -99,9 +103,13 @@ export const Beneficiaries = () => {
                 dataGridRef.current?.update();
                 formModalRef.current?.close();
                 Toaster.success("Beneficiário editado com sucesso");
+
+                return true;
               } else if (reponse.error) {
                 Toaster.error("Falha ao editar beneficiário");
               }
+
+              return false;
             },
           }}
         />

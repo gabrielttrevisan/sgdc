@@ -9,7 +9,7 @@ export default class CityModel {
     try {
       const likeQuery = `%${query}%`;
       const whereClause = query
-        ? sql`WHERE DELETED_AT IS NULL AND (NAME LIKE ${likeQuery} OR STATE LIKE ${likeQuery})`
+        ? sql`WHERE DELETED_AT IS NULL AND STATE LIKE ${likeQuery}`
         : sql`WHERE DELETED_AT IS NULL`;
       const orderByColumn = sortKey === "name" ? sql`NAME` : sql.empty;
       const orderBySorting =
