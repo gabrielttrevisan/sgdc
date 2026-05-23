@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { SelectField } from "../../../../components/form/input-field/SelectField";
 import CitiesService from "../../../../service/CitiesService";
-import Toaster from "../../../../components/toast/ToastStorage";
+import Toast from "../../../../components/toast/ToastStorage";
 
 export function CitiesSelectInput() {
   const [cities, setCities] = useState({
@@ -17,7 +17,7 @@ export function CitiesSelectInput() {
     const { data, error } = await CitiesService.list(district);
 
     if (error) {
-      Toaster.error(error.message);
+      Toast.error(error.message);
 
       setCities((prev) => ({
         ...prev,

@@ -11,7 +11,7 @@ import { BeneficiaryFormModal } from "./components/beneficiary-form-modal/Benefi
 import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
 import { FormControllerProvider } from "../../components/form/context/FormControllerProvider";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
-import Toaster from "../../components/toast/ToastStorage";
+import Toast from "../../components/toast/ToastStorage";
 
 import "./Beneficiaries.css";
 import BeneficiariesService from "../../service/BeneficiariesService";
@@ -88,11 +88,11 @@ export const Beneficiaries = () => {
               if (response.data?.success) {
                 dataGridRef.current?.update();
                 formModalRef.current?.close();
-                Toaster.success("Beneficiário cadastrado com sucesso");
+                Toast.success("Beneficiário cadastrado com sucesso");
 
                 return true;
               } else if (response.error) {
-                Toaster.error("Falha ao cadastrar beneficiário");
+                Toast.error("Falha ao cadastrar beneficiário");
               }
 
               return false;
@@ -103,11 +103,11 @@ export const Beneficiaries = () => {
               if (reponse.data?.success) {
                 dataGridRef.current?.update();
                 formModalRef.current?.close();
-                Toaster.success("Beneficiário editado com sucesso");
+                Toast.success("Beneficiário editado com sucesso");
 
                 return true;
               } else if (reponse.error) {
-                Toaster.error("Falha ao editar beneficiário");
+                Toast.error("Falha ao editar beneficiário");
               }
 
               return false;
@@ -149,7 +149,7 @@ export const Beneficiaries = () => {
               );
 
               if (error?.message) {
-                Toaster.error(error.message);
+                Toast.error(error.message);
               } else if (data) {
                 formModalRef.current?.toggle({
                   ...data,
@@ -158,7 +158,7 @@ export const Beneficiaries = () => {
                   city: data.city.id,
                 });
               } else {
-                Toaster.error(error.message);
+                Toast.error(error.message);
               }
             },
           },
@@ -189,9 +189,9 @@ export const Beneficiaries = () => {
                 );
 
                 if (data?.success) {
-                  Toaster.success("Beneficiário deletado com sucesso");
+                  Toast.success("Beneficiário deletado com sucesso");
                   dataGridRef.current?.update();
-                } else if (error?.message) Toaster.error(error.message);
+                } else if (error?.message) Toast.error(error.message);
               }
             },
           },

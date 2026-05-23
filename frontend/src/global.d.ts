@@ -51,6 +51,7 @@ export type ToastMessage = {
   type: ToastType;
   message: ReactNode;
   key: string;
+  timeout: number | undefined;
 } & ToastMessageOptions;
 
 export type ToastMessageOptions = {

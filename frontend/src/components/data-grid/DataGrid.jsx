@@ -10,7 +10,7 @@ import { ActionList } from "../action-list/ActionList";
 import { PaginationInfo } from "../pagination-info/PaginationInfo";
 import { PaginationLinks } from "../pagination-links/PaginationLinks";
 import { SearchBox } from "../search-box/SearchBox";
-import Toaster from "../toast/ToastStorage";
+import Toast from "../toast/ToastStorage";
 import "./DataGrid.css";
 import { DataGridContent } from "./grid/DataGridContent";
 import { DataGridFilterList } from "./grid/DataGridFilterList";
@@ -115,7 +115,7 @@ export function DataGrid({
         })
         .then((response) => {
           if (!response.data) {
-            Toaster.error(response.error.message);
+            Toast.error(response.error.message);
 
             setPage({
               items: [],
