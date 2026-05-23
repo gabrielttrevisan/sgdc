@@ -7,6 +7,7 @@ import { useFormController } from "../context/useFormController";
 /**
  * @callback OpenFormModalCallback
  * @param {Record<string, string>} [data]
+ * @param {"show"} [show]
  * @returns {void}
  */
 
@@ -20,7 +21,7 @@ import { useFormController } from "../context/useFormController";
 /**
  * @typedef {Object} FormModalProps
  * @prop {string} title
- * @prop {"create"|"edit"} [mode]
+ * @prop {"create"|"edit"|"show"} [mode]
  * @prop {string} [cancelLabel]
  * @prop {string} [editLabel]
  * @prop {string} [createLabel]
@@ -57,15 +58,15 @@ export const FormModal = ({
         dialogRef.current?.close();
         controller.reset();
       },
-      toggle(data) {
+      toggle(data, show) {
         if (dialogRef.current?.open) {
           dialogRef.current.close();
           controller.reset();
         } else {
           dialogRef.current?.showModal();
           if (data) {
-            controller.fill(data);
-            setMode("edit");
+            controller.fill(data, show !== undefined);
+            setMode(show ? show : "edit");
           } else {
             setMode("create");
           }
@@ -118,13 +119,14 @@ export const FormModal = ({
             className="button-block --outline --primary"
             disabled={loading}
           >
-            {cancelLabel}
+            {mode === "show" ? "Fechar" : cancelLabel}
           </button>
 
           <button
             type="submit"
             className={`button-block --solid --primary ${loading ? "--loading" : ""}`}
             disabled={loading}
+            hidden={mode === "show"}
           >
             <span>{submitLabel}</span>
           </button>

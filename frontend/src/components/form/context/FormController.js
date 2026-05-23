@@ -194,6 +194,10 @@ class FormController extends EventTarget {
       field.touched = false;
       field.error = null;
 
+      if (field.input instanceof HTMLInputElement) field.input.readOnly = false;
+      else if (field.input instanceof HTMLSelectElement)
+        field.input.disabled = false;
+
       this.dispatchEvent(
         new CustomEvent(`validity-change:${field.name}`, {
           detail: {
@@ -256,11 +260,18 @@ class FormController extends EventTarget {
     }
   }
 
-  fill(data) {
+  fill(data, isShow = false) {
     Object.entries(this.#fields).forEach(([, field]) => {
       const value = data[field.name];
 
-      if (value) field.input.value = value;
+      if (value) field.input.value = field.mask ? field.mask(value) : value;
+
+      if (isShow) {
+        if (field.input instanceof HTMLInputElement)
+          field.input.readOnly = true;
+        else if (field.input instanceof HTMLSelectElement)
+          field.input.disabled = true;
+      }
     });
   }
 

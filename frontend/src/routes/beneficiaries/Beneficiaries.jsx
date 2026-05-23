@@ -133,7 +133,27 @@ export const Beneficiaries = () => {
                 <VisuallyHidden>Ver Beneficiário</VisuallyHidden>
               </>
             ),
-            onAction: async () => {},
+            onAction: async (_type, target) => {
+              const { data, error } = await BeneficiariesService.getById(
+                target.id,
+              );
+
+              if (error?.message) {
+                Toast.error(error.message);
+              } else if (data) {
+                formModalRef.current?.toggle(
+                  {
+                    ...data,
+                    gender: data.gender.id.toLowerCase(),
+                    state: data.city.state.toLowerCase(),
+                    city: data.city.id,
+                  },
+                  "show",
+                );
+              } else {
+                Toast.error(error.message);
+              }
+            },
           },
           {
             type: "edit",
@@ -143,7 +163,7 @@ export const Beneficiaries = () => {
                 <span>Editar</span>
               </>
             ),
-            onAction: async (type, target) => {
+            onAction: async (_type, target) => {
               const { data, error } = await BeneficiariesService.getById(
                 target.id,
               );
@@ -180,7 +200,7 @@ export const Beneficiaries = () => {
                 <span>Deletar</span>
               </>
             ),
-            onAction: async (type, target) => {
+            onAction: async (_type, target) => {
               const confirmed = await modalRef.current?.open();
 
               if (confirmed) {
