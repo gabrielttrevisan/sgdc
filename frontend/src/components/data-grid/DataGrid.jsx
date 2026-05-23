@@ -29,7 +29,15 @@ import { DataGridHeaderActions } from "./grid/DataGridHeaderActions";
  */
 
 /**
- * @typedef {Record<SortState, import("react").ReactNode>} SortIcons
+ * @typedef {Object} SortIconProps
+ * @prop {string} [state]
+ * @prop {string} [sortKey]
+ */
+
+/**
+ * @callback SortIcon
+ * @param {SortIconProps} props
+ * @returns {import("react").JSX.Element}
  */
 
 /**
@@ -41,7 +49,7 @@ import { DataGridHeaderActions } from "./grid/DataGridHeaderActions";
  * @prop {string} [headingClassName]
  * @prop {string} id
  * @prop {boolean} [sortable]
- * @prop {SortIcons} [sortIcon]
+ * @prop {SortIcon} [SortIcon]
  * @prop {keyof T} [sortKey]
  * @prop {string[]} [sortType]
  */
@@ -239,7 +247,10 @@ export function DataGrid({
                         } else getPage(1, page.query);
                       }}
                     >
-                      {column.sortIcon}
+                      <column.SortIcon
+                        sortKey={page.sortKey}
+                        state={page.sortType}
+                      />
                     </button>
                   )}
                 </DataGridFilter>

@@ -4,7 +4,7 @@ import { EditIcon } from "../../components/icons/EditIcon";
 import { DeleteIcon } from "../../components/icons/DeleteIcon";
 import { DonateIcon } from "../../components/icons/DonateIcon";
 import { ArrowDownIcon } from "../../components/icons/ArrowDownIcon";
-import { AtoZIcon } from "../../components/icons/AtoZIcon";
+import { AtoZIconAsc } from "../../components/icons/AtoZIconAsc";
 import { useRef } from "react";
 import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
 import { BeneficiaryFormModal } from "./components/beneficiary-form-modal/BeneficiaryFormModal";
@@ -15,6 +15,7 @@ import Toast from "../../components/toast/ToastStorage";
 
 import "./Beneficiaries.css";
 import BeneficiariesService from "../../service/BeneficiariesService";
+import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 
 export const Beneficiaries = () => {
   const dataGridRef = useRef(null);
@@ -31,12 +32,20 @@ export const Beneficiaries = () => {
       id: "name",
       className: "beneficiary__col --name",
       sortable: true,
-      sortIcon: (
-        <>
-          <AtoZIcon />
-          <VisuallyHidden>Ordenar por nome</VisuallyHidden>
-        </>
-      ),
+      SortIcon: ({ sortKey, state }) => {
+        const style = sortKey === "name" ? undefined : { opacity: "0.4" };
+
+        return (
+          <>
+            {!state || state === "asc" ? (
+              <AtoZIconAsc style={style} />
+            ) : (
+              <AtoZIconDesc style={style} />
+            )}
+            <VisuallyHidden>Ordenar por nome</VisuallyHidden>
+          </>
+        );
+      },
       sortKey: "name",
       sortType: ["asc", "desc"],
     },
@@ -59,9 +68,11 @@ export const Beneficiaries = () => {
       id: "has-open-request",
       className: "beneficiary__col --has-request",
       sortable: true,
-      sortIcon: (
+      SortIcon: ({ sortKey }) => (
         <>
-          <ArrowDownIcon />
+          <ArrowDownIcon
+            style={sortKey === "request" ? undefined : { opacity: "0.4" }}
+          />
           <VisuallyHidden>
             Mostrar beneficiários com atendimento aberto primeiro
           </VisuallyHidden>
