@@ -1,7 +1,7 @@
 import APIResponse from "../../lib/APIResponse.js";
 import isNationalIdValid from "../../lib/isNationalIdValid.js";
 import unmaskDigits from "../../lib/unmaskDigits.js";
-import COMMON_VALIDATORS from "./common.js";
+import COMMON_RULES_VALIDATION_CALLBACKS from "./common.js";
 
 /**
  *
@@ -46,13 +46,14 @@ export default function validator({
        */
       (rule, value) => {
         if (rule.validate) {
-          const validation = rule.validate(value);
+          const validation = rule.validate(value, target);
 
           if (typeof validation === "string")
             errorResponse.withIssue("INVALID_FIELD", validation);
           else validFieldCount++;
         } else if (rule.validator) {
-          const commomValidator = COMMON_VALIDATORS[rule.validator];
+          const commomValidator =
+            COMMON_RULES_VALIDATION_CALLBACKS[rule.validator];
 
           if (commomValidator) {
             const validation = commomValidator(
@@ -73,7 +74,10 @@ export default function validator({
 
       if (required) {
         runValidation(rule, value);
-        COMMON_VALIDATORS.emptiness(value, rule.validatorErrorMessage);
+        COMMON_RULES_VALIDATION_CALLBACKS.emptiness(
+          value,
+          rule.validatorErrorMessage,
+        );
       } else if (value !== null && value !== undefined) {
         runValidation(rule, value);
       }
@@ -91,7 +95,7 @@ export default function validator({
 /**
  * @typedef {Object} ValidationRule
  * @prop {string} property
- * @prop {keyof typeof COMMON_VALIDATORS} [validator]
+ * @prop {keyof typeof COMMON_RULES_VALIDATION_CALLBACKS} [validator]
  * @prop {string} [validatorErrorMessage]
  * @prop {ValidationCallback} [validate]
  * @prop {boolean} [required]
@@ -99,7 +103,8 @@ export default function validator({
 
 /**
  * @callback ValidationCallback
- * @param {string|string[]} value
+ * @param {string|string[]|number} value
+ * @param {Record<string,string[]|string>} target
  * @returns {true|string}
  */
 

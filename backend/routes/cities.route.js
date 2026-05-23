@@ -4,30 +4,18 @@ import CityController from "../controllers/City.controller.js";
 import {
   CREATE_CITY_RULES,
   EDIT_CITY_BODY_RULES,
-  IDENTIFY_CITY_PARAM_RULES,
+  FILTER_CITIES_RULES,
 } from "../validators/city.validator.js";
+import identifier from "../middlewares/validator/id.js";
+import { pagination } from "../middlewares/validator/pagination.js";
 
 const citiesRouter = Router();
 
-citiesRouter.get("/", CityController.findAll);
+citiesRouter.get("/", pagination(FILTER_CITIES_RULES), CityController.findAll);
 
-citiesRouter.get(
-  "/:id",
-  validator({
-    rules: IDENTIFY_CITY_PARAM_RULES,
-    targetKey: "params",
-  }),
-  CityController.findById,
-);
+citiesRouter.get("/:id", identifier, CityController.findById);
 
-citiesRouter.delete(
-  "/:id",
-  validator({
-    rules: IDENTIFY_CITY_PARAM_RULES,
-    targetKey: "params",
-  }),
-  CityController.delete,
-);
+citiesRouter.delete("/:id", identifier, CityController.delete);
 
 citiesRouter.post(
   "/",
@@ -37,7 +25,7 @@ citiesRouter.post(
 
 citiesRouter.patch(
   "/:id",
-  validator({ rules: IDENTIFY_CITY_PARAM_RULES, targetKey: "params" }),
+  identifier,
   validator({ rules: EDIT_CITY_BODY_RULES, targetKey: "body" }),
   CityController.edit,
 );

@@ -8,7 +8,7 @@ import unmaskDigits from "../../lib/unmaskDigits.js";
  * @returns {true|string}
  */
 
-const COMMON_VALIDATORS = {
+const COMMON_RULES_VALIDATION_CALLBACKS = {
   nationalId: (value, customMessage) => {
     const message = customMessage ?? "CPF inválido ou não fornecido";
 
@@ -39,7 +39,7 @@ const COMMON_VALIDATORS = {
     if (typeof value == "string") {
       const trimmed = value.trim();
 
-      if (!trimmed.length) return message;
+      if (!trimmed.length || !trimmed.match(/^([\d]+)$/i)) return message;
 
       const parsed = parseInt(value);
 
@@ -84,4 +84,4 @@ const COMMON_VALIDATORS = {
   },
 };
 
-export default COMMON_VALIDATORS;
+export default COMMON_RULES_VALIDATION_CALLBACKS;

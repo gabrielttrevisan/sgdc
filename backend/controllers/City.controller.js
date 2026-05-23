@@ -12,14 +12,9 @@ export default class CityController {
     const filter = {};
     const { q, sortKey, sortType, page, perPage } = req.query;
 
-    if (q && (typeof q !== "string" || q.trim().length === 0)) {
-      return response
-        .badRequest()
-        .withIssue("INVALID_QUERY", "Texto buscado inválido")
-        .send();
-    }
-
     filter.query = q;
+    filter.page = page ? parseInt(page) : 1;
+    filter.perPage = perPage ? parseInt(perPage) : 10;
 
     if (sortKey) {
       if (sortKey === "name") {
@@ -48,32 +43,6 @@ export default class CityController {
           .send();
       }
     }
-
-    if (page) {
-      const parsedPage = parseInt(page);
-
-      if (isNaN(parsedPage) || parsedPage < 1) {
-        return response
-          .badRequest()
-          .withIssue("PAGINATION_ERROR", "Página inválida")
-          .send();
-      }
-
-      filter.page = parsedPage;
-    } else filter.page = 1;
-
-    if (perPage) {
-      const parsedPerPage = parseInt(perPage);
-
-      if (isNaN(parsedPerPage) || parsedPerPage < 10 || parsedPerPage > 30) {
-        return response
-          .badRequest()
-          .withIssue("PAGINATION_ERROR", "Quantidade paginada inadequada")
-          .send();
-      }
-
-      filter.perPage = parsedPerPage;
-    } else filter.perPage = 10;
 
     const [cities, error] = await CityModel.findAll(filter);
 

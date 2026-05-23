@@ -99,16 +99,40 @@ export const CREATE_BENEFICIARY_RULES = [
   },
 ];
 
-/** @type {import("../middlewares/validator").ValidationRule[]} */
-export const EDIT_BENEFICIARY_PARAM_RULES = [
-  {
-    property: "id",
-    validator: "numericId",
-    validatorErrorMessage: "Identificador não fornecido ou inválido",
-  },
-];
-
-/** @type {import("../middlewares/validator").ValidationRule[]} */
+/** @type {import("../middlewares/validator/validator.js").ValidationRule[]} */
 export const EDIT_BENEFICIARY_BODY_RULES = CREATE_BENEFICIARY_RULES.map(
   (rule) => ({ ...rule, required: false }),
 );
+
+/** @type {import("../middlewares/validator/validator.js").ValidationRule[]} */
+export const FILTER_BENEFICIARIES_RULES = [
+  {
+    property: "sortKey",
+    required: false,
+    validate: (value, target) => {
+      if (!value || typeof value !== "string" || value.trim().length === 0)
+        return "Chave de ordenação inválida";
+
+      const sortType = target.sortType;
+
+      const sortKey = value;
+
+      if (!["name", "request"].includes(sortKey))
+        return "Chave de ordenação inválida";
+
+      if (sortKey === "name") {
+        if (
+          !sortType ||
+          typeof sortType !== "string" ||
+          sortType.trim().length === 0
+        )
+          return "Tipo de ordenação não informado";
+
+        if (!["asc", "desc"].includes(sortType))
+          return "Tipo de ordenação incompatível com chave de ordenação";
+      }
+
+      return true;
+    },
+  },
+];
