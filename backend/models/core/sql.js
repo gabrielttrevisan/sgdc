@@ -126,6 +126,10 @@ export default function sql(strings, ...values) {
   return SqlFragment.from(strings, ...values);
 }
 
+Object.defineProperty(sql, "str", {
+  value: (value) => SqlFragment.from([value]),
+});
+
 Object.defineProperty(sql, "empty", {
   get() {
     return SqlFragment.empty;
