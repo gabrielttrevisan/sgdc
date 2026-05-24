@@ -25,17 +25,14 @@ allocationTypesRouter.delete(
 
 allocationTypesRouter.post(
   "/",
-  validateRequest.body().withRules(CREATE_ALLOCATION_TYPE_RULES).middleware(),
+  validateRequest.body.withRules(CREATE_ALLOCATION_TYPE_RULES).middleware,
   AllocationTypeController.create,
 );
 
 allocationTypesRouter.patch(
   "/:id",
   identifier,
-  validateRequest
-    .body()
-    .withRules(EDIT_ALLOCATION_TYPE_BODY_RULES)
-    .middleware(),
+  validateRequest.body.withRules(EDIT_ALLOCATION_TYPE_BODY_RULES).middleware,
   AllocationTypeController.edit,
 );
 
