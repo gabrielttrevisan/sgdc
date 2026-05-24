@@ -59,12 +59,6 @@ export default class BeneficiaryController {
 
     const parsedId = parseInt(req.params.id);
 
-    if (isNaN(parsedId) || parsedId < 1)
-      return response.badRequest({
-        code: "INVALID_IDENTIFIER",
-        description: "Identificador inválido",
-      });
-
     const [isDeleted, error] = await BeneficiaryModel.delete(parsedId);
 
     if (error) {

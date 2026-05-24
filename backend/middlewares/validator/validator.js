@@ -147,12 +147,12 @@ export const validateRequest = new Proxy(
             options.targetRequired = true;
             return builder;
           },
-          middleware() {
+          get middleware() {
             return validator(options);
           },
         };
 
-        return () => builder;
+        return builder;
       }
 
       return undefined;
@@ -162,9 +162,9 @@ export const validateRequest = new Proxy(
 
 /**
  * @typedef {Object} RequestValidator
- * @prop {ValidatorBuilderCallback} body
- * @prop {ValidatorBuilderCallback} urlParams
- * @prop {ValidatorBuilderCallback} query
+ * @prop {ValidatorBuilder} body
+ * @prop {ValidatorBuilder} urlParams
+ * @prop {ValidatorBuilder} query
  */
 
 /**
@@ -178,7 +178,7 @@ export const validateRequest = new Proxy(
  * @prop {ValidatorBuilderCallback} canHaveNoValidProp
  * @prop {ValidatorWithAtLeastOneValidPropCallback} shouldHaveAtLeastOneValidProp
  * @prop {ValidatorBuilderCallback} canBeEmpty
- * @prop {GetValidatorMiddleware} middleware
+ * @prop {import("express").Handler} middleware
  */
 
 /**
@@ -196,9 +196,4 @@ export const validateRequest = new Proxy(
  * @callback ValidatorWithAtLeastOneValidPropCallback
  * @param {string} [message]
  * @returns {ValidatorBuilder}
- */
-
-/**
- * @callback GetValidatorMiddleware
- * @returns {import("express").Handler}
  */
