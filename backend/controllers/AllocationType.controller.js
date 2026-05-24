@@ -1,14 +1,14 @@
 import APIResponse from "../lib/APIResponse.js";
-import CityModel from "../models/City.model.js";
+import AllocationTypeModel from "../models/AllocationType.model.js";
 
-export default class CityController {
+export default class AllocationTypeController {
   /**
    * @param {import("express").Request} req
    * @param {import("express").Response} res
    */
   static async findAll(req, res) {
     const response = APIResponse.from(res);
-    /** @type {import("../models/City.model.js").FindAllCitiesFilter} */
+    /** @type {import("../models/AllocationType.model.js").FindAllAllocationTypesFilter} */
     const filter = {};
     const { q, sortKey, sortType, page, perPage } = req.query;
 
@@ -18,33 +18,15 @@ export default class CityController {
     filter.sortKey = sortKey;
     filter.sortType = sortType;
 
-    const [cities, error] = await CityModel.findAll(filter);
+    const [cities, error] = await AllocationTypeModel.findAll(filter);
 
     if (error) {
       return response.internalError();
     } else {
       if (cities.length === 0)
-        return response.notFound("Nenhuma cidade encontrada");
+        return response.notFound("Nenhum tipo de alocação encontrada");
 
       return response.success(cities);
-    }
-  }
-
-  /**
-   * @param {import("express").Request} req
-   * @param {import("express").Response} res
-   */
-  static async findById(req, res) {
-    const response = APIResponse.from(res);
-
-    const [city, error] = await CityModel.findById(req.params.id);
-
-    if (error) {
-      return res.status(500).send(APIResponse.internalError());
-    } else {
-      if (!city) return response.notFound("Cidade não encontrada");
-
-      return response.success(city);
     }
   }
 
@@ -55,12 +37,13 @@ export default class CityController {
   static async delete(req, res) {
     const response = APIResponse.from(res);
 
-    const [isDeleted, error] = await CityModel.delete(req.params.id);
+    const [isDeleted, error] = await AllocationTypeModel.delete(req.params.id);
 
     if (error) {
       return response.internalError();
     } else {
-      if (!isDeleted) return response.internalError("Falha ao remover cidade");
+      if (!isDeleted)
+        return response.internalError("Falha ao remover tipo de alocação");
 
       return response.success({ success: true });
     }
@@ -73,11 +56,11 @@ export default class CityController {
   static async create(req, res) {
     const response = APIResponse.from(res);
 
-    const { name, state } = req.body;
+    const { name, description } = req.body;
 
-    const [isCreated, error] = await CityModel.create({
+    const [isCreated, error] = await AllocationTypeModel.create({
       name,
-      state,
+      description,
     });
 
     if (error) {
@@ -86,7 +69,7 @@ export default class CityController {
       if (!isCreated)
         return response
           .badRequest()
-          .withIssue("INSERT_FAILURE", "Falha ao cadastrar cidade")
+          .withIssue("INSERT_FAILURE", "Falha ao cadastrar tipo de alocação")
           .send();
 
       return response.success({ success: true });
@@ -102,12 +85,12 @@ export default class CityController {
 
     const { id } = req.params;
 
-    const { name, state } = req.body;
+    const { name, description } = req.body;
 
-    const [isUpdated, error] = await CityModel.edit({
+    const [isUpdated, error] = await AllocationTypeModel.edit({
       id,
       name,
-      state,
+      description,
     });
 
     if (error) {
@@ -116,7 +99,7 @@ export default class CityController {
       if (!isUpdated)
         return response
           .badRequest()
-          .withIssue("INSERT_FAILURE", "Falha ao alterar cidade")
+          .withIssue("INSERT_FAILURE", "Falha ao alterar tipo de alocação")
           .send();
 
       return response.success({ success: true });
