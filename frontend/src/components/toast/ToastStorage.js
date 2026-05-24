@@ -38,9 +38,17 @@ class ToastStorage {
       timeout: setTimeout(() => removeToast(), options?.customTimeout ?? 4000),
     };
 
+    const theOnesToPop = this.#toasts.splice(6);
+
     this.#toasts = [toast, ...this.#toasts];
 
     this.#emit();
+
+    theOnesToPop.forEach((toast) => this.#pop(toast));
+  }
+
+  #pop(toast) {
+    clearTimeout(toast.timeout);
   }
 
   pop(key) {
@@ -48,7 +56,7 @@ class ToastStorage {
 
     this.#toasts = this.#toasts.filter((toast) => {
       if (toast.key === key) {
-        clearTimeout(toast.timeout);
+        this.#pop(toast.timeout);
         return false;
       }
 

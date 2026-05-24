@@ -1,4 +1,5 @@
 import useIsDataGridMobile from "../context/useIsDataGridMobile";
+import { DataGridFilterListMobile } from "./DataGridFilterListMobile";
 
 /** @type {import("react").FC<import("react").HTMLProps<"thead">>} */
 export const DataGridFilterList = ({ children, className = "", ...props }) => {
@@ -6,7 +7,12 @@ export const DataGridFilterList = ({ children, className = "", ...props }) => {
 
   const filterListClassName = `data-grid__filter-list ${className}`;
 
-  if (isMobile) return <div className={filterListClassName}>{children}</div>;
+  if (isMobile)
+    return (
+      <DataGridFilterListMobile className={filterListClassName}>
+        {children}
+      </DataGridFilterListMobile>
+    );
 
   return (
     <thead className={filterListClassName} {...props}>

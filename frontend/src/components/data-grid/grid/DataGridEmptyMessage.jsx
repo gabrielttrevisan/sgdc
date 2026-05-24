@@ -13,7 +13,7 @@ export const DataGridEmptyMessage = ({
 
   return (
     <tr>
-      <td {...props} colSpan={colSpan}>
+      <td {...props} className={className} colSpan={colSpan}>
         {children}
       </td>
     </tr>

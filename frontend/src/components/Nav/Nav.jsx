@@ -3,6 +3,7 @@ import { VisuallyHidden } from "../accessibility/visually-hidden/VisuallyHidden"
 import useMatchMedia from "../media-query/useMatchMedia";
 import NavContextProvider from "./context/Provider";
 import { MenuIcon } from "../icons/MenuIcon";
+import { CloseIconLarge } from "../icons/CloseIconLarge";
 
 /**
  * @typedef {Object} NavProps
@@ -15,14 +16,13 @@ export const Nav = ({ children }) => {
   const isMobile = useMatchMedia("(max-width: 1255px)");
 
   const onClickToClose = useCallback((e) => {
-    const mainMenu = e.target.closest("#main-nav");
-    const mainMenuButton = e.target.closest("#main-nav-button");
-
-    if (mainMenu || !mainMenuButton) setIsOpen(false);
+    if (e.target instanceof HTMLAnchorElement) setIsOpen(false);
   }, []);
 
   const toggle = () => {
     setIsOpen((prev) => {
+      console.log("toggling: state update");
+
       const newIsOpen = !prev;
 
       if (isMobile) {
@@ -43,7 +43,8 @@ export const Nav = ({ children }) => {
           className="main-menu-button"
           id="main-nav-button"
         >
-          <MenuIcon size={20} />
+          {isOpen ? <CloseIconLarge size={20} /> : <MenuIcon size={20} />}
+
           <VisuallyHidden>
             {isOpen ? "Fechar Menu Principal" : "Abrir Menu Principal"}
           </VisuallyHidden>

@@ -13,6 +13,7 @@
   width: max-content;
   height: fit-content;
   padding: 1rem;
+  z-index: 90;
 
   &:empty {
     width: 0;
@@ -62,7 +63,7 @@
 @keyframes toast-in {
   0% {
     opacity: 0;
-    transform: translate(10%);
+    transform: translate(100%);
   }
 
   100% {
@@ -79,6 +80,6 @@
 
   100% {
     opacity: 0;
-    transform: translate(0) scale(0.6);
+    transform: translate(200%);
   }
 }
