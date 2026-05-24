@@ -93,12 +93,13 @@
     background-size: 200% 100%;
     animation: skelly 3s infinite;
     backdrop-filter: blur(4px);
+    border-radius: 0.34rem;
 
     &::before {
       content: " ";
       width: 2rem;
       height: 2rem;
-      border: 4px solid vaR(--colors-primary);
+      border: 4px solid var(--colors-primary);
       border-right-color: transparent;
       background-color: transparent;
       display: block;
@@ -109,6 +110,10 @@
     p {
       display: block;
       color: var(--colors-primary);
+    }
+
+    @media (min-width: 1255px) {
+      border-radius: 0;
     }
   }
 }
@@ -244,6 +249,19 @@ div.data-grid__filter-list {
   padding: 1rem 0;
   display: flex;
   gap: 1rem;
+  transition: all 200ms ease-out;
+
+  &.--sticky {
+    position: sticky;
+    left: 0;
+    right: 0;
+    margin-left: -1.5rem;
+    margin-right: -1.5rem;
+    padding: 0.3rem 1.5rem 0.6rem 1.5rem;
+    background-color: rgb(238, 238, 238);
+    top: 106px;
+    box-shadow: var(--data-grid-shadow);
+  }
 
   .data-grid__filter {
     display: flex;
@@ -303,9 +321,7 @@ div.data-grid__filter-list {
     right: 0;
     margin-left: -1.5rem;
     margin-right: -1.5rem;
-    padding-inline: 1.5rem;
-    box-shadow: var(--data-grid-shadow);
-    padding-block: 0.6rem;
+    padding: 0.6rem 1.5rem 0.3rem 1.5rem;
   }
 
   @media (min-width: 1256px) {
