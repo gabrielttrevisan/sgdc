@@ -6,3 +6,10 @@ CREATE TABLE measuring_units (
     UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
     DELETED_AT TIMESTAMP
 );
+
+INSERT INTO measuring_units 
+	(name, symbol)
+VALUES
+	("Quilograma", "kg"),
+	("Litro", "l"),
+	("Unidade", "un");

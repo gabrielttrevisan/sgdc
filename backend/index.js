@@ -5,6 +5,7 @@ import notFoundHandler from "./routes/404.route.js";
 import beneficiariesRouter from "./routes/beneficiaries.route.js";
 import citiesRouter from "./routes/cities.route.js";
 import allocationTypesRouter from "./routes/allocationTypes.route.js";
+import measuringUnitsRouter from "./routes/measuringUnits.route.js";
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(cors({ origin: env.FRONTEND_URL }));
 app.use("/beneficiaries", beneficiariesRouter);
 app.use("/cities", citiesRouter);
 app.use("/allocation-types", allocationTypesRouter);
+app.use("/measuring-units", measuringUnitsRouter);
 
 app.use(notFoundHandler);
 
