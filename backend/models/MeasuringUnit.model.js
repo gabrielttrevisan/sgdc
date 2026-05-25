@@ -30,7 +30,7 @@ export default class MeasuringUnitModel {
               ${limitClause}`.run(),
         sql.query`
           SELECT COUNT(*) AS TOTAL 
-          FROM ALLOCATION_TYPES 
+          FROM MEASURING_UNITS 
           ${whereClause}`.run(),
       ]);
 
