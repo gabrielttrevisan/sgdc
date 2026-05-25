@@ -1,4 +1,4 @@
-.allocation-type__col {
+.measuring-unit__col {
   vertical-align: middle;
   text-align: left;
   color: var(--colors-foreground-black);
@@ -7,6 +7,15 @@
 
   &.--description {
     padding: 0 0 0 1.2rem;
+
+    > span {
+      text-transform: none;
+      max-width: calc(100% - 3rem);
+      overflow: hidden;
+      display: block;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 
   &.--name {
@@ -19,10 +28,10 @@
   }
 }
 
-li.data-grid__item.allocation-type__row {
+li.data-grid__item.measuring-unit__row {
   grid-template-columns: 1fr 35%;
 
-  .allocation-type__col {
+  .measuring-unit__col {
     height: max-content;
 
     &.--name {

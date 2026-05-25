@@ -268,6 +268,7 @@ export default class BeneficiaryModel {
         updateComplement,
         updateNeighborhood,
         updateCity,
+        sql`UPDATED_AT = CURRENT_TIMESTAMP()`,
       );
 
       const updated = await sql.exec`

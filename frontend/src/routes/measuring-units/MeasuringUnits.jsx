@@ -10,27 +10,25 @@ import { FormControllerProvider } from "../../components/form/context/FormContro
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
 import Toast from "../../components/toast/ToastStorage";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
-import AllocationTypesService from "../../service/AllocationTypesService";
-import { AllocationTypeFormModal } from "./components/allocation-type-form-modal/AllocationTypeFormModal";
+import MeasuringUnitsService from "../../service/MeasuringTypesService";
+import { MeasuringUnitFormModal } from "./components/measuring-unit-form-modal/MeasuringUnitFormModal";
 
-import "./AllocationTypes.css";
+import "./MeasuringUnits.css";
 
-const DESCRIPTION_CLAMP_MAX = 36;
-
-export const AllocationTypes = () => {
+export const MeasuringUnits = () => {
   const dataGridRef = useRef(null);
   /** @type {import("react").RefObject<import("../../components/sensitive-modal/SensitiveModal").SensitiveModalRef>} */
   const modalRef = useRef(null);
   /** @type {import("react").RefObject<import("../../components/form/modal/FormModal").FormModalRef>} */
   const formModalRef = useRef(null);
 
-  /** @type {import("../../components/data-grid/DataGrid").DataGridColumn<import("../../service/AllocationTypesService").AllocationType>[]} */
+  /** @type {import("../../components/data-grid/DataGrid").DataGridColumn<import("../../service/MeasuringTypesService").AllocationType>[]} */
   const columns = [
     {
       DataGridCell: ({ name }) => <span>{name}</span>,
       title: "Nome",
       id: "name",
-      className: "allocation-type__col --name",
+      className: "measuring-unit__col --name",
       sortable: true,
       SortIcon: ({ sortKey, state }) => {
         const style = sortKey === "name" ? undefined : { opacity: "0.4" };
@@ -50,57 +48,50 @@ export const AllocationTypes = () => {
       sortType: ["asc", "desc"],
     },
     {
-      DataGridCell: ({ description }) => {
-        const text =
-          description.length > DESCRIPTION_CLAMP_MAX
-            ? description.slice(0, DESCRIPTION_CLAMP_MAX + 1) + "..."
-            : description;
-
-        return <span>{text}</span>;
-      },
-      title: "Descrição",
-      id: "description",
-      className: "allocation-type__col --description",
+      DataGridCell: ({ symbol }) => <em>{symbol}</em>,
+      title: "Abreviação/Símbolo",
+      id: "symbol",
+      className: "measuring-unit__col --symbol",
     },
   ];
 
   return (
     <>
       <SensitiveModal ref={modalRef} showCloseButton>
-        O tipo de alocação ainda irá existem e poderá ser recuperado. Dados
-        vinculados também serão mantidos.
+        A unidade ainda irá existir e poderá ser recuperada. Dados vinculados a
+        ela também serão mantidos.
       </SensitiveModal>
 
       <FormControllerProvider>
-        <AllocationTypeFormModal
+        <MeasuringUnitFormModal
           ref={formModalRef}
           onSubmit={{
             create: async (data) => {
-              const response = await AllocationTypesService.create(data);
+              const response = await MeasuringUnitsService.create(data);
 
               if (response.data?.success) {
                 dataGridRef.current?.update();
                 formModalRef.current?.close();
-                Toast.success("Tipo de alocação cadastrado com sucesso");
+                Toast.success("Unidade de medida cadastrada com sucesso");
 
                 return true;
               } else if (response.error) {
-                Toast.error("Falha ao cadastrar tipo de alocação");
+                Toast.error("Falha ao cadastrar unidade de medida");
               }
 
               return false;
             },
             edit: async (data) => {
-              const reponse = await AllocationTypesService.edit(data);
+              const reponse = await MeasuringUnitsService.edit(data);
 
               if (reponse.data?.success) {
                 dataGridRef.current?.update();
                 formModalRef.current?.close();
-                Toast.success("Tipo de alocação editado com sucesso");
+                Toast.success("Unidade de medida editada com sucesso");
 
                 return true;
               } else if (reponse.error) {
-                Toast.error("Falha ao editar tipo de alocação");
+                Toast.error("Falha ao editar unidade de medida");
               }
 
               return false;
@@ -112,18 +103,18 @@ export const AllocationTypes = () => {
       <DataGrid
         ref={dataGridRef}
         columns={columns}
-        paginatableService={AllocationTypesService}
-        singularName="tipo de alocação"
-        pluralName="tipos de alocação"
-        rowClassName="allocation-type__row"
-        actionsCellClassName="allocation-type__col --actions"
+        paginatableService={MeasuringUnitsService}
+        singularName="unidade de medida"
+        pluralName="unidades de medida"
+        rowClassName="measuring-unit__row"
+        actionsCellClassName="measuring-unit__col --actions"
         actionsConfig={[
           {
             type: "show",
             content: (
               <>
                 <ShowIcon />
-                <VisuallyHidden>Ver Tipo de Alocação</VisuallyHidden>
+                <VisuallyHidden>Ver Unidade de Medida</VisuallyHidden>
               </>
             ),
             onAction: async (_, target) => {
@@ -154,12 +145,12 @@ export const AllocationTypes = () => {
               const confirmed = await modalRef.current?.open();
 
               if (confirmed) {
-                const { data, error } = await AllocationTypesService.delete(
+                const { data, error } = await MeasuringUnitsService.delete(
                   target.id,
                 );
 
                 if (data?.success) {
-                  Toast.success("Tipo de alocação deletado com sucesso");
+                  Toast.success("Unidade de medida deletada com sucesso");
                   dataGridRef.current?.update();
                 } else if (error?.message) Toast.error(error.message);
               }
@@ -174,7 +165,7 @@ export const AllocationTypes = () => {
         >
           <AddLargeIcon />
 
-          <span>Cadastrar Tipo de Alocação</span>
+          <span>Cadastrar Unidade de Medida</span>
         </button>
       </DataGrid>
     </>
