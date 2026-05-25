@@ -1,7 +1,3 @@
-.data-grid.--allocation-type {
-  width: 100%;
-}
-
 .allocation-type__col {
   vertical-align: middle;
   text-align: left;
@@ -11,15 +7,6 @@
 
   &.--description {
     padding: 0 0 0 1.2rem;
-
-    > span {
-      text-transform: none;
-      max-width: calc(100% - 3rem);
-      overflow: hidden;
-      display: block;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
   }
 
   &.--name {

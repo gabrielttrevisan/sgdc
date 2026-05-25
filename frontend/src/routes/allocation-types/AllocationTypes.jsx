@@ -11,9 +11,11 @@ import { VisuallyHidden } from "../../components/accessibility/visually-hidden/V
 import Toast from "../../components/toast/ToastStorage";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 import AllocationTypesService from "../../service/AllocationTypesService";
+import { AllocationTypeFormModal } from "./components/allocation-type-form-modal/AllocationTypeFormModal";
 
 import "./AllocationTypes.css";
-import { AllocationTypeFormModal } from "./components/allocation-type-form-modal/AllocationTypeFormModal";
+
+const DESCRIPTION_CLAMP_MAX = 36;
 
 export const AllocationTypes = () => {
   const dataGridRef = useRef(null);
@@ -48,7 +50,14 @@ export const AllocationTypes = () => {
       sortType: ["asc", "desc"],
     },
     {
-      DataGridCell: ({ description }) => <span>{description}</span>,
+      DataGridCell: ({ description }) => {
+        const text =
+          description.length > DESCRIPTION_CLAMP_MAX
+            ? description.slice(0, DESCRIPTION_CLAMP_MAX + 1) + "..."
+            : description;
+
+        return <span>{text}</span>;
+      },
       title: "Descrição",
       id: "description",
       className: "allocation-type__col --description",
