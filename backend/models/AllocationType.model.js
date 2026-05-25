@@ -132,7 +132,12 @@ export default class AllocationTypeModel {
         ? sql`DESCRIPTION = ${description}`
         : sql.empty;
 
-      const updateStatements = sql.join(", ", updateName, updateDescription);
+      const updateStatements = sql.join(
+        ", ",
+        updateName,
+        updateDescription,
+        sql`UPDATED_AT = CURRENT_TIMESTAMP()`,
+      );
 
       const updated = await sql.exec`
             UPDATE ALLOCATION_TYPES

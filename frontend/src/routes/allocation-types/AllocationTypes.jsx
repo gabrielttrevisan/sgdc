@@ -106,7 +106,7 @@ export const AllocationTypes = () => {
         paginatableService={AllocationTypesService}
         singularName="tipo de alocação"
         pluralName="tipos de alocação"
-        rowClassName="beneficiary__row"
+        rowClassName="allocation-type__row"
         actionsCellClassName="allocation-type__col --actions"
         actionsConfig={[
           {

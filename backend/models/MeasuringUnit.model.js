@@ -1,53 +1,53 @@
 import sql from "./core/sql.js";
 
-export default class CityModel {
+export default class MeasuringUnitModel {
   /**
-   * @param {FindAllCitiesFilter} [filter]
-   * @returns {Promise<FindAllCitiesTuple>}
+   * @param {FindAllMeasuringUnitsFilter} [filter]
+   * @returns {Promise<FindAllMeasuringUnitsTuple>}
    */
   static async findAll({ query, sortKey, sortType, page = 1, perPage = 10 }) {
     try {
       const likeQuery = `%${query}%`;
       const whereClause = query
-        ? sql`WHERE DELETED_AT IS NULL AND STATE LIKE ${likeQuery}`
+        ? sql`WHERE DELETED_AT IS NULL AND (NAME LIKE ${likeQuery} OR SYMBOL LIKE ${likeQuery})`
         : sql`WHERE DELETED_AT IS NULL`;
       const orderByColumn = sortKey === "name" ? sql`NAME` : sql.empty;
       const orderBySorting =
-        sortKey === "name" ? sql([sortType.toUpperCase()]) : sql`DESC`;
+        sortKey === "name" ? sql.str(sortType.toUpperCase()) : sql`DESC`;
       const orderByClause = sortKey
         ? sql`ORDER BY ${orderByColumn} ${orderBySorting}`
         : sql.empty;
       const limitClause = sql`LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
 
-      /** @type {[CityRaw[], CountRaw[]]} */
+      /** @type {[MeasuringUnitRaw[], CountRaw[]]} */
       const [data, [{ TOTAL: total }]] = await Promise.all([
         sql.query`
               SELECT 
-                ID, NAME, STATE
-              FROM CITIES
+                ID, NAME, SYMBOL
+              FROM MEASURING_UNITS
               ${whereClause}
               ${orderByClause}
               ${limitClause}`.run(),
         sql.query`
           SELECT COUNT(*) AS TOTAL 
-          FROM CITIES 
+          FROM ALLOCATION_TYPES 
           ${whereClause}`.run(),
       ]);
 
-      const cities = data.map((datum) => {
-        /** @type {PersistedCity} */
-        const city = {
+      const measuringUnits = data.map((datum) => {
+        /** @type {PersistedMeasuringUnit} */
+        const measuringUnit = {
           id: datum.ID,
           name: datum.NAME,
-          state: datum.STATE.toUpperCase(),
+          symbol: datum.SYMBOL,
         };
 
-        return city;
+        return measuringUnit;
       });
 
       return [
         {
-          items: cities,
+          items: measuringUnits,
           totalRecords: total,
           page,
           totalPages: Math.ceil(total / perPage),
@@ -64,51 +64,20 @@ export default class CityModel {
 
   /**
    * @param {number} id
-   * @returns {Promise<FindCityByIdTuple>}
-   */
-  static async findById(id) {
-    try {
-      /** @type {[CityRaw]} */
-      const data = await sql.query`
-            SELECT 
-              ID, NAME, STATE
-            FROM CITIES
-            WHERE ID = ${id}`.run();
-
-      if (data.length === 0) return [null, null];
-
-      const [city] = data;
-
-      /** @type {PersistedCity} */
-      const parsed = {
-        id: city.ID,
-        name: city.NAME,
-        state: city.STATE.toUpperCase(),
-      };
-
-      return [parsed, null];
-    } catch (error) {
-      return [null, error];
-    }
-  }
-
-  /**
-   * @param {number} id
    * @returns {Promise<BooleanTuple>}
    */
   static async delete(id) {
     try {
-      const deleted = await sql.exec`
-            UPDATE CITIES 
+      const isDeleted = await sql.exec`
+            UPDATE MEASURING_UNITS 
             SET DELETED_AT = CURRENT_TIMESTAMP() 
             WHERE ID = ${id}
           `.run();
 
-      if (deleted.affectedRows < 1) return [false, null];
+      if (isDeleted.affectedRows < 1) return [false, null];
 
       return [true, null];
     } catch (error) {
-      console.error(error);
       return [false, error];
     }
   }
@@ -120,7 +89,7 @@ export default class CityModel {
   static async restore(id) {
     try {
       const restored = await sql.exec`
-            UPDATE CITIES 
+            UPDATE MEARUSING_UNITS 
             SET DELETED_AT = NULL
             WHERE ID = ${id}
           `.run();
@@ -129,49 +98,47 @@ export default class CityModel {
 
       return [true, null];
     } catch (error) {
-      console.error(error);
       return [false, error];
     }
   }
 
   /**
-   * @param {City} city
+   * @param {MeasuringUnit} measuringUnit
    * @returns {Promise<BooleanTuple>}
    */
-  static async create({ name, state }) {
+  static async create({ name, symbol }) {
     try {
       const created = await sql.exec`
-            INSERT INTO CITIES (NAME, STATE) 
-            VALUES (${name}, ${state})
+            INSERT INTO MEASURING_UNITS (NAME, SYMBOL) 
+            VALUES (${name}, ${symbol})
           `.run();
 
       if (created.affectedRows < 1) return [false, null];
 
       return [true, null];
     } catch (error) {
-      console.error(error);
       return [false, error];
     }
   }
 
   /**
-   * @param {CityEdit} city
+   * @param {MeasuringUnitEdit} measuringUnit
    * @returns {Promise<BooleanTuple>}
    */
-  static async edit({ id, name, state }) {
+  static async edit({ id, name, symbol }) {
     try {
       const updateName = name ? sql`NAME = ${name}` : sql.empty;
-      const updateState = state ? sql`STATE = ${state}` : sql.empty;
+      const updateSymbol = symbol ? sql`SYMBOL = ${symbol}` : sql.empty;
 
       const updateStatements = sql.join(
         ", ",
         updateName,
-        updateState,
+        updateSymbol,
         sql`UPDATED_AT = CURRENT_TIMESTAMP()`,
       );
 
       const updated = await sql.exec`
-            UPDATE CITIES
+            UPDATE MEASURING_UNITS
             SET ${updateStatements}
             WHERE ID = ${id}
           `.run();
@@ -180,14 +147,13 @@ export default class CityModel {
 
       return [true, null];
     } catch (error) {
-      console.error(error);
       return [false, error];
     }
   }
 }
 
 /**
- * @typedef {Object} FindAllCitiesFilter
+ * @typedef {Object} FindAllMeasuringUnitsFilter
  * @prop {string} [query]
  * @prop {string} [sortKey]
  * @prop {string} [sortType]
@@ -196,11 +162,11 @@ export default class CityModel {
  */
 
 /**
- * @typedef {[import("../global.js").PageData<PersistedCity>, null]|[null, Error]} FindAllCitiesTuple
+ * @typedef {[import("../global.js").PageData<PersistedMeasuringUnit>, null]|[null, Error]} FindAllMeasuringUnitsTuple
  */
 
 /**
- * @typedef {[PersistedCity|null, null]|[null, Error]} FindCityByIdTuple
+ * @typedef {[PersistedMeasuringUnit|null, null]|[null, Error]} FindMeasuringUnitByIdTuple
  */
 
 /**
@@ -208,30 +174,30 @@ export default class CityModel {
  */
 
 /**
- * @typedef {Object} CityRaw
+ * @typedef {Object} MeasuringUnitRaw
  * @prop {int} ID
  * @prop {string} NAME
- * @prop {string} STATE
+ * @prop {string} SYMBOL
  */
 
 /**
- * @typedef {Object} PersistedCity
+ * @typedef {Object} PersistedMeasuringUnit
  * @prop {int} id
  * @prop {string} name
- * @prop {string} state
+ * @prop {string} symbol
  */
 
 /**
- * @typedef {Object} City
+ * @typedef {Object} MeasuringUnit
  * @prop {string} name
- * @prop {string} state
+ * @prop {string} symbol
  */
 
 /**
- * @typedef {Object} CityEdit
+ * @typedef {Object} MeasuringUnitEdit
  * @prop {int} id
  * @prop {string} [name]
- * @prop {string} [state]
+ * @prop {string} [symbol]
  */
 
 /**
