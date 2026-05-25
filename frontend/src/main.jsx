@@ -10,6 +10,7 @@ import CadastroRFB5 from "./routes/RF_B5/cadastro.jsx";
 import "./index.css";
 import { MatchMediaProvider } from "./components/media-query/MatchMediaProvider.jsx";
 import { AllocationTypes } from "./routes/allocation-types/AllocationTypes.jsx";
+import { MeasuringUnits } from "./routes/measuring-units/MeasuringUnits.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -33,7 +34,7 @@ createRoot(document.getElementById("root")).render(
 
             <Route path="/produtos" element={<Fragment />} />
             <Route path="/metas" element={<Fragment />} />
-            <Route path="/unidades-de-medida" element={<Fragment />} />
+            <Route path="/unidades-de-medida" element={<MeasuringUnits />} />
             <Route path="/tipos-de-alocacao" element={<AllocationTypes />} />
 
             <Route path="/beneficiarios" element={<Beneficiaries />} />
