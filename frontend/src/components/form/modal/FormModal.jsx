@@ -63,7 +63,7 @@ export const FormModal = ({
           dialogRef.current.close();
           controller.reset();
         } else {
-          dialogRef.current?.showModal();
+          dialogRef.current?.show();
           if (data) {
             controller.fill(data, show !== undefined);
             setMode(show ? show : "edit");
@@ -101,37 +101,43 @@ export const FormModal = ({
 
   return (
     <dialog ref={dialogRef} className={`form-modal ${className ?? ""}`}>
-      <Form onSubmit={handleSubmit} className="form-modal__form">
-        <header>
-          <h2>{title}</h2>
+      <div className="form-modal__wrapper">
+        <Form onSubmit={handleSubmit} className="form-modal__form">
+          <header>
+            <h2>{title}</h2>
 
-          <button type="button" onClick={handleClose} className="button-close">
-            <CloseIconLarge />
-          </button>
-        </header>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="button-close"
+            >
+              <CloseIconLarge />
+            </button>
+          </header>
 
-        <div className="form-modal__content">{children}</div>
+          <div className="form-modal__content">{children}</div>
 
-        <footer>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="button-block --outline --primary"
-            disabled={loading}
-          >
-            {mode === "show" ? "Fechar" : cancelLabel}
-          </button>
+          <footer>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="button-block --outline --primary"
+              disabled={loading}
+            >
+              {mode === "show" ? "Fechar" : cancelLabel}
+            </button>
 
-          <button
-            type="submit"
-            className={`button-block --solid --primary ${loading ? "--loading" : ""}`}
-            disabled={loading}
-            hidden={mode === "show"}
-          >
-            <span>{submitLabel}</span>
-          </button>
-        </footer>
-      </Form>
+            <button
+              type="submit"
+              className={`button-block --solid --primary ${loading ? "--loading" : ""}`}
+              disabled={loading}
+              hidden={mode === "show"}
+            >
+              <span>{submitLabel}</span>
+            </button>
+          </footer>
+        </Form>
+      </div>
     </dialog>
   );
 };
