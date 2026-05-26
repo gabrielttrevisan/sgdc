@@ -104,7 +104,13 @@ export const Beneficiaries = () => {
 
                 return true;
               } else if (response.error) {
-                Toast.error("Falha ao cadastrar beneficiário");
+                Toast.error(
+                  <>
+                    <strong>Falha ao cadastrar beneficiário</strong>
+                    <br />
+                    <span>{response.error.issues?.[0]?.description}</span>
+                  </>,
+                );
               }
 
               return false;
