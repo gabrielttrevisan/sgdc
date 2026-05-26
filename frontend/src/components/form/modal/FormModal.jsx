@@ -100,9 +100,12 @@ export const FormModal = ({
   );
 
   return (
-    <dialog ref={dialogRef} className={`form-modal ${className ?? ""}`}>
+    <dialog ref={dialogRef} className="form-modal">
       <div className="form-modal__wrapper">
-        <Form onSubmit={handleSubmit} className="form-modal__form">
+        <Form
+          onSubmit={handleSubmit}
+          className={`form-modal__form ${className ?? ""}`}
+        >
           <header>
             <h2>{title}</h2>
 
