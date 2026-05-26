@@ -1,0 +1,19 @@
+CREATE TABLE volunteers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    gender CHAR(1) NOT NULL DEFAULT 'o',
+    nationalId VARCHAR(20) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    phoneSecondary VARCHAR(20) NOT NULL,
+    hasWhatsApp TINYINT(1) NOT NULL DEFAULT 0,
+    hasWhatsAppSecondary TINYINT(1) NOT NULL DEFAULT 0,
+    street VARCHAR(255) NULL,
+    number VARCHAR(20) NULL,
+    complement VARCHAR(255) NULL,
+    neighborhood VARCHAR(255) NULL,
+    city VARCHAR(255) NULL,
+    state CHAR(2) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ON UPDATE CURRENT_TIMESTAMP(),
+    deleted_at TIMESTAMP NULL DEFAULT NULL
+);
