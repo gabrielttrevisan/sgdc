@@ -3,11 +3,18 @@ import { HeaderSearch } from "../../components/HeaderSearch/HeaderSearch";
 import { VolunteersTable } from "../../components/VolunteersTable/VolunteersTable";
 import { VolunteerFormModal } from "./volunteers-form-modal/VolunteersFormModal";
 import { useVolunteersData } from "../../hooks/useVolunteersData";
+import Toast from "../../components/toast/ToastStorage";
 import "./Volunteers.css";
 
 export const Volunteers = () => {
-  const { volunteers, saveVolunteer, deleteVolunteer } = useVolunteersData();
-
+  const { 
+    volunteers, 
+    saveVolunteer, 
+    deleteVolunteer, 
+    sortOrder, 
+    toggleSortByName 
+  } = useVolunteersData();
+  
   const [filter, setFilter] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState('create');
@@ -32,8 +39,12 @@ export const Volunteers = () => {
   };
 
   const handleSaveData = async (volunteerForm) => {
-    await saveVolunteer(volunteerForm, modalMode, selectedVolunteer?.id);
-    setIsModalOpen(false);
+    try {
+      await saveVolunteer(volunteerForm, modalMode, selectedVolunteer?.id);
+      setIsModalOpen(false);
+    } catch (error) {
+        throw error; 
+    }
   };
 
   const filtered = (volunteers || []).filter(v =>
@@ -64,7 +75,9 @@ export const Volunteers = () => {
         onEdit={handleEditClick} 
         onView={handleViewClick}
         onDelete={deleteVolunteer}
-        onAlocar={(v) => alert("Em breve!")} 
+        onAlocar={() => Toast.warn("Funcionalidade de Alocação (RF_F) em desenvolvimento.")} 
+        sortOrder={sortOrder}
+        onSortByName={toggleSortByName}
       />
 
       <div className="volunteers-footer">
