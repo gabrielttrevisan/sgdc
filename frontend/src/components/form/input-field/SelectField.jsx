@@ -9,14 +9,22 @@ import "./InputField.css";
  */
 
 /**
+ * @callback SelectOptionChangeHandler
+ * @prop {Option} option
+ * @prop {ChangeEvent} evt
+ * @returns {void}
+ */
+
+/**
  * @typedef {Object} SelectFieldProps
  * @prop {string} label
  * @prop {string} name
  * @prop {Option[]} options
  * @prop {"full"|"half-left"|"half-right"} [variant]
+ * @prop {SelectOptionChangeHandler} onChange
  */
 
-/** @type {import("react").FC<Omit<import("react").HTMLProps<"input">, "name"> & import("../context/FormController").FieldStateInit & SelectFieldProps>} */
+/** @type {import("react").FC<Omit<import("react").HTMLProps<"input">, "name" | "onChange"> & import("../context/FormController").FieldStateInit & SelectFieldProps>} */
 export const SelectField = ({
   name,
   label,
@@ -26,6 +34,7 @@ export const SelectField = ({
   id,
   variant = "full",
   options,
+  onChange,
   ...props
 }) => {
   return (
@@ -45,6 +54,13 @@ export const SelectField = ({
           validate,
           required,
         })}
+        onChange={(e) => {
+          const option = options.find(
+            (option) => option.value === e.target.value,
+          );
+
+          if (option) onChange(option, e);
+        }}
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>

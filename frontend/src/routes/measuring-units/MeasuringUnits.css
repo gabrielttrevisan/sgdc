@@ -1,0 +1,45 @@
+.measuring-unit__col {
+  vertical-align: middle;
+  text-align: left;
+  color: var(--colors-foreground-black);
+  height: 3.3333rem;
+  padding: 0 0 0 1.2rem;
+
+  &.--description {
+    padding: 0 0 0 1.2rem;
+
+    > span {
+      text-transform: none;
+      max-width: calc(100% - 3rem);
+      overflow: hidden;
+      display: block;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &.--name {
+    white-space: nowrap;
+    width: 30%;
+  }
+
+  &.--actions {
+    padding: 0 1.2rem;
+  }
+}
+
+li.data-grid__item.measuring-unit__row {
+  grid-template-columns: 1fr 35%;
+
+  .measuring-unit__col {
+    height: max-content;
+
+    &.--name {
+      grid-column: 1 / 3;
+    }
+
+    &.--description {
+      grid-column: 1 / 3;
+    }
+  }
+}

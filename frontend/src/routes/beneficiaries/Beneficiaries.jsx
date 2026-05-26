@@ -1,23 +1,25 @@
-import BeneficiariesService from "./BeneficiariesService";
 import { DataGrid } from "../../components/data-grid/DataGrid";
 import { ShowIcon } from "../../components/icons/ShowIcon";
 import { EditIcon } from "../../components/icons/EditIcon";
 import { DeleteIcon } from "../../components/icons/DeleteIcon";
 import { DonateIcon } from "../../components/icons/DonateIcon";
 import { ArrowDownIcon } from "../../components/icons/ArrowDownIcon";
-import { AtoZIcon } from "../../components/icons/AtoZIcon";
+import { AtoZIconAsc } from "../../components/icons/AtoZIconAsc";
 import { useRef } from "react";
 import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
 import { BeneficiaryFormModal } from "./components/beneficiary-form-modal/BeneficiaryFormModal";
 import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
 import { FormControllerProvider } from "../../components/form/context/FormControllerProvider";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
-import Toaster from "../../components/toast/ToastStorage";
+import Toast from "../../components/toast/ToastStorage";
 
 import "./Beneficiaries.css";
+import BeneficiariesService from "../../service/BeneficiariesService";
+import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 
 export const Beneficiaries = () => {
   const dataGridRef = useRef(null);
+  /** @type {import("react").RefObject<import("../../components/sensitive-modal/SensitiveModal").SensitiveModalRef>} */
   const modalRef = useRef(null);
   /** @type {import("react").RefObject<import("../../components/form/modal/FormModal").FormModalRef>} */
   const formModalRef = useRef(null);
@@ -30,13 +32,22 @@ export const Beneficiaries = () => {
       id: "name",
       className: "beneficiary__col --name",
       sortable: true,
-      sortIcon: (
-        <>
-          <AtoZIcon />
-          <VisuallyHidden>Ordenar por nome</VisuallyHidden>
-        </>
-      ),
+      SortIcon: ({ sortKey, state }) => {
+        const style = sortKey === "name" ? undefined : { opacity: "0.4" };
+
+        return (
+          <>
+            {!state || state === "asc" ? (
+              <AtoZIconAsc style={style} />
+            ) : (
+              <AtoZIconDesc style={style} />
+            )}
+            <VisuallyHidden>Ordenar por nome</VisuallyHidden>
+          </>
+        );
+      },
       sortKey: "name",
+      sortType: ["asc", "desc"],
     },
     {
       DataGridCell: ({ nationalId }) => <>{nationalId}</>,
@@ -47,25 +58,27 @@ export const Beneficiaries = () => {
     {
       DataGridCell: ({ hasOpenRequest }) => (
         <span
-          className={`beneficiary__request-badge ${hasOpenRequest ? "--warn" : "--none"}`}
+          className={`beneficiary__request-badge ${hasOpenRequest === "sim" ? "--warn" : "--none"}`}
         >
           <VisuallyHidden>Beneficiário possui atendimento: </VisuallyHidden>
-          {hasOpenRequest ? "SIM" : "NÃO"}
+          {hasOpenRequest.toUpperCase()}
         </span>
       ),
       title: "Atendimento",
       id: "has-open-request",
       className: "beneficiary__col --has-request",
       sortable: true,
-      sortIcon: (
+      SortIcon: ({ sortKey }) => (
         <>
-          <ArrowDownIcon />
+          <ArrowDownIcon
+            style={sortKey === "request" ? undefined : { opacity: "0.4" }}
+          />
           <VisuallyHidden>
             Mostrar beneficiários com atendimento aberto primeiro
           </VisuallyHidden>
         </>
       ),
-      sortKey: "hasOpenRequest",
+      sortKey: "request",
       headingClassName: "--has-request",
     },
   ];
@@ -73,7 +86,8 @@ export const Beneficiaries = () => {
   return (
     <>
       <SensitiveModal ref={modalRef} showCloseButton>
-        Os registros vinculados ao beneficiário não poderão ser recuperados.
+        O beneficiário ainda irá existem e poderá ser recuperado. Dados
+        vinculados também serão mantidos.
       </SensitiveModal>
 
       <FormControllerProvider>
@@ -86,10 +100,20 @@ export const Beneficiaries = () => {
               if (response.data?.success) {
                 dataGridRef.current?.update();
                 formModalRef.current?.close();
-                Toaster.success("Beneficiário cadastrado com sucesso");
+                Toast.success("Beneficiário cadastrado com sucesso");
+
+                return true;
               } else if (response.error) {
-                Toaster.error("Falha ao cadastrar beneficiário");
+                Toast.error(
+                  <>
+                    <strong>Falha ao cadastrar beneficiário</strong>
+                    <br />
+                    <span>{response.error.issues?.[0]?.description}</span>
+                  </>,
+                );
               }
+
+              return false;
             },
             edit: async (data) => {
               const reponse = await BeneficiariesService.edit(data);
@@ -97,10 +121,14 @@ export const Beneficiaries = () => {
               if (reponse.data?.success) {
                 dataGridRef.current?.update();
                 formModalRef.current?.close();
-                Toaster.success("Beneficiário editado com sucesso");
+                Toast.success("Beneficiário editado com sucesso");
+
+                return true;
               } else if (reponse.error) {
-                Toaster.error("Falha ao editar beneficiário");
+                Toast.error("Falha ao editar beneficiário");
               }
+
+              return false;
             },
           }}
         />
@@ -123,7 +151,27 @@ export const Beneficiaries = () => {
                 <VisuallyHidden>Ver Beneficiário</VisuallyHidden>
               </>
             ),
-            onAction: console.log,
+            onAction: async (_type, target) => {
+              const { data, error } = await BeneficiariesService.getById(
+                target.id,
+              );
+
+              if (error?.message) {
+                Toast.error(error.message);
+              } else if (data) {
+                formModalRef.current?.toggle(
+                  {
+                    ...data,
+                    gender: data.gender.id.toLowerCase(),
+                    state: data.city.state.toLowerCase(),
+                    city: data.city.id,
+                  },
+                  "show",
+                );
+              } else {
+                Toast.error(error.message);
+              }
+            },
           },
           {
             type: "edit",
@@ -133,8 +181,23 @@ export const Beneficiaries = () => {
                 <span>Editar</span>
               </>
             ),
-            onAction: (type, target) => {
-              formModalRef.current?.toggle(target);
+            onAction: async (_type, target) => {
+              const { data, error } = await BeneficiariesService.getById(
+                target.id,
+              );
+
+              if (error?.message) {
+                Toast.error(error.message);
+              } else if (data) {
+                formModalRef.current?.toggle({
+                  ...data,
+                  gender: data.gender.id.toLowerCase(),
+                  state: data.city.state.toLowerCase(),
+                  city: data.city.id,
+                });
+              } else {
+                Toast.error(error.message);
+              }
             },
           },
           {
@@ -145,7 +208,7 @@ export const Beneficiaries = () => {
                 <span>Doar</span>
               </>
             ),
-            onAction: console.log,
+            onAction: async () => {},
           },
           {
             type: "delete",
@@ -155,20 +218,19 @@ export const Beneficiaries = () => {
                 <span>Deletar</span>
               </>
             ),
-            onAction: (type, target) => {
-              modalRef.current?.open().then((confirmed) => {
-                if (confirmed)
-                  BeneficiariesService.delete(target.nationalId).then(
-                    ({ data, error }) => {
-                      if (data?.success) {
-                        Toaster.success("Beneficiário deletado com sucesso");
-                        dataGridRef.current?.update();
-                      }
+            onAction: async (_type, target) => {
+              const confirmed = await modalRef.current?.open();
 
-                      if (error?.message) Toaster.error(error.message);
-                    },
-                  );
-              });
+              if (confirmed) {
+                const { data, error } = await BeneficiariesService.delete(
+                  target.id,
+                );
+
+                if (data?.success) {
+                  Toast.success("Beneficiário deletado com sucesso");
+                  dataGridRef.current?.update();
+                } else if (error?.message) Toast.error(error.message);
+              }
             },
           },
         ]}

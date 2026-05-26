@@ -1,0 +1,36 @@
+.allocation-type__col {
+  vertical-align: middle;
+  text-align: left;
+  color: var(--colors-foreground-black);
+  height: 3.3333rem;
+  padding: 0 0 0 1.2rem;
+
+  &.--description {
+    padding: 0 0 0 1.2rem;
+  }
+
+  &.--name {
+    white-space: nowrap;
+    width: 30%;
+  }
+
+  &.--actions {
+    padding: 0 1.2rem;
+  }
+}
+
+li.data-grid__item.allocation-type__row {
+  grid-template-columns: 1fr 35%;
+
+  .allocation-type__col {
+    height: max-content;
+
+    &.--name {
+      grid-column: 1 / 3;
+    }
+
+    &.--description {
+      grid-column: 1 / 3;
+    }
+  }
+}

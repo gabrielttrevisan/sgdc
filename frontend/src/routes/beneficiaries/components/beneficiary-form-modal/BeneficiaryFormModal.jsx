@@ -4,6 +4,8 @@ import { SelectField } from "../../../../components/form/input-field/SelectField
 import { unmaskDigits } from "../../../../lib/functions/unmask";
 import "./BeneficiaryFormModal.css";
 import { isNationalIdValid } from "../../../../lib/validation/isNationalIdValid";
+import { CitiesSelectInput } from "../cities-select-input/CitiesSelectInput";
+import { InputHidden } from "../../../../components/form/input-field/InputHidden";
 
 /**
  * @typedef {Object} BeneficiaryFormModalProps
@@ -21,6 +23,8 @@ export const BeneficiaryFormModal = ({ ref, onSubmit }) => {
       className="beneficiary-form-modal"
       onSubmit={onSubmit}
     >
+      <InputHidden name="id" id="id" />
+
       <InputField
         name="name"
         required={true}
@@ -181,25 +185,7 @@ export const BeneficiaryFormModal = ({ ref, onSubmit }) => {
         }}
       />
 
-      <SelectField
-        name="state"
-        id="state"
-        required={true}
-        label="Estado"
-        disabled
-        options={[{ label: "São Paulo", value: "sp" }]}
-        variant="half-right"
-      />
-
-      <SelectField
-        name="city"
-        id="city"
-        required={true}
-        label="Cidade"
-        disabled
-        options={[{ label: "Presidente Prudente", value: 1 }]}
-        variant="half-left"
-      />
+      <CitiesSelectInput />
     </FormModal>
   );
 };

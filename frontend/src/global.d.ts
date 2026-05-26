@@ -3,7 +3,12 @@ import { ReactNode } from "react";
 export type APIError = {
   code: number;
   message: string;
-  issues: string[];
+  issues: Issue[];
+};
+
+export type Issue = {
+  code: string;
+  description: string;
 };
 
 export type APIResponse<T> = {
@@ -17,14 +22,16 @@ export type PageData<T> = {
   totalPages: number;
   totalRecords: number;
   query?: string;
-  sortBy?: string;
+  sortKey?: string;
+  sortType?: string;
 };
 
 export type AsyncPageData<T> = PageData<T> & { loading: boolean };
 
 export type PaginatedQuery = {
   query?: string;
-  sortBy?: string;
+  sortKey?: string;
+  sortType?: string;
   page: number;
   perPage: number;
 };
@@ -49,6 +56,7 @@ export type ToastMessage = {
   type: ToastType;
   message: ReactNode;
   key: string;
+  timeout: number | undefined;
 } & ToastMessageOptions;
 
 export type ToastMessageOptions = {
@@ -59,3 +67,5 @@ export type ToastOptions = {
   timeout: number;
   animationDuration: number;
 };
+
+export type FetchOptions = Omit<RequestInit, "method" | "body">;

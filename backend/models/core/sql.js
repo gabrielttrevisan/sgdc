@@ -95,11 +95,16 @@ class SqlExecutable extends SqlFragment {
 
   async run() {
     const conn = await database.connect();
-    const [result] = await conn.execute(this.sql, this.params);
 
-    conn.release();
+    try {
+      const [result] = await conn.execute(this.sql, this.params);
 
-    return result;
+      conn.release();
+
+      return result;
+    } finally {
+      conn.release();
+    }
   }
 }
 
@@ -114,17 +119,26 @@ class SqlQuery extends SqlFragment {
 
   async run() {
     const conn = await database.connect();
-    const [result] = await conn.query(this.sql, this.params);
 
-    conn.release();
+    try {
+      const [result] = await conn.query(this.sql, this.params);
 
-    return result;
+      conn.release();
+
+      return result;
+    } finally {
+      conn.release();
+    }
   }
 }
 
 export default function sql(strings, ...values) {
   return SqlFragment.from(strings, ...values);
 }
+
+Object.defineProperty(sql, "str", {
+  value: (value) => SqlFragment.from([value]),
+});
 
 Object.defineProperty(sql, "empty", {
   get() {

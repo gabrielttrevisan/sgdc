@@ -116,3 +116,84 @@ export default function validator({
  * @prop {boolean} [atLeastOneProp]
  * @prop {string} [atLeastOnePropMessage]
  */
+
+/** @type {RequestValidator} */
+export const validateRequest = new Proxy(
+  {},
+  {
+    get(_, property) {
+      if (["body", "urlParams", "query"].includes(property)) {
+        /** @type {ValidatorOptions} */
+        const options = {
+          targetKey: property,
+          rules: [],
+        };
+
+        const builder = {
+          withRules(rules) {
+            options.rules = rules;
+            return builder;
+          },
+          canHaveNoValidProp() {
+            options.atLeastOneProp = false;
+            return builder;
+          },
+          shouldHaveAtLeastOneValidProp(message) {
+            options.atLeastOneProp = true;
+            options.atLeastOnePropMessage = true;
+            return builder;
+          },
+          canBeEmpty() {
+            options.targetRequired = true;
+            return builder;
+          },
+          get middleware() {
+            return validator(options);
+          },
+        };
+
+        return builder;
+      }
+
+      return undefined;
+    },
+  },
+);
+
+/**
+ * @typedef {Object} RequestValidator
+ * @prop {ValidatorBuilder} body
+ * @prop {ValidatorBuilder} urlParams
+ * @prop {ValidatorBuilder} query
+ */
+
+/**
+ * @callback ValidatorBuilderCallback
+ * @returns {ValidatorBuilder}
+ */
+
+/**
+ * @typedef {Object} ValidatorBuilder
+ * @prop {ValidatorWithRulesCallback} withRules
+ * @prop {ValidatorBuilderCallback} canHaveNoValidProp
+ * @prop {ValidatorWithAtLeastOneValidPropCallback} shouldHaveAtLeastOneValidProp
+ * @prop {ValidatorBuilderCallback} canBeEmpty
+ * @prop {import("express").Handler} middleware
+ */
+
+/**
+ * @callback ValidatorWithRulesCallback
+ * @param {ValidationRule[]}
+ * @returns {ValidatorBuilder}
+ */
+
+/**
+ * @callback ValidatorBuilderCallback
+ * @returns {ValidatorBuilder}
+ */
+
+/**
+ * @callback ValidatorWithAtLeastOneValidPropCallback
+ * @param {string} [message]
+ * @returns {ValidatorBuilder}
+ */

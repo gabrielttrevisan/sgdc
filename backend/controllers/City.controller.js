@@ -15,34 +15,8 @@ export default class CityController {
     filter.query = q;
     filter.page = page ? parseInt(page) : 1;
     filter.perPage = perPage ? parseInt(perPage) : 10;
-
-    if (sortKey) {
-      if (sortKey === "name") {
-        if (!sortType) {
-          return response
-            .badRequest()
-            .withIssue("SORT_TYPE_MISSING", `Tipo de ordenação não informado`)
-            .send();
-        }
-
-        if (!["asc", "desc"].includes(sortType))
-          return response
-            .badRequest()
-            .withIssue(
-              "SORT_TYPE_INVALID",
-              `Tipo de ordenação não compatível com chave de ordenação`,
-            )
-            .send();
-
-        filter.sortKey = sortKey;
-        filter.sortType = sortType;
-      } else {
-        return response
-          .badRequest()
-          .withIssue("SORT_KEY_INVALID", "Chave de ordenação inválida")
-          .send();
-      }
-    }
+    filter.sortKey = sortKey;
+    filter.sortType = sortType;
 
     const [cities, error] = await CityModel.findAll(filter);
 

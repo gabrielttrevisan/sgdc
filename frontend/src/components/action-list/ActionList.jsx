@@ -1,4 +1,5 @@
 import "./ActionList.css";
+import { ActionListButton } from "./button/ActionListButton";
 
 /**
  * @template T
@@ -34,13 +35,15 @@ export function ActionList({ actions, target }) {
     <div className="action-list">
       {actions.map((action) => {
         return (
-          <button
-            className={`action-list__action --${action.type} ${action.className ?? ""}`}
-            onClick={(e) => action.onAction(action.type, target, e)}
+          <ActionListButton
+            className={action.className}
+            onAction={action.onAction}
+            target={target}
+            type={action.type}
             key={action.type}
           >
             {action.content}
-          </button>
+          </ActionListButton>
         );
       })}
     </div>
