@@ -22,8 +22,14 @@ export const CREATE_VOLUNTEER_RULES = [
   },
   {
     property: "nationalId",
-    validator: "nationalId",
-    validatorErrorMessage: "CPF inválido ou não fornecido",
+    validate: (value) => {
+      if (!value || typeof value !== "string") return "CPF ou RG não fornecido";
+      const clean = value.replace(/\D/g, "");
+      if (clean.length < 7 || clean.length > 11 || clean.length === 10) {
+        return "CPF ou RG inválido";
+      }
+      return true;
+    }
   },
   {
     property: "phone",
@@ -52,14 +58,18 @@ export const CREATE_VOLUNTEER_RULES = [
   },
   {
     property: "street",
+    required: false,
     validate: (value) => {
+      if (!value) return true; // Se vier vazio, deixa passar!
       if (typeof value !== "string" || value.trim().length === 0) return "Rua inválida";
       return true;
     },
   },
   {
     property: "number",
+    required: false,
     validate: (value) => {
+      if (!value) return true;
       if (typeof value !== "string" || value.trim().length === 0) return "Número residencial inválido";
       return true;
     },
@@ -74,20 +84,25 @@ export const CREATE_VOLUNTEER_RULES = [
   },
   {
     property: "neighborhood",
+    required: false,
     validate: (value) => {
+      if (!value) return true;
       if (typeof value !== "string" || value.trim().length === 0) return "Bairro inválido";
       return true;
     },
   },
   {
     property: "city",
+    required: false,
     validate: (value) => {
+      if (!value) return true;
       if (typeof value !== "string" || value.trim().length === 0) return "Cidade inválida";
       return true;
     },
   },
   {
     property: "state",
+    required: false,
     validator: "state",
     validatorErrorMessage: "Estado inválido (deve conter 2 caracteres)",
   },
