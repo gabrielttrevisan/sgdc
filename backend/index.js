@@ -6,6 +6,7 @@ import beneficiariesRouter from "./routes/beneficiaries.route.js";
 import citiesRouter from "./routes/cities.route.js";
 import allocationTypesRouter from "./routes/allocationTypes.route.js";
 import measuringUnitsRouter from "./routes/measuringUnits.route.js";
+import volunteersRouter from "./routes/volunteers.route.js"; 
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use("/beneficiaries", beneficiariesRouter);
 app.use("/cities", citiesRouter);
 app.use("/allocation-types", allocationTypesRouter);
 app.use("/measuring-units", measuringUnitsRouter);
+app.use("/volunteers", volunteersRouter);
 
 app.use(notFoundHandler);
 
