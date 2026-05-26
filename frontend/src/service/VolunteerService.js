@@ -1,38 +1,89 @@
-import { VOLUNTEERS_MOCK } from "../routes/Volunteers/Mock";
+/**
+ * @typedef {Object} Volunteer
+ * @prop {number} [id]
+ * @prop {string} nationalId
+ * @prop {string} name
+ * @prop {string} phone
+ * @prop {string} [phoneSecondary]
+ * @prop {"m"|"f"|"o"} gender
+ * @prop {boolean} hasWhatsApp
+ * @prop {boolean} hasWhatsAppSecondary
+ * @prop {string} street
+ * @prop {string} number
+ * @prop {string} [complement]
+ * @prop {string} neighborhood
+ * @prop {string} city
+ * @prop {string} state
+ */
 
-const STORAGE_KEY = 'volunteers';
+const BASE_URL = "http://localhost:3004";
 
 export const VolunteerService = {
-  async getAll() {
-    const data = localStorage.getItem(STORAGE_KEY);
+/**
+   * @param {string} query 
+   * @param {string} sortKey 
+   * @param {string} sortType 
+   * @returns {Promise<Volunteer[]>}
+   */
+  async getAll(query = "", sortKey = "name", sortType = "asc") {
+    const params = new URLSearchParams();
     
-    if (!data) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(VOLUNTEERS_MOCK));
-      return VOLUNTEERS_MOCK;
-    }
-    return JSON.parse(data);
+    if (query.trim()) params.append("q", query.trim());
+    if (sortKey) params.append("sortKey", sortKey);
+    if (sortType) params.append("sortType", sortType);
+
+    const url = `${BASE_URL}/volunteers?${params.toString()}`;
+    const response = await fetch(url);
+    
+    if (!response.ok) throw new Error("Erro ao buscar voluntários");
+    
+    const json = await response.json();
+    return json.data.items; 
   },
 
+  /**
+   * @param {Volunteer} volunteer 
+   * @returns {Promise<any>}
+   */
   async save(volunteer) {
-    const volunteers = await this.getAll();
-    let volunteerToSave = { ...volunteer };
-    
-    if (volunteerToSave.id) {
-      const index = volunteers.findIndex(v => v.id === volunteerToSave.id);
-      volunteers[index] = volunteerToSave;
-    } else {
-      volunteerToSave.id = Date.now();
-      volunteers.push(volunteerToSave);
-    }
+    const cleanedData = {
+      ...volunteer,
+      nationalId: volunteer.nationalId ? volunteer.nationalId.replace(/\D/g, "") : "",
+      phone: volunteer.phone ? volunteer.phone.replace(/\D/g, "") : "",
+      phoneSecondary: volunteer.phoneSecondary ? volunteer.phoneSecondary.replace(/\D/g, "") : "",
+      gender: (!volunteer.gender || volunteer.gender === "Selecione") ? "o" : volunteer.gender
+    };
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(volunteers));
-    return volunteerToSave;
+    const isEdit = !!cleanedData.id;
+    const url = isEdit ? `${BASE_URL}/volunteers/${cleanedData.id}` : `${BASE_URL}/volunteers`;
+    const method = isEdit ? "PATCH" : "POST";
+
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(cleanedData),
+    });
+    const json = await response.json();
+
+    if (!response.ok) {
+      throw { isBackendError: true, payload: json };
+    }
+    return json;
   },
 
-  async delete(id) {
-    const volunteers = await this.getAll();
-    const filtered = volunteers.filter(v => v.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-    return true;
+  /**
+   * @param {number|string} id 
+   * @returns {Promise<any>}
+   */
+    async delete(id) {
+    const response = await fetch(`${BASE_URL}/volunteers/${id}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) throw new Error("Erro ao deletar voluntário");
+
+    return await response.json();
   }
 };

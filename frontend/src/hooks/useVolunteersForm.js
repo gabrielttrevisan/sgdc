@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { unmaskDigits } from "../lib/functions/unmask";
 import { isNationalIdValid } from "../lib/validation/isNationalIdValid";
@@ -54,7 +53,7 @@ export const useVolunteerForm = (isOpen, mode, volunteerData, onSave, onClose) =
         setErrors(prev => ({ ...prev, [name]: "" }));
     };
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
         e.preventDefault();
         const newErrors = {};
 
@@ -63,20 +62,45 @@ export const useVolunteerForm = (isOpen, mode, volunteerData, onSave, onClose) =
         }
 
         const cleanId = unmaskDigits(formData.nationalId);
+        
         if (cleanId.length === 11) {
             const idForLib = cleanId.replace(/(\d{9})(\d{2})/, "$1-$2");
-            if (!isNationalIdValid(idForLib)) newErrors.nationalId = "CPF inválido.";
-        } else if (cleanId.length < 7 || cleanId.length > 9) {
+            if (!isNationalIdValid(idForLib)) {
+                newErrors.nationalId = "CPF inválido.";
+            }
+        } else if (cleanId.length >= 7 && cleanId.length <= 9) {
+        } else {
             newErrors.nationalId = "Documento inválido (insira CPF ou RG).";
         }
 
-        if (unmaskDigits(formData.phone).length < 10) newErrors.phone = "Telefone principal inválido.";
-        if (unmaskDigits(formData.phoneSecondary).length < 10) newErrors.phoneSecondary = "Telefone secundário inválido.";
+        if (unmaskDigits(formData.phone).length < 10) {
+            newErrors.phone = "Telefone principal inválido.";
+        }
+        
+        if (formData.phoneSecondary && unmaskDigits(formData.phoneSecondary).length < 10) {
+            newErrors.phoneSecondary = "Telefone secundário inválido.";
+        }
 
         setErrors(newErrors);
+        
         if (Object.keys(newErrors).length === 0) {
-            onSave(formData);
-            handleClose();
+            try {
+                await onSave(formData);
+                handleClose();
+            } catch (error) {
+                if (error.isBackendError && error.payload?.error?.issues) {
+                    const issues = error.payload.error.issues;
+                    const duplicateIssue = issues.find(i => i.code === "DUPLICATE_FIELD");
+                    
+                    if (duplicateIssue) {
+                        setErrors(prev => ({ 
+                            ...prev, 
+                            nationalId: "Este CPF ou RG já está cadastrado no sistema!"
+                        }));
+                    }
+                }
+                return;
+            }
         }
     };
 
