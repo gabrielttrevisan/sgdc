@@ -8,6 +8,7 @@ import salasRouter from "./routes/sala.route.js";
 import allocationTypesRouter from "./routes/allocationTypes.route.js";
 import measuringUnitsRouter from "./routes/measuringUnits.route.js";
 import volunteersRouter from "./routes/volunteers.route.js";
+import router from "./routes/donors.js";
 
 const app = express();
 
@@ -20,7 +21,7 @@ app.use("/salas", salasRouter);
 app.use("/allocation-types", allocationTypesRouter);
 app.use("/measuring-units", measuringUnitsRouter);
 app.use("/volunteers", volunteersRouter);
-
+app.use("/donors", router);
 app.use(notFoundHandler);
 
 app.listen(env.PORT, () => {
