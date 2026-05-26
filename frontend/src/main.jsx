@@ -6,6 +6,7 @@ import { Volunteers } from "./routes/Volunteers/Volunteers.jsx";
 import { Beneficiaries } from "./routes/beneficiaries/Beneficiaries.jsx";
 import Armaz from "./routes/RF_B5/armaz.jsx";
 import CadastroRFB5 from "./routes/RF_B5/cadastro.jsx";
+import App from "./components/App.jsx";
 
 import "./index.css";
 import { MatchMediaProvider } from "./components/media-query/MatchMediaProvider.jsx";
@@ -39,7 +40,7 @@ createRoot(document.getElementById("root")).render(
 
             <Route path="/beneficiarios" element={<Beneficiaries />} />
             <Route path="/familias" element={<Fragment />} />
-            <Route path="/doadores" element={<Fragment />} />
+            <Route path="/doadores" element={<App />} />
             <Route path="/voluntarios" element={<Volunteers />} />
           </Route>
         </Routes>
