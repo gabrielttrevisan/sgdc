@@ -81,6 +81,50 @@ export default class FamilyModel {
       return [false, error];
     }
   }
+
+  /**
+   * @param {PersistedFamily} city
+   * @returns {Promise<BooleanTuple>}
+   */
+  static async edit({ id, name, participants }) {
+    try {
+      return await transaction(async (tsql) => {
+        await tsql.exec`
+          DELETE FROM FAMILY_PARTICIPANTS
+          WHERE FAM_ID = ${id}
+        `.run();
+
+        const family = await tsql.exec`
+          INSERT INTO FAMILIES (NAME)
+          VALUES (${name})
+        `.run();
+
+        if (family.insertId) {
+          const participantsValues = tsql.join(
+            ",",
+            ...participants.map(
+              (participant) =>
+                tsql`(${participant.beneficiaryId}, ${family.insertId}, ${participant.isResponsible ? 1 : 0})`,
+            ),
+          );
+
+          const result = await tsql.exec`
+            INSERT INTO FAMILY_PARTICIPANTS
+              (BEN_ID, FAM_ID, IS_RESPOSIBLE)
+            VALUES
+              ${participantsValues}
+          `.run();
+
+          if (!result.affectedRows) return false;
+
+          return true;
+        } else return false;
+      });
+    } catch (error) {
+      console.error(error);
+      return [false, error];
+    }
+  }
 }
 
 /**
