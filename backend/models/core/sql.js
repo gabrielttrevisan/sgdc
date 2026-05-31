@@ -127,17 +127,16 @@ class SqlExecutable extends SqlFragment {
   }
 
   async run() {
-    if (this.connection) {
-      const [result] = await this.connection.execute(this.sql, this.params);
+    const conn = await database.connect();
 
-      return result;
-    } else {
-      const conn = await database.connect();
+    try {
       const [result] = await conn.execute(this.sql, this.params);
 
       conn.release();
 
       return result;
+    } finally {
+      conn.release();
     }
   }
 }
@@ -153,17 +152,16 @@ class SqlQuery extends SqlFragment {
   }
 
   async run() {
-    if (this.connection) {
-      const [result] = await this.connection.query(this.sql, this.params);
+    const conn = await database.connect();
 
-      return result;
-    } else {
-      const conn = await database.connect();
+    try {
       const [result] = await conn.query(this.sql, this.params);
 
       conn.release();
 
       return result;
+    } finally {
+      conn.release();
     }
   }
 }

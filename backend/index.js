@@ -4,9 +4,12 @@ import { env } from "./config/env.js";
 import notFoundHandler from "./routes/404.route.js";
 import beneficiariesRouter from "./routes/beneficiaries.route.js";
 import citiesRouter from "./routes/cities.route.js";
+import salasRouter from "./routes/sala.route.js";
 import allocationTypesRouter from "./routes/allocationTypes.route.js";
 import measuringUnitsRouter from "./routes/measuringUnits.route.js";
 import familyRouter from "./routes/family.route.js";
+import volunteersRouter from "./routes/volunteers.route.js";
+import router from "./routes/donors.js";
 
 const app = express();
 
@@ -15,9 +18,12 @@ app.use(cors({ origin: env.FRONTEND_URL }));
 
 app.use("/beneficiaries", beneficiariesRouter);
 app.use("/cities", citiesRouter);
+app.use("/salas", salasRouter);
 app.use("/allocation-types", allocationTypesRouter);
 app.use("/measuring-units", measuringUnitsRouter);
 app.use("/families", familyRouter);
+app.use("/volunteers", volunteersRouter);
+app.use("/donors", router);
 
 app.use(notFoundHandler);
 

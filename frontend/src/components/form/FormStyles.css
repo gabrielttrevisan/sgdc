@@ -28,12 +28,13 @@
   display: flex;
   flex-direction: column;
   background: var(--bg-white);
-  width: 90vh;
-  overflow: hidden;
+  width: 90%; 
   max-width: 680px;
-  border-radius: 5px;
+  max-height: 90vh;
+  border-radius: 8px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
   animation: modalScaleUp 0.25s ease-out;
+  overflow: hidden;
 }
 
 @keyframes modalScaleUp {
@@ -72,11 +73,34 @@
 }
 
 .modal-form {
-  padding: 10px 32px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  flex: 1; 
+  min-height: 0; 
+  overflow: hidden;
+}
+
+.modal-body {
+  padding: 10px 32px 20px 32px;
   display: flex;
   flex-direction: column;
   gap: 18px;
-  max-height: 75vh;
+  overflow-y: hidden;
+  flex: 1;
+  min-height: 0; 
+}
+
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: #e0e0e0;
+  border-radius: 10px;
 }
 
 .form-row {
@@ -90,8 +114,8 @@
   flex-direction: column;
   gap: 6px;
   flex: 1;
-  position: relative; 
-  padding-bottom: 15px;
+  position: relative;
+  padding-bottom: 20px;
 }
 
 .flex-1 { flex: 1; }
@@ -160,13 +184,13 @@ input[readonly], select[disabled] {
 }
 
 .modal-footer {
-  padding: 10px 32px 32px 32px; 
+  padding: 15px 32px 20px 32px; 
   display: flex;
   justify-content: flex-end;
   gap: 15px;
   background: var(--bg-white);
-  border-bottom-left-radius: 5px;
-  border-bottom-right-radius: 5px;
+  border-top: 1px solid #f0f0f0; 
+  flex-shrink: 0; 
 }
 
 .btn-cancel {
@@ -213,19 +237,6 @@ input[readonly], select[disabled] {
   border-radius: 4px;
 }
 
-.modal-form::-webkit-scrollbar {
-  width: 6px;
-}
-
-.modal-form::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.modal-form::-webkit-scrollbar-thumb {
-  background: #e0e0e0;
-  border-radius: 10px;
-}
-
 .input-error {
   border: 1px solid var(--error-red) !important;
 }
@@ -234,10 +245,10 @@ input[readonly], select[disabled] {
   position: absolute;
   bottom: 2px;
   left: 0;
-  height: 0;
+  height: auto; 
   margin: 0;
   font-size: 11px;
-  color: #ff4d4d;
+  color: var(--error-red);
   line-height: 1;
   pointer-events: none;
 }

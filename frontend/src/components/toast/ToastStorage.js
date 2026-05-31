@@ -74,6 +74,8 @@ class ToastStorage {
    * @returns {string}
    */
   #slug(value) {
+    if (typeof value !== "string") return (Math.random() * 10000).toString();
+
     return value
       .trim()
       .toLocaleLowerCase()
