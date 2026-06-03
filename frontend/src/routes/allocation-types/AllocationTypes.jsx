@@ -118,6 +118,8 @@ export const AllocationTypes = () => {
         rowClassName="allocation-type__row"
         actionsCellClassName="allocation-type__col --actions"
         keyProp="id"
+        sortKeyDefault="name"
+        sortTypeDefault="asc"
         actionsConfig={[
           {
             type: "show",
