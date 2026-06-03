@@ -12,6 +12,7 @@ export const ActionListButton = ({
   onAction,
   target,
   children,
+  ...props
 }) => {
   const [loading, setLoading] = useState(false);
 
@@ -20,6 +21,7 @@ export const ActionListButton = ({
 
   return (
     <button
+      {...props}
       className={`button-block --solid --action ${typeClassName} ${className} ${loadingClassName}`}
       onClick={useCallback(
         async (e) => {

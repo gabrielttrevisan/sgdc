@@ -142,6 +142,7 @@ export const Beneficiaries = () => {
         pluralName="beneficiários"
         rowClassName="beneficiary__row"
         actionsCellClassName="beneficiary__col --actions"
+        keyProp="nationalId"
         actionsConfig={[
           {
             type: "show",
@@ -208,7 +209,10 @@ export const Beneficiaries = () => {
                 <span>Doar</span>
               </>
             ),
-            onAction: async () => {},
+            onAction: async () => {
+              Toast.warn("Função não implementada!");
+            },
+            buttonProps: { disabled: true },
           },
           {
             type: "delete",

@@ -3,6 +3,8 @@ import { CloseIconLarge } from "../../icons/CloseIconLarge";
 import { Form } from "../Form";
 import "./FormModal.css";
 import { useFormController } from "../context/useFormController";
+import { FormModalSubmitButton } from "./button/FormModalSubmitButton";
+import { FormModalCancelButton } from "./button/FormModalCancelButton";
 
 /**
  * @callback OpenFormModalCallback
@@ -49,7 +51,6 @@ export const FormModal = ({
   const dialogRef = useRef();
   const controller = useFormController();
   const [mode, setMode] = useState(defaultMode);
-  const [loading, setLoading] = useState(false);
 
   useImperativeHandle(
     ref,
@@ -88,11 +89,7 @@ export const FormModal = ({
   const submitLabel = mode === "create" ? createLabel : editLabel;
   const handleSubmit = useCallback(
     async (...params) => {
-      setLoading(true);
-
       let result = await onSubmit[mode](...params);
-
-      setLoading(false);
 
       return result;
     },
@@ -121,23 +118,17 @@ export const FormModal = ({
           <div className="form-modal__content">{children}</div>
 
           <footer>
-            <button
+            <FormModalCancelButton
               type="button"
               onClick={handleClose}
               className="button-block --outline --primary"
-              disabled={loading}
             >
               {mode === "show" ? "Fechar" : cancelLabel}
-            </button>
+            </FormModalCancelButton>
 
-            <button
-              type="submit"
-              className={`button-block --solid --primary ${loading ? "--loading" : ""}`}
-              disabled={loading}
-              hidden={mode === "show"}
-            >
+            <FormModalSubmitButton hidden={mode === "show"}>
               <span>{submitLabel}</span>
-            </button>
+            </FormModalSubmitButton>
           </footer>
         </Form>
       </div>
