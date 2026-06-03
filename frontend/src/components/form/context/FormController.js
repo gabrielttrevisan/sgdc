@@ -123,21 +123,25 @@ class FormController extends EventTarget {
             field.input.setCustomValidity("");
           }
 
-          this.dispatchEvent(
-            new CustomEvent(`validity-change:${field.name}`, {
-              detail: {
-                isValid: field.valid,
-                errorMessage: field.error,
-                isTouched: field.touched,
-              },
-            }),
-          );
-        }, 10);
+          this.#emitFieldValidated(field);
+        }, 100);
 
       formRevalidationTimeout = setTimeout(() => {
         this.validate();
       }, 300);
     });
+  }
+
+  #emitFieldValidated({ name, valid, error, touched }) {
+    this.dispatchEvent(
+      new CustomEvent(`validity-change:${name}`, {
+        detail: {
+          isValid: valid,
+          errorMessage: error,
+          isTouched: touched,
+        },
+      }),
+    );
   }
 
   /**
@@ -161,7 +165,14 @@ class FormController extends EventTarget {
         new CustomEvent("form-submit", { detail: { isSubmitting: true } }),
       );
 
-      if (!this.#isValid) return errorHandler?.("invalid");
+      await this.validate();
+
+      if (!this.#isValid) {
+        this.dispatchEvent(
+          new CustomEvent("form-submit", { detail: { isSubmitting: false } }),
+        );
+        return errorHandler?.("invalid");
+      }
 
       try {
         const formData = Object.entries(this.#fields).reduce(
@@ -221,10 +232,51 @@ class FormController extends EventTarget {
 
       const result = field.validate(field.input.value);
 
+      this.#emitFieldValidated(field);
+
       if (typeof result === "string") {
         isValid = false;
         break;
       }
+    }
+
+    this.#validating = false;
+    this.#isValid = isValid;
+    this.dispatchEvent(
+      new CustomEvent("form-validity", {
+        detail: {
+          isValid,
+          controller: this,
+        },
+      }),
+    );
+  }
+
+  async validateAll() {
+    this.#validating = true;
+
+    let isValid = true;
+    const fields = Object.entries(this.#fields);
+
+    for (const [, field] of fields) {
+      if (!field.validate) continue;
+
+      const result = field.validate(field.input.value);
+
+      if (typeof result === "string") {
+        this.#isValid = false;
+        field.valid = false;
+        field.error = result;
+        field.input.ariaInvalid = "true";
+        field.input.setCustomValidity(result);
+      } else {
+        field.valid = true;
+        field.error = null;
+        field.input.ariaInvalid = "false";
+        field.input.setCustomValidity("");
+      }
+
+      this.#emitFieldValidated(field);
     }
 
     this.#validating = false;
@@ -245,10 +297,6 @@ class FormController extends EventTarget {
 
   get validating() {
     return this.#validating;
-  }
-
-  setForm(form) {
-    if (form instanceof HTMLFormElement && !this.#form) this.#form = form;
   }
 
   /**

@@ -117,6 +117,7 @@ export const AllocationTypes = () => {
         pluralName="tipos de alocação"
         rowClassName="allocation-type__row"
         actionsCellClassName="allocation-type__col --actions"
+        keyProp="id"
         actionsConfig={[
           {
             type: "show",

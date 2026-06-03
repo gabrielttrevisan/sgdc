@@ -73,6 +73,7 @@ import { DataGridHeaderActions } from "./grid/DataGridHeaderActions";
  * @prop {string} [actionsCellClassName]
  * @prop {import("react").ReactNode} [children]
  * @prop {string} [searchBoxPlaceholder]
+ * @prop {keyof T|(item: T) => string} keyProp
  */
 
 /**
@@ -92,6 +93,7 @@ export function DataGrid({
   rowClassName = "",
   children,
   searchBoxPlaceholder,
+  keyProp,
 }) {
   /** @type {[import("../../global").AsyncPageData<T>, import("react").Dispatch<import("react").SetStateAction<import("../../global").AsyncPageData<T>>>]} */
   const [page, setPage] = useState({
@@ -269,7 +271,11 @@ export function DataGrid({
 
               {page.items.map((item) => (
                 <DataGridItem
-                  key={item.nationalId}
+                  key={
+                    typeof keyProp === "function"
+                      ? keyProp(item)
+                      : item[keyProp]
+                  }
                   className={rowClassName}
                   role="row"
                 >
