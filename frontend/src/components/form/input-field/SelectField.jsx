@@ -59,7 +59,7 @@ export const SelectField = ({
             (option) => option.value === e.target.value,
           );
 
-          if (option) onChange(option, e);
+          if (option) onChange?.(option, e);
         }}
       >
         {options.map((option) => (

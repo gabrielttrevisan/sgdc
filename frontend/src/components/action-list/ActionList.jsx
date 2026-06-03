@@ -17,6 +17,7 @@ import { ActionListButton } from "./button/ActionListButton";
  * @prop {import("react").ReactNode} content
  * @prop {OnActionHandler<T>} onAction
  * @prop {string} [className]
+ * @prop {Partial<import("react").HTMLProps<"button">>} [buttonProps]
  */
 
 /**
@@ -36,6 +37,7 @@ export function ActionList({ actions, target }) {
       {actions.map((action) => {
         return (
           <ActionListButton
+            {...action.buttonProps}
             className={action.className}
             onAction={action.onAction}
             target={target}

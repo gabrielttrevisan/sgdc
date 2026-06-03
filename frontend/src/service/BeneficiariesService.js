@@ -5,7 +5,6 @@
  * @prop {string} name
  * @prop {string} phone
  * @prop {"m"|"f"|"o"} gender
- * @prop {string} family
  * @prop {string} street
  * @prop {string} number
  * @prop {string} complement
@@ -22,7 +21,6 @@
  * @prop {string} name
  * @prop {string} phone
  * @prop {Gender} gender
- * @prop {string} family
  * @prop {string} street
  * @prop {string} number
  * @prop {string} complement

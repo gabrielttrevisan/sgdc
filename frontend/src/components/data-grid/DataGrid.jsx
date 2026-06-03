@@ -73,6 +73,9 @@ import { DataGridHeaderActions } from "./grid/DataGridHeaderActions";
  * @prop {string} [actionsCellClassName]
  * @prop {import("react").ReactNode} [children]
  * @prop {string} [searchBoxPlaceholder]
+ * @prop {keyof T|(item: T) => string} keyProp
+ * @prop {keyof T} [sortKeyDefault]
+ * @prop {string} [sortTypeDefault]
  */
 
 /**
@@ -92,13 +95,16 @@ export function DataGrid({
   rowClassName = "",
   children,
   searchBoxPlaceholder,
+  keyProp,
+  sortKeyDefault,
+  sortTypeDefault,
 }) {
   /** @type {[import("../../global").AsyncPageData<T>, import("react").Dispatch<import("react").SetStateAction<import("../../global").AsyncPageData<T>>>]} */
   const [page, setPage] = useState({
     items: [],
     page: 1,
-    sortKey: undefined,
-    sortType: undefined,
+    sortKey: sortKeyDefault,
+    sortType: sortTypeDefault,
     totalPages: 1,
     totalRecords: 0,
     query: undefined,
@@ -111,14 +117,20 @@ export function DataGrid({
       sortKey = undefined,
       query = undefined,
       sortType = undefined,
+      noSorting = false,
     ) => {
       setPage((prev) => ({ ...prev, loading: true }));
+
+      const actualSortKey = noSorting ? undefined : (sortKey ?? sortKeyDefault);
+      const actualSortType = noSorting
+        ? undefined
+        : (sortType ?? sortTypeDefault);
 
       paginatableService
         .list({
           page: count,
-          sortKey: sortKey,
-          sortType,
+          sortKey: actualSortKey,
+          sortType: actualSortType,
           query,
         })
         .then((response) => {
@@ -128,8 +140,8 @@ export function DataGrid({
             setPage({
               items: [],
               page: 1,
-              sortKey,
-              sortType,
+              sortKey: actualSortKey,
+              sortType: actualSortType,
               totalPages: 1,
               totalRecords: 0,
               query,
@@ -141,7 +153,8 @@ export function DataGrid({
 
           setPage({
             ...response.data,
-            sortType,
+            sortKey: actualSortKey,
+            sortType: actualSortType,
             loading: false,
           });
         });
@@ -220,31 +233,44 @@ export function DataGrid({
                       type="button"
                       onClick={() => {
                         if (column.sortType) {
-                          if (!page.sortType)
+                          if (!page.sortType) {
                             getPage(
                               1,
                               column.sortKey,
                               page.query,
                               column.sortType[0],
                             );
-                          else {
+                          } else {
                             const index = column.sortType.findIndex(
                               (i) => i === page.sortType,
                             );
 
-                            if (index === column.sortType.length - 1)
-                              getPage(1);
-                            else
+                            if (index === column.sortType.length - 1) {
+                              getPage(
+                                1,
+                                sortKeyDefault,
+                                page.query,
+                                sortTypeDefault,
+                                page.sortKey === sortKeyDefault,
+                              );
+                            } else {
                               getPage(
                                 1,
                                 column.sortKey,
                                 page.query,
                                 column.sortType[index + 1],
                               );
+                            }
                           }
                         } else if (page.sortKey !== column.sortKey) {
                           getPage(1, column.sortKey, page.query);
-                        } else getPage(1, page.query);
+                        } else
+                          getPage(
+                            1,
+                            sortKeyDefault,
+                            page.query,
+                            sortTypeDefault,
+                          );
                       }}
                     >
                       <column.SortIcon
@@ -269,7 +295,11 @@ export function DataGrid({
 
               {page.items.map((item) => (
                 <DataGridItem
-                  key={item.nationalId}
+                  key={
+                    typeof keyProp === "function"
+                      ? keyProp(item)
+                      : item[keyProp]
+                  }
                   className={rowClassName}
                   role="row"
                 >
