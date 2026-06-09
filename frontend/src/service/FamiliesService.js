@@ -71,6 +71,27 @@ class FamiliesService {
   }
 
   /**
+   *
+   * @param {Family} family
+   * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
+   */
+  async create({ name, participants }) {
+    try {
+      const response = await this.#client.post(`families`, {
+        participants: participants.map(({ key, isResponsible }) => ({
+          id: key,
+          isResponsible,
+        })),
+        name,
+      });
+
+      return response;
+    } catch {
+      return this.#internal("Erro inesperado");
+    }
+  }
+
+  /**
    * @param {string} [message]
    * @returns {APIResponse<import("../components/data-grid/DataGrid").PageData<Family[]>>}
    */

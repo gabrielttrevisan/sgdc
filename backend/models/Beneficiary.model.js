@@ -109,10 +109,10 @@ export default class BeneficiaryModel {
     try {
       const likeQuery = `%${query}%`;
       const whereClause = query
-        ? sql`WHERE DELETED_AT IS NULL AND FP.FAM_ID IS NULL AND (FULL_NAME LIKE ${likeQuery} OR NATIONAL_ID LIKE ${likeQuery})`
-        : sql`WHERE DELETED_AT IS NULL AND FP.FAM_ID IS NULL`;
+        ? sql`WHERE B.DELETED_AT IS NULL AND (FP.FAM_ID IS NULL OR F.DELETED_AT IS NOT NULL) AND (FULL_NAME LIKE ${likeQuery} OR NATIONAL_ID LIKE ${likeQuery})`
+        : sql`WHERE B.DELETED_AT IS NULL AND (FP.FAM_ID IS NULL OR F.DELETED_AT IS NOT NULL)`;
       const orderByColumn =
-        sortKey === "name" ? sql`FULL_NAME` : sql`HAS_OPEN_REQUEST`;
+        sortKey === "name" ? sql`FULL_NAME` : sql`NATIONAL_ID`;
       const orderBySorting =
         sortKey === "name" ? sql([sortType.toUpperCase()]) : sql`DESC`;
       const orderByClause = sortKey
@@ -124,20 +124,20 @@ export default class BeneficiaryModel {
       const [data, [{ TOTAL: total }]] = await Promise.all([
         sql.query`
           SELECT
-            ID,
-            FULL_NAME,
+            B.ID,
+            B.FULL_NAME,
             FP.FAM_ID AS FAMILY_ID
-          FROM BENEFICIARIES
-            LEFT JOIN FAMILY_PARTICIPANTS FP
-              ON FP.BEN_ID = ID
+          FROM BENEFICIARIES B
+            LEFT JOIN FAMILY_PARTICIPANTS FP ON FP.BEN_ID = B.ID
+            LEFT JOIN FAMILIES F ON F.ID = FP.FAM_ID
           ${whereClause}
           ${orderByClause}
           ${limitClause}`.run(),
         sql.query`
           SELECT COUNT(*) AS TOTAL
-          FROM BENEFICIARIES
-            LEFT JOIN FAMILY_PARTICIPANTS FP
-              ON FP.BEN_ID = ID
+          FROM BENEFICIARIES B
+            LEFT JOIN FAMILY_PARTICIPANTS FP ON FP.BEN_ID = B.ID
+            LEFT JOIN FAMILIES F ON F.ID = FP.FAM_ID
           ${whereClause}`.run(),
       ]);
 

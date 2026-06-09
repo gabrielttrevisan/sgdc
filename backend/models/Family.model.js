@@ -19,10 +19,7 @@ export default class FamilyModel {
         ? sql`ORDER BY ${orderByColumn} ${orderBySorting}`
         : sql.empty;
       const limitClause = sql`LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
-
-      /** @type {[FamilyRaw[], CountRaw[]]} */
-      const [data, [{ TOTAL: total }]] = await Promise.all([
-        sql.query`
+      const sqlQuery = sql.query`
               SELECT
                 F.ID, F.NAME,
                 FP.BEN_ID, B.FULL_NAME AS BEN_NAME,
@@ -34,7 +31,13 @@ export default class FamilyModel {
                   ON B.ID = FP.BEN_ID
               ${whereClause}
               ${orderByClause}
-              ${limitClause}`.run(),
+              ${limitClause}`;
+
+      console.log(sqlQuery.sql);
+
+      /** @type {[FamilyRaw[], CountRaw[]]} */
+      const [data, [{ TOTAL: total }]] = await Promise.all([
+        sqlQuery.run(),
         sql.query`
           SELECT COUNT(*) AS TOTAL
           FROM FAMILIES F
@@ -156,7 +159,7 @@ export default class FamilyModel {
             ",",
             ...participants.map(
               (participant) =>
-                tsql`(${participant.beneficiaryId}, ${family.insertId}, ${participant.isResponsible ? 1 : 0})`,
+                tsql`(${participant.id}, ${family.insertId}, ${participant.isResponsible ? 1 : 0})`,
             ),
           );
 
