@@ -5,7 +5,10 @@ export default class InputFieldController {
   #input;
 
   constructor(input) {
-    if (!(input instanceof HTMLInputElement))
+    if (
+      !(input instanceof HTMLInputElement) &&
+      !(input instanceof HTMLTextAreaElement)
+    )
       throw new TypeError(
         "InputFieldController can only control HTMLInputElement",
       );

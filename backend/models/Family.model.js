@@ -10,8 +10,8 @@ export default class FamilyModel {
     try {
       const likeQuery = `%${query}%`;
       const whereClause = query
-        ? sql`WHERE F.DELETED_AT IS NULL AND (F.NAME LIKE ${likeQuery})`
-        : sql`WHERE F.DELETED_AT IS NULL`;
+        ? sql`WHERE F.NAME LIKE ${likeQuery}`
+        : sql.empty;
       const orderByColumn = sortKey === "name" ? sql`NAME` : sql.empty;
       const orderBySorting =
         sortKey === "name" ? sql.str(sortType.toUpperCase()) : sql`DESC`;
@@ -19,25 +19,27 @@ export default class FamilyModel {
         ? sql`ORDER BY ${orderByColumn} ${orderBySorting}`
         : sql.empty;
       const limitClause = sql`LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
-      const sqlQuery = sql.query`
-              SELECT
-                F.ID, F.NAME,
-                FP.BEN_ID, B.FULL_NAME AS BEN_NAME,
-                FP.IS_RESPOSIBLE
-              FROM FAMILIES F
-                INNER JOIN FAMILY_PARTICIPANTS FP
-                  ON FP.FAM_ID = F.ID
-                INNER JOIN BENEFICIARIES B
-                  ON B.ID = FP.BEN_ID
-              ${whereClause}
-              ${orderByClause}
-              ${limitClause}`;
-
-      console.log(sqlQuery.sql);
 
       /** @type {[FamilyRaw[], CountRaw[]]} */
-      const [data, [{ TOTAL: total }]] = await Promise.all([
-        sqlQuery.run(),
+      const [participantsRaw, [{ TOTAL: total }]] = await Promise.all([
+        sql.query`
+              WITH
+                PAGE AS (
+                  SELECT
+                    F.ID, F.NAME
+                  FROM FAMILIES F
+                  ${whereClause}
+                  ${limitClause}
+                )
+              SELECT
+                P.ID, P.NAME,
+                B.FULL_NAME AS BEN_NAME,
+                FP.BEN_ID, FP.IS_RESPOSIBLE
+              FROM PAGE P
+                INNER JOIN FAMILY_PARTICIPANTS FP ON FP.FAM_ID = P.ID
+                INNER JOIN BENEFICIARIES B ON FP.BEN_ID = B.ID
+              ${orderByClause}
+              `.run(),
         sql.query`
           SELECT COUNT(*) AS TOTAL
           FROM FAMILIES F
@@ -45,10 +47,10 @@ export default class FamilyModel {
       ]);
 
       /** @type {Map.<int, PersistedFamily>} */
-      const families = data.reduce(
+      const families = participantsRaw.reduce(
         /**
          * @param {Map.<int, PersistedFamily>} map
-         * @param {FamilyRaw} datum
+         * @param {FamilyParticipantRaw} datum
          * @returns {Map.<int, PersistedFamily>}
          */
         (map, datum) => {
@@ -107,33 +109,11 @@ export default class FamilyModel {
   static async delete(id) {
     try {
       const deleted = await sql.exec`
-            UPDATE FAMILIES
-            SET DELETED_AT = CURRENT_TIMESTAMP()
+            DELETE FROM FAMILIES
             WHERE ID = ${id}
           `.run();
 
       if (deleted.affectedRows < 1) return [false, null];
-
-      return [true, null];
-    } catch (error) {
-      console.error(error);
-      return [false, error];
-    }
-  }
-
-  /**
-   * @param {number} id
-   * @returns {Promise<BooleanTuple>}
-   */
-  static async restore(id) {
-    try {
-      const restored = await sql.exec`
-            UPDATE FAMILIES
-            SET DELETED_AT = NULL
-            WHERE ID = ${id}
-          `.run();
-
-      if (restored.affectedRows < 1) return [false, null];
 
       return [true, null];
     } catch (error) {
@@ -286,6 +266,11 @@ export default class FamilyModel {
 
 /**
  * @typedef {Object} FamilyRaw
+ * @prop {number} ID
+ */
+
+/**
+ * @typedef {Object} FamilyParticipantRaw
  * @prop {number} ID
  * @prop {string} NAME
  * @prop {number} BEN_ID

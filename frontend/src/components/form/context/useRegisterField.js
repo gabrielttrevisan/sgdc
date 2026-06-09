@@ -15,7 +15,8 @@ export function useRegisterField(name, stateInit) {
     ref: (instance) => {
       if (instance) {
         const controllerInterface =
-          instance instanceof HTMLInputElement
+          instance instanceof HTMLInputElement ||
+          instance instanceof HTMLTextAreaElement
             ? new InputFieldController(instance)
             : instance instanceof HTMLSelectElement
               ? new SelectFieldController(instance)
