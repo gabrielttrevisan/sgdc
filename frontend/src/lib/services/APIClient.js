@@ -60,7 +60,7 @@ export default class APIClient {
 
   /**
    * @param {string} path
-   * @param {Record<string, string>} [body]
+   * @param {Record<string, unknown>} [body]
    * @param {import("../../global").FetchOptions} [init]
    * @returns {Promise<import("../../global").APIResponse<any>>}
    */

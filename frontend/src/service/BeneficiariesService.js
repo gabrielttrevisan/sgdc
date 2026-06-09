@@ -53,7 +53,6 @@
 import { unmaskDigits } from "../lib/functions/unmask";
 import APIClient from "../lib/services/APIClient";
 
-/** @implements {import("../../global").PaginatableService<Beneficiary>} */
 class BeneficiariesService {
   /**
    * @param {string} [message]
@@ -79,6 +78,23 @@ class BeneficiariesService {
   async list({ query, ...rest } = { page: 1, perPage: 10 }) {
     try {
       const response = await this.#client.get("beneficiaries", {
+        q: query,
+        ...rest,
+      });
+
+      return response;
+    } catch {
+      return this.#internal("Erro inesperado");
+    }
+  }
+
+  /**
+   * @param {import("../global").PaginatedQuery} query
+   * @returns {Promise<import("../global").APIResponse<import("../components/data-grid/DataGrid").PageData<TinyBeneficiary[]>>>}
+   */
+  async listNoFamily({ query, ...rest } = { page: 1, perPage: 10 }) {
+    try {
+      const response = await this.#client.get("beneficiaries/no-family", {
         q: query,
         ...rest,
       });
