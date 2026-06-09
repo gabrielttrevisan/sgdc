@@ -81,10 +81,12 @@ class SqlFragment {
     const nonEmpty = fragments.filter((fragment) => !fragment.isEmpty);
 
     const joined = nonEmpty.reduce(
-      ({ params, sql }, fragment) => ({
-        params: [...params, ...fragment.params],
-        sql: sql ? sql + (sep ?? " ") + fragment.sql : fragment.sql,
-      }),
+      ({ params, sql }, fragment) => {
+        return {
+          params: [...params, ...fragment.params],
+          sql: sql ? sql + (sep ?? " ") + fragment.sql : fragment.sql,
+        };
+      },
       { params: [], sql: "" },
     );
 
@@ -92,7 +94,7 @@ class SqlFragment {
   }
 
   /**
-   * @param {function(SqlFunctor): Promise<boolean>} callback
+   * @param {function(SqlFunctor): Promise<[boolean, Error|null|undefined]>} callback
    * @returns {Promise<[boolean, Error|null]>}
    */
   static async transaction(callback) {
@@ -103,12 +105,12 @@ class SqlFragment {
 
       const sqlFunctor = createSQLFunctor(connection);
 
-      const shouldCommit = await callback(sqlFunctor);
+      const [shouldCommit, error] = await callback(sqlFunctor);
 
       if (shouldCommit) await connection.commit();
       else await connection.rollback();
 
-      return [shouldCommit, null];
+      return [shouldCommit, error ?? null];
     } catch (e) {
       await connection.rollback();
       return [false, e];
@@ -235,7 +237,7 @@ const sql = createSQLFunctor();
 export default sql;
 
 /**
- * @param {function(SqlFunctor): Promise<boolean>} callback
+ * @param {function(SqlFunctor): Promise<[boolean, Error|null|undefined]>} callback
  */
 export async function transaction(callback) {
   return SqlFragment.transaction(callback);

@@ -1,7 +1,36 @@
+import ExintingFamilyParticipantsError from "../exception/ExistingFamilyParticipants.js";
 import APIResponse from "../lib/APIResponse.js";
 import FamilyModel from "../models/Family.model.js";
 
 export class FamilyController {
+  /**
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
+  static async findAll(req, res) {
+    const response = APIResponse.from(res);
+    /** @type {import("../models/Family.model.js").FindAllFamiliesFilter} */
+    const filter = {};
+    const { q, sortKey, sortType, page, perPage } = req.query;
+
+    filter.query = q;
+    filter.page = page ? parseInt(page) : 1;
+    filter.perPage = perPage ? parseInt(perPage) : 10;
+    filter.sortKey = sortKey;
+    filter.sortType = sortType;
+
+    const [families, error] = await FamilyModel.findAll(filter);
+
+    if (error) {
+      return response.internalError(error.message);
+    } else {
+      if (families.length === 0)
+        return response.notFound("Nenhuma família encontrada");
+
+      return response.success(families);
+    }
+  }
+
   /**
    * @param {import("express").Request} req
    * @param {import("express").Response} res

@@ -34,6 +34,35 @@ export default class BeneficiaryController {
    * @param {import("express").Request} req
    * @param {import("express").Response} res
    */
+  static async findAllWithoutFamily(req, res) {
+    const response = APIResponse.from(res);
+    /** @type {import("../models/Beneficiary.model.js").FindAllBeneficiariesFilter} */
+    const filter = {};
+    const { q, sortKey, sortType, page, perPage } = req.query;
+
+    filter.query = q;
+    filter.page = page ? parseInt(page) : 1;
+    filter.perPage = perPage ? parseInt(perPage) : 10;
+    filter.sortKey = sortKey;
+    filter.sortType = sortType;
+
+    const [beneficiaries, error] =
+      await BeneficiaryModel.findAllWithoutFamily(filter);
+
+    if (error) {
+      return response.internalError();
+    } else {
+      if (beneficiaries.length === 0)
+        return response.notFound("Nenhum beneficiário encontrado");
+
+      return response.success(beneficiaries);
+    }
+  }
+
+  /**
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
   static async findById(req, res) {
     const response = APIResponse.from(res);
 

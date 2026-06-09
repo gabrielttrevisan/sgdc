@@ -17,6 +17,12 @@ beneficiariesRouter.get(
   BeneficiaryController.findAll,
 );
 
+beneficiariesRouter.get(
+  "/no-family",
+  pagination(FILTER_BENEFICIARIES_RULES),
+  BeneficiaryController.findAllWithoutFamily,
+);
+
 beneficiariesRouter.get("/:id", identifier, BeneficiaryController.findById);
 
 beneficiariesRouter.delete("/:id", identifier, BeneficiaryController.delete);
