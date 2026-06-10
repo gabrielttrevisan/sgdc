@@ -5,6 +5,7 @@ import DonorTable from "./Tabela"
 import DonorModal from "./Modal"
 import Pagination from "./Paginação"
 import "../styles/global.css"
+import "./App.css"
 
 const API_URL = "http://localhost:3000/donors"
 
@@ -16,6 +17,8 @@ export default function App() {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const [editingId, setEditingId] = useState(null)
+  const [viewingDonor, setViewingDonor] = useState(null)
+  const [sortAscending, setSortAscending] = useState(true)
 
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState("")
@@ -25,12 +28,26 @@ export default function App() {
 
   // Carregar doadores ao montar o componente
  
+  const maskCPF = (value) => {
+    const digits = value.replace(/\D/g, "").slice(0, 11)
+    return digits
+      .replace(/^(\d{3})(\d)/, "$1.$2")
+      .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+      .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4")
+  }
+
   const fetchDonors = async () => {
     try {
       setLoading(true)
       const response = await fetch(API_URL)
       const data = await response.json()
-      setDonors(data)
+      setDonors(data.map((donor) => ({
+        ...donor,
+        cpf: maskCPF(donor.cpf || donor.CPF || ""),
+        gender: donor.gender || donor.GENDER || "",
+        email: donor.email || donor.EMAIL || "",
+        age: donor.age ?? donor.AGE ?? ""
+      })))
     } catch (error) {
       console.error("Erro ao carregar doadores:", error)
       setDeleteMessage("Erro ao carregar doadores.")
@@ -53,11 +70,18 @@ export default function App() {
     return () => clearTimeout(timeout)
   }, [deleteMessage])
 
-  const filteredDonors = donors.filter((donor) => {
+  const sortedDonors = [...donors].sort((a, b) =>
+    a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'base' })
+  )
+  if (!sortAscending) sortedDonors.reverse()
+
+  const filteredDonors = sortedDonors.filter((donor) => {
     const term = searchTerm.toLowerCase().trim()
     return (
       donor.name.toLowerCase().includes(term) ||
-      donor.cpf.toLowerCase().includes(term)
+      donor.cpf.toLowerCase().includes(term) ||
+      (donor.email || "").toLowerCase().includes(term) ||
+      String(donor.age || "").includes(term)
     )
   })
 
@@ -78,7 +102,10 @@ export default function App() {
           body: JSON.stringify(data)
         })
 
-        if (!response.ok) throw new Error("Erro ao atualizar")
+        if (!response.ok) {
+          const errorBody = await response.json().catch(() => null)
+          throw new Error(errorBody?.error || "Erro ao atualizar")
+        }
 
         setDeleteMessage("Doador atualizado com sucesso!")
         setEditingId(null)
@@ -91,7 +118,10 @@ export default function App() {
           body: JSON.stringify(data)
         })
 
-        if (!response.ok) throw new Error("Erro ao cadastrar")
+        if (!response.ok) {
+          const errorBody = await response.json().catch(() => null)
+          throw new Error(errorBody?.error || "Erro ao cadastrar")
+        }
 
         setDeleteMessage("Doador cadastrado com sucesso!")
         fetchDonors()
@@ -103,7 +133,14 @@ export default function App() {
   }
 
   function editDonor(id) {
+    setViewingDonor(null)
     setEditingId(id)
+    setIsModalOpen(true)
+  }
+
+  function viewDonor(id) {
+    setEditingId(null)
+    setViewingDonor(donors.find((d) => d.id === id) || null)
     setIsModalOpen(true)
   }
 
@@ -139,64 +176,84 @@ export default function App() {
       
 
       <main className="content">
-
-        <div className="header">
-          <div>
-            <h1>Doadores</h1>
-            <div className="search-row">
-              <div className="search-input-wrapper">
-                <span className="search-icon">🔍</span>
-                <input
-                  type="text"
-                  placeholder="Pesquisar doador"
-                  value={searchTerm}
-                  onChange={(event) => setSearchTerm(event.target.value)}
-                />
+        <div className="page-card">
+          <div className="header">
+            <div>
+              <h1>Doadores</h1>
+              <div className="search-row">
+                <div className="search-input-wrapper">
+                  <span className="search-icon">🔍</span>
+                  <input
+                    type="text"
+                    placeholder="Buscar doadores..."
+                    value={searchTerm}
+                    onChange={(event) => setSearchTerm(event.target.value)}
+                  />
+                </div>
               </div>
+            </div>
+
+            <div className="header-actions">
+              <button
+                className="green-btn"
+                onClick={() => {
+                  setEditingId(null)
+                  setIsModalOpen(true)
+                }}
+              >
+                + Cadastrar Doador
+              </button>
             </div>
           </div>
 
-          <button
-            className="green-btn"
-            onClick={() => {
-              setEditingId(null)
-              setIsModalOpen(true)
-            }}
-          >
-            + Cadastrar Doador
-          </button>
-        </div>
+          {deleteMessage && (
+            <div className={`notice ${deleteMessage === "Exclusão cancelada." ? "cancel" : ""}`}>
+              {deleteMessage}
+            </div>
+          )}
 
-        {deleteMessage && (
-          <div className={`notice ${deleteMessage === "Exclusão cancelada." ? "cancel" : ""}`}>
-            {deleteMessage}
+          <div className="table-wrapper">
+            <DonorTable
+              donors={currentDonors}
+              onView={viewDonor}
+              onEdit={editDonor}
+              onDelete={deleteDonor}
+              sortAscending={sortAscending}
+              onSort={() => setSortAscending((prev) => !prev)}
+            />
           </div>
-        )}
 
-        <DonorTable
-          donors={currentDonors}
-          onEdit={editDonor}
-          onDelete={deleteDonor}
-        />
-
-        <Pagination
-          totalPages={totalPages}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-        />
-
+          <div className="table-footer">
+            <span>
+              Exibindo {filteredDonors.length === 0 ? 0 : startIndex + 1} - {Math.min(endIndex, filteredDonors.length)} de {filteredDonors.length} doadores
+            </span>
+            <Pagination
+              totalPages={totalPages}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+            />
+          </div>
+        </div>
       </main>
 
       <DonorModal
-        key={editingId !== null ? editingId : "new"}
+        key={viewingDonor ? `view-${viewingDonor.id}` : editingId !== null ? editingId : "new"}
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false)
+          setEditingId(null)
+          setViewingDonor(null)
+        }}
         onSave={saveDonor}
         editingDonor={
-          editingId !== null
-            ? donors.find(d => d.id === editingId)
-            : null
+          viewingDonor
+            ? viewingDonor
+            : editingId !== null
+              ? donors.find(d => d.id === editingId)
+              : null
         }
+        existingDonors={donors}
+        viewMode={Boolean(viewingDonor)}
       />
 
     </div>

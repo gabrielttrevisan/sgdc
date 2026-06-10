@@ -24,21 +24,33 @@ class CadastroController {
     }
 
     static async criar(req, res) {
-        const { name, cpf, phone, gender } = req.body;
+        const { name, cpf, phone, gender, email, age } = req.body;
 
-        if (!name || !cpf || !phone || !gender) {
-            return res.status(400).json({ error: 'Nome, CPF, telefone e gênero são obrigatórios' });
+        if (!name || !cpf || !phone || !gender || !email || !age) {
+            return res.status(400).json({ error: 'Nome, CPF, telefone, gênero, e-mail e idade são obrigatórios' });
         }
         if (cpf.replace(/\D/g, '').length !== 11) {
             return res.status(400).json({ error: 'CPF deve conter 11 dígitos' });
         }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return res.status(400).json({ error: 'E-mail inválido' });
+        }
+        const ageNumber = Number(age);
+        if (!Number.isInteger(ageNumber) || ageNumber <= 0) {
+            return res.status(400).json({ error: 'Idade inválida' });
+        }
+
+        const cpfExists = await CadastroModel.findByCPF(cpf);
+        if (cpfExists) {
+            return res.status(400).json({ error: 'CPF já cadastrado' });
+        }
 
         try {
-            const result = await CadastroModel.create(name, cpf, phone, gender);
+            const result = await CadastroModel.create(name, cpf, phone, gender, email, ageNumber);
             res.status(201).json({
                 message: 'Doador criado com sucesso!',
                 id: result.insertId,
-                donor: { id: result.insertId, name, cpf, phone, gender }
+                donor: { id: result.insertId, name, cpf, phone, gender, email, age: ageNumber }
             });
         } catch (error) {
             console.error('Erro ao criar doador:', error);
@@ -48,21 +60,33 @@ class CadastroController {
 
     static async atualizar(req, res) {
         const { id } = req.params;
-        const { name, cpf, phone, gender } = req.body;
+        const { name, cpf, phone, gender, email, age } = req.body;
 
-        if (!name || !cpf || !phone || !gender) {
-            return res.status(400).json({ error: 'Nome, CPF, telefone e gênero são obrigatórios' });
+        if (!name || !cpf || !phone || !gender || !email || !age) {
+            return res.status(400).json({ error: 'Nome, CPF, telefone, gênero, e-mail e idade são obrigatórios' });
         }
         if (cpf.replace(/\D/g, '').length !== 11) {
             return res.status(400).json({ error: 'CPF deve conter 11 dígitos' });
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return res.status(400).json({ error: 'E-mail inválido' });
+        }
+        const ageNumber = Number(age);
+        if (!Number.isInteger(ageNumber) || ageNumber <= 0) {
+            return res.status(400).json({ error: 'Idade inválida' });
+        }
+
+        const cpfExists = await CadastroModel.findByCPFExcludingId(cpf, id);
+        if (cpfExists) {
+            return res.status(400).json({ error: 'CPF já cadastrado por outro doador' });
         }
 
         try {
             const donor = await CadastroModel.findById(id);
             if (!donor) return res.status(404).json({ error: 'Doador não encontrado' });
 
-            await CadastroModel.update(id, name, cpf, phone, gender);
-            res.json({ message: 'Doador atualizado com sucesso!', donor: { id, name, cpf, phone, gender } });
+            await CadastroModel.update(id, name, cpf, phone, gender, email, ageNumber);
+            res.json({ message: 'Doador atualizado com sucesso!', donor: { id, name, cpf, phone, gender, email, age: ageNumber } });
         } catch (error) {
             console.error('Erro ao atualizar doador:', error);
             res.status(500).json({ error: 'Erro ao atualizar doador' });
