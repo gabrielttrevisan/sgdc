@@ -21,8 +21,6 @@ export const Nav = ({ children }) => {
 
   const toggle = () => {
     setIsOpen((prev) => {
-      console.log("toggling: state update");
-
       const newIsOpen = !prev;
 
       if (isMobile) {

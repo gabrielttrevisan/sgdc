@@ -108,6 +108,9 @@ export const MeasuringUnits = () => {
         pluralName="unidades de medida"
         rowClassName="measuring-unit__row"
         actionsCellClassName="measuring-unit__col --actions"
+        keyProp="id"
+        sortKeyDefault="name"
+        sortTypeDefault="asc"
         actionsConfig={[
           {
             type: "show",

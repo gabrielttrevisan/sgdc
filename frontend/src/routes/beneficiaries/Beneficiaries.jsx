@@ -24,7 +24,7 @@ export const Beneficiaries = () => {
   /** @type {import("react").RefObject<import("../../components/form/modal/FormModal").FormModalRef>} */
   const formModalRef = useRef(null);
 
-  /** @type {import("../../components/data-grid/DataGrid").DataGridColumn<import("./BeneficiariesService").Beneficiary>[]} */
+  /** @type {import("../../components/data-grid/DataGrid").DataGridColumn<import("../../service/BeneficiariesService").Beneficiary>[]} */
   const columns = [
     {
       DataGridCell: ({ name }) => <span>{name}</span>,
@@ -142,6 +142,9 @@ export const Beneficiaries = () => {
         pluralName="beneficiários"
         rowClassName="beneficiary__row"
         actionsCellClassName="beneficiary__col --actions"
+        keyProp="nationalId"
+        sortKeyDefault="name"
+        sortTypeDefault="asc"
         actionsConfig={[
           {
             type: "show",
@@ -208,7 +211,10 @@ export const Beneficiaries = () => {
                 <span>Doar</span>
               </>
             ),
-            onAction: async () => {},
+            onAction: async () => {
+              Toast.warn("Função não implementada!");
+            },
+            buttonProps: { disabled: true },
           },
           {
             type: "delete",

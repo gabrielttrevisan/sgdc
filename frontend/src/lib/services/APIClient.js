@@ -9,7 +9,7 @@ export default class APIClient {
    * @param {string} path
    * @param {Record<string, string>} [query]
    * @param {import("../../global").FetchOptions} [init]
-   * @returns {import("../../global").APIResponse<any>}
+   * @returns {Promise<import("../../global").APIResponse<any>>}
    */
   async get(path, query = {}, init = {}) {
     const params = Object.entries(query).filter(([, value]) => Boolean(value));
@@ -31,7 +31,7 @@ export default class APIClient {
    * @param {string} path
    * @param {Record<string, string>} [body]
    * @param {import("../../global").FetchOptions} [init]
-   * @returns {import("../../global").APIResponse<any>}
+   * @returns {Promise<import("../../global").APIResponse<any>>}
    */
   async post(path, body = {}, init = {}) {
     let headers = {};
@@ -62,7 +62,7 @@ export default class APIClient {
    * @param {string} path
    * @param {Record<string, string>} [body]
    * @param {import("../../global").FetchOptions} [init]
-   * @returns {import("../../global").APIResponse<any>}
+   * @returns {Promise<import("../../global").APIResponse<any>>}
    */
   async patch(path, body = {}, init = {}) {
     let headers = {};
@@ -92,7 +92,7 @@ export default class APIClient {
   /**
    * @param {string} path
    * @param {import("../../global").FetchOptions} [init]
-   * @returns {import("../../global").APIResponse<any>}
+   * @returns {Promise<import("../../global").APIResponse<any>>}
    */
   async delete(path, init) {
     const rawResponse = await fetch(`${this.#url}${path}`, {
