@@ -7,7 +7,7 @@ import Pagination from "./Paginação"
 import "../styles/global.css"
 import "./App.css"
 
-const API_URL = "http://localhost:3000/donors"
+const API_URL = "http://localhost:3004/donors"
 
 export default function App() {
 
