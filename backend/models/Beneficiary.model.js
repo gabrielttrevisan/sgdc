@@ -14,6 +14,10 @@ import sql from "./core/sql.js";
  */
 
 /**
+ * @typedef {[import("../global.js").PageData<TinyNoFamilyBeneficiary>, null]|[null, Error]} FindAllWithoutFamilyBeneficiariesTuple
+ */
+
+/**
  * @typedef {[PersistedBeneficiary|null, null]|[null, Error]} FindBeneficiaryByIdTuple
  */
 
@@ -44,9 +48,9 @@ export default class BeneficiaryModel {
       /** @type {[TinyBeneficiaryRaw[], CountRaw[]]} */
       const [data, [{ TOTAL: total }]] = await Promise.all([
         sql.query`
-          SELECT 
+          SELECT
             ID,
-            NATIONAL_ID, 
+            NATIONAL_ID,
             FULL_NAME,
             0 AS HAS_OPEN_REQUEST
           FROM BENEFICIARIES
@@ -54,8 +58,8 @@ export default class BeneficiaryModel {
           ${orderByClause}
           ${limitClause}`.run(),
         sql.query`
-          SELECT COUNT(*) AS TOTAL 
-          FROM BENEFICIARIES 
+          SELECT COUNT(*) AS TOTAL
+          FROM BENEFICIARIES
           ${whereClause}`.run(),
       ]);
 
@@ -92,6 +96,79 @@ export default class BeneficiaryModel {
   }
 
   /**
+   * @param {FindAllBeneficiariesFilter} [filter]
+   * @returns {Promise<FindAllWithoutFamilyBeneficiariesTuple>}
+   */
+  static async findAllWithoutFamily({
+    query,
+    sortKey,
+    sortType,
+    page = 1,
+    perPage = 10,
+  }) {
+    try {
+      const likeQuery = `%${query}%`;
+      const whereClause = query
+        ? sql`WHERE B.DELETED_AT IS NULL AND (FP.FAM_ID IS NULL OR F.DELETED_AT IS NOT NULL) AND (FULL_NAME LIKE ${likeQuery} OR NATIONAL_ID LIKE ${likeQuery})`
+        : sql`WHERE B.DELETED_AT IS NULL AND (FP.FAM_ID IS NULL OR F.DELETED_AT IS NOT NULL)`;
+      const orderByColumn =
+        sortKey === "name" ? sql`FULL_NAME` : sql`NATIONAL_ID`;
+      const orderBySorting =
+        sortKey === "name" ? sql([sortType.toUpperCase()]) : sql`DESC`;
+      const orderByClause = sortKey
+        ? sql`ORDER BY ${orderByColumn} ${orderBySorting}`
+        : sql.empty;
+      const limitClause = sql`LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
+
+      /** @type {[TinyNoFamilyBeneficiaryRaw[], CountRaw[]]} */
+      const [data, [{ TOTAL: total }]] = await Promise.all([
+        sql.query`
+          SELECT
+            B.ID,
+            B.FULL_NAME,
+            FP.FAM_ID AS FAMILY_ID
+          FROM BENEFICIARIES B
+            LEFT JOIN FAMILY_PARTICIPANTS FP ON FP.BEN_ID = B.ID
+            LEFT JOIN FAMILIES F ON F.ID = FP.FAM_ID
+          ${whereClause}
+          ${orderByClause}
+          ${limitClause}`.run(),
+        sql.query`
+          SELECT COUNT(*) AS TOTAL
+          FROM BENEFICIARIES B
+            LEFT JOIN FAMILY_PARTICIPANTS FP ON FP.BEN_ID = B.ID
+            LEFT JOIN FAMILIES F ON F.ID = FP.FAM_ID
+          ${whereClause}`.run(),
+      ]);
+
+      const beneficiaries = data.map((datum) => {
+        /** @type {TinyNoFamilyBeneficiary} */
+        const beneficiary = {
+          id: datum.ID,
+          name: datum.FULL_NAME,
+        };
+
+        return beneficiary;
+      });
+
+      return [
+        {
+          items: beneficiaries,
+          totalRecords: total,
+          page,
+          totalPages: Math.ceil(total / perPage),
+          query,
+          sortKey,
+          sortType,
+        },
+        null,
+      ];
+    } catch (error) {
+      return [null, error];
+    }
+  }
+
+  /**
    * @param {number} id
    * @returns {Promise<FindBeneficiaryByIdTuple>}
    */
@@ -99,7 +176,7 @@ export default class BeneficiaryModel {
     try {
       /** @type {[FullPersistedBeneficiaryRaw]} */
       const data = await sql.query`
-          SELECT 
+          SELECT
             B.*,
             C.NAME AS CITY_NAME,
             C.STATE AS STATE,
@@ -152,8 +229,8 @@ export default class BeneficiaryModel {
   static async delete(id) {
     try {
       const deleted = await sql.exec`
-          UPDATE BENEFICIARIES 
-          SET DELETED_AT = CURRENT_TIMESTAMP() 
+          UPDATE BENEFICIARIES
+          SET DELETED_AT = CURRENT_TIMESTAMP()
           WHERE ID = ${id}
         `.run();
 
@@ -173,7 +250,7 @@ export default class BeneficiaryModel {
   static async restore(id) {
     try {
       const restored = await sql.exec`
-          UPDATE BENEFICIARIES 
+          UPDATE BENEFICIARIES
           SET DELETED_AT = NULL
           WHERE ID = ${id}
         `.run();
@@ -296,11 +373,24 @@ export default class BeneficiaryModel {
  */
 
 /**
+ * @typedef {Object} TinyNoFamilyBeneficiary
+ * @prop {number} id
+ * @prop {string} name
+ */
+
+/**
  * @typedef {Object} TinyBeneficiaryRaw
  * @prop {number} ID
  * @prop {string} NATIONAL_ID
  * @prop {string} FULL_NAME
  * @prop {0|1} HAS_OPEN_REQUEST
+ */
+
+/**
+ * @typedef {Object} TinyNoFamilyBeneficiaryRaw
+ * @prop {number} ID
+ * @prop {string} FULL_NAME
+ * @prop {number|null} FAMILY_ID
  */
 
 /**

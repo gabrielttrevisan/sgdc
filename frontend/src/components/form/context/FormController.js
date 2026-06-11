@@ -26,12 +26,13 @@
  * @prop {boolean} touched
  * @prop {string|null} error
  * @prop {boolean} valid
- * @prop {HTMLInputElement} input
+ * @prop {IFieldController} input
  */
 
 /**
  * @callback CustomOnSubmitHandler
  * @param {Record<string, string>} data
+ * @param {FormController} controller
  * @param {SubmitEvent} event
  * @returns {Promise<boolean>}
  */
@@ -73,30 +74,34 @@ class FormController extends EventTarget {
 
   /**
    * @param {string} name
-   * @param {FieldStateInit} field
-   * @param {HTMLInputElement} input
+   * @param {FieldStateInit} fieldInit
+   * @param {IFieldController} input
    */
-  registerField(name, field, input) {
-    const required = field.required ?? false;
+  registerField(name, fieldInit, input) {
+    const required = fieldInit.required ?? false;
     const valid = !required;
+    const prevField = this.#fields[name];
+    const newField = prevField
+      ? { ...prevField, input }
+      : {
+          ...fieldInit,
+          touched: false,
+          error: null,
+          valid,
+          required,
+          input,
+          name,
+        };
 
     this.#fields = {
       ...this.#fields,
-      [name]: {
-        ...field,
-        touched: false,
-        error: null,
-        valid,
-        required,
-        input,
-        name,
-      },
+      [name]: newField,
     };
 
     let fieldValidationTimeout = null;
     let formRevalidationTimeout = null;
 
-    input.addEventListener("input", () => {
+    newField.input.onInput(() => {
       const field = this.#fields[name];
 
       field.touched = true;
@@ -107,21 +112,20 @@ class FormController extends EventTarget {
 
       if (field.validate)
         fieldValidationTimeout = setTimeout(() => {
-          const trimmed = input.value.trim();
+          const trimmed =
+            typeof input.value === "string" ? input.value.trim() : input.value;
           const result = field.validate(trimmed);
 
           if (typeof result === "string") {
             this.#isValid = false;
             field.valid = false;
             field.error = result;
-            field.input.ariaInvalid = "true";
-            field.input.setCustomValidity(result);
           } else {
             field.valid = true;
             field.error = null;
-            field.input.ariaInvalid = "false";
-            field.input.setCustomValidity("");
           }
+
+          field.input.setValidity(result);
 
           this.#emitFieldValidated(field);
         }, 100);
@@ -180,7 +184,7 @@ class FormController extends EventTarget {
           {},
         );
 
-        const result = await handler(formData, e);
+        const result = await handler(formData, this, e);
 
         if (result) this.reset();
       } catch (e) {
@@ -191,6 +195,29 @@ class FormController extends EventTarget {
         new CustomEvent("form-submit", { detail: { isSubmitting: false } }),
       );
     });
+  }
+
+  setFieldError(name, error) {
+    if (typeof name !== "string" || typeof error !== "string") return;
+
+    const field = this.#fields[name];
+
+    if (!field) return;
+
+    this.#isValid = false;
+    field.valid = false;
+    field.error = error;
+    field.input.setValidity(error);
+
+    this.#emitFieldValidated(field);
+    this.dispatchEvent(
+      new CustomEvent("form-validity", {
+        detail: {
+          isValid: this.#isValid,
+          controller: this,
+        },
+      }),
+    );
   }
 
   reset() {
@@ -205,9 +232,9 @@ class FormController extends EventTarget {
       field.touched = false;
       field.error = null;
 
-      if (field.input instanceof HTMLInputElement) field.input.readOnly = false;
-      else if (field.input instanceof HTMLSelectElement)
-        field.input.disabled = false;
+      field.input.enable();
+      field.input.clear();
+      field.input.setValidity(true);
 
       this.dispatchEvent(
         new CustomEvent(`validity-change:${field.name}`, {
@@ -267,14 +294,12 @@ class FormController extends EventTarget {
         this.#isValid = false;
         field.valid = false;
         field.error = result;
-        field.input.ariaInvalid = "true";
-        field.input.setCustomValidity(result);
       } else {
         field.valid = true;
         field.error = null;
-        field.input.ariaInvalid = "false";
-        field.input.setCustomValidity("");
       }
+
+      field.input.setValidity(result);
 
       this.#emitFieldValidated(field);
     }
@@ -312,13 +337,15 @@ class FormController extends EventTarget {
     Object.entries(this.#fields).forEach(([, field]) => {
       const value = data[field.name];
 
-      if (value) field.input.value = field.mask ? field.mask(value) : value;
+      if (value) {
+        field.input.fill(field.mask, value);
+        field.error = null;
+        field.touched = false;
+        field.valid = true;
+      }
 
       if (isShow) {
-        if (field.input instanceof HTMLInputElement)
-          field.input.readOnly = true;
-        else if (field.input instanceof HTMLSelectElement)
-          field.input.disabled = true;
+        field.input.disable();
       }
     });
   }
@@ -329,3 +356,15 @@ class FormController extends EventTarget {
 }
 
 export default FormController;
+
+/**
+ * @typedef {Object} IFieldController
+ * @prop {(callback: VoidFunction) => void} onInput
+ * @prop {*} value
+ * @prop {VoidFunction} clear
+ * @prop {(value: true | string) => void} setValidity
+ * @prop {(callback: (mask: any, value?: any) => any) => void} [fill]
+ * @prop {() => any} getFormData
+ * @prop {VoidFunction} enable
+ * @prop {VoidFunction} disable
+ */

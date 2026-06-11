@@ -13,6 +13,7 @@ import { MatchMediaProvider } from "./components/media-query/MatchMediaProvider.
 import { AllocationTypes } from "./routes/allocation-types/AllocationTypes.jsx";
 import { MeasuringUnits } from "./routes/measuring-units/MeasuringUnits.jsx";
 import Products from "./routes/RF_B7/Products.jsx";
+import { Families } from "./routes/families/Families.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -40,7 +41,7 @@ createRoot(document.getElementById("root")).render(
             <Route path="/tipos-de-alocacao" element={<AllocationTypes />} />
 
             <Route path="/beneficiarios" element={<Beneficiaries />} />
-            <Route path="/familias" element={<Fragment />} />
+            <Route path="/familias" element={<Families />} />
             <Route path="/doadores" element={<App />} />
             <Route path="/voluntarios" element={<Volunteers />} />
           </Route>
