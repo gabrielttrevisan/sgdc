@@ -50,6 +50,8 @@ export default function ProductsForm({
           >
             <option value="">Selecione</option>
             <option value="Litros">Litros (l)</option>
+            <option value="Gramas">Gramas (g)</option>
+            <option value="Mililitros">Mililitros (ml)</option>
             <option value="Kg">Kg</option>
             <option value="Unidade">Unidade</option>
           </select>
