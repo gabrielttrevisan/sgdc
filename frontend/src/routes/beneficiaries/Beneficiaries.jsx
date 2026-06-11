@@ -94,7 +94,7 @@ export const Beneficiaries = () => {
         <BeneficiaryFormModal
           ref={formModalRef}
           onSubmit={{
-            create: async (data) => {
+            create: async (data, controller) => {
               const response = await BeneficiariesService.create(data);
 
               if (response.data?.success) {
@@ -104,13 +104,28 @@ export const Beneficiaries = () => {
 
                 return true;
               } else if (response.error) {
-                Toast.error(
-                  <>
-                    <strong>Falha ao cadastrar beneficiário</strong>
-                    <br />
-                    <span>{response.error.issues?.[0]?.description}</span>
-                  </>,
-                );
+                if (response.error.issues.length > 0) {
+                  const [{ description, code }] = response.error.issues;
+
+                  if (code === "DUPLICATE_BENEFICIARY") {
+                    controller.setFieldError(
+                      "nationalId",
+                      "CPF já cadastrado no sistema",
+                    );
+                  }
+
+                  if (description) {
+                    Toast.error(
+                      <>
+                        <strong>Falha ao cadastrar beneficiário</strong>
+                        <br />
+                        <span>{description}</span>
+                      </>,
+                    );
+                  }
+                } else {
+                  Toast.error("Falha ao cadastrar beneficiário");
+                }
               }
 
               return false;

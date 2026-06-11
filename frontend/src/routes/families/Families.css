@@ -1,0 +1,55 @@
+.data-grid.--beneficiaries {
+    width: 100%;
+}
+
+.family__col {
+    vertical-align: middle;
+    text-align: left;
+    color: var(--colors-foreground-black);
+    height: 3.3333rem;
+    padding: 0 0 0 1.2rem;
+
+    &.--id {
+        padding: 0 0 0 1.2rem;
+    }
+
+    &.--name {
+        white-space: nowrap;
+        text-transform: capitalize;
+
+        span {
+            max-width: calc(100% - 1.2rem);
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    &.--participants > span.participant {
+        text-transform: capitalize;
+    }
+
+    &.--actions {
+        padding: 0 1.2rem;
+    }
+}
+
+li.data-grid__item.family__row {
+    grid-template-columns: 1fr 35%;
+
+    .family__col {
+        height: max-content;
+
+        &.--name {
+            grid-column: 1 / 3;
+        }
+
+        &.--id {
+            grid-column: 1 / 2;
+        }
+
+        &.--participants {
+            grid-column: 1 / 2;
+        }
+    }
+}

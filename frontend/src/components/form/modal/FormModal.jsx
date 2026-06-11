@@ -5,6 +5,7 @@ import "./FormModal.css";
 import { useFormController } from "../context/useFormController";
 import { FormModalSubmitButton } from "./button/FormModalSubmitButton";
 import { FormModalCancelButton } from "./button/FormModalCancelButton";
+import { FormModalContextProvider } from "./context/FormModalContextProvider";
 
 /**
  * @callback OpenFormModalCallback
@@ -97,41 +98,43 @@ export const FormModal = ({
   );
 
   return (
-    <dialog ref={dialogRef} className="form-modal">
-      <div className="form-modal__wrapper">
-        <Form
-          onSubmit={handleSubmit}
-          className={`form-modal__form ${className ?? ""}`}
-        >
-          <header>
-            <h2>{title}</h2>
+    <FormModalContextProvider mode={mode}>
+      <dialog ref={dialogRef} className="form-modal">
+        <div className="form-modal__wrapper">
+          <Form
+            onSubmit={handleSubmit}
+            className={`form-modal__form ${className ?? ""}`}
+          >
+            <header>
+              <h2>{title}</h2>
 
-            <button
-              type="button"
-              onClick={handleClose}
-              className="button-close"
-            >
-              <CloseIconLarge />
-            </button>
-          </header>
+              <button
+                type="button"
+                onClick={handleClose}
+                className="button-close"
+              >
+                <CloseIconLarge />
+              </button>
+            </header>
 
-          <div className="form-modal__content">{children}</div>
+            <div className="form-modal__content">{children}</div>
 
-          <footer>
-            <FormModalCancelButton
-              type="button"
-              onClick={handleClose}
-              className="button-block --outline --primary"
-            >
-              {mode === "show" ? "Fechar" : cancelLabel}
-            </FormModalCancelButton>
+            <footer>
+              <FormModalCancelButton
+                type="button"
+                onClick={handleClose}
+                className="button-block --outline --primary"
+              >
+                {mode === "show" ? "Fechar" : cancelLabel}
+              </FormModalCancelButton>
 
-            <FormModalSubmitButton hidden={mode === "show"}>
-              <span>{submitLabel}</span>
-            </FormModalSubmitButton>
-          </footer>
-        </Form>
-      </div>
-    </dialog>
+              <FormModalSubmitButton hidden={mode === "show"}>
+                <span>{submitLabel}</span>
+              </FormModalSubmitButton>
+            </footer>
+          </Form>
+        </div>
+      </dialog>
+    </FormModalContextProvider>
   );
 };

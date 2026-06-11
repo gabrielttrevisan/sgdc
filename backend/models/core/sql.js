@@ -5,14 +5,18 @@ class SqlFragment {
   #sql = "";
   /** @type {Array.<any>} */
   #params = [];
+  /** @type {import("mysql2").Connection} */
+  #conn = null;
 
   /**
    * @param {string} sql
    * @param {Array.<any>} params
+   * @param {import("mysql2").Connection} [conn]
    */
-  constructor(sql, params) {
+  constructor(sql, params, conn = null) {
     this.#sql = sql;
     this.#params = params;
+    this.#conn = conn;
   }
 
   /**
@@ -45,6 +49,33 @@ class SqlFragment {
     return query;
   }
 
+  /**
+   * @param {import("mysql2").Connection} conn
+   * @param {Array.<string>} raw
+   * @param  {any[]} values
+   * @returns {SqlFragment}
+   */
+  static fromWithConnection(conn, strings, values) {
+    const params = [];
+    let raw = "";
+
+    strings.forEach((str, i) => {
+      const value = values[i];
+
+      if (value instanceof SqlFragment) {
+        raw += str + value.#sql;
+        params.push(...value.#params);
+      } else if (value !== undefined) {
+        raw += str + "?";
+        params.push(value);
+      } else {
+        raw += str;
+      }
+    });
+
+    return new SqlFragment(raw, params, conn);
+  }
+
   get sql() {
     return this.#sql;
   }
@@ -55,6 +86,10 @@ class SqlFragment {
 
   get isEmpty() {
     return this.#params.length === 0 && this.#sql === "";
+  }
+
+  get connection() {
+    return this.#conn;
   }
 
   static get empty() {
@@ -73,14 +108,40 @@ class SqlFragment {
     const nonEmpty = fragments.filter((fragment) => !fragment.isEmpty);
 
     const joined = nonEmpty.reduce(
-      ({ params, sql }, fragment) => ({
-        params: [...params, ...fragment.params],
-        sql: sql ? sql + (sep ?? " ") + fragment.sql : fragment.sql,
-      }),
+      ({ params, sql }, fragment) => {
+        return {
+          params: [...params, ...fragment.params],
+          sql: sql ? sql + (sep ?? " ") + fragment.sql : fragment.sql,
+        };
+      },
       { params: [], sql: "" },
     );
 
     return new SqlFragment(joined.sql, joined.params);
+  }
+
+  /**
+   * @param {function(SqlFunctor): Promise<[boolean, Error|null|undefined]>} callback
+   * @returns {Promise<[boolean, Error|null]>}
+   */
+  static async transaction(callback) {
+    const connection = await database.connect();
+
+    try {
+      await connection.beginTransaction();
+
+      const sqlFunctor = createSQLFunctor(connection);
+
+      const [shouldCommit, error] = await callback(sqlFunctor);
+
+      if (shouldCommit) await connection.commit();
+      else await connection.rollback();
+
+      return [shouldCommit, error ?? null];
+    } catch (e) {
+      await connection.rollback();
+      return [false, e];
+    }
   }
 }
 
@@ -88,13 +149,14 @@ class SqlExecutable extends SqlFragment {
   /**
    * @param {string} sql
    * @param {Array.<any>} params
+   * @param {import("mysql2").Connection} [conn]
    */
-  constructor(sql, params) {
-    super(sql, params);
+  constructor(sql, params, conn) {
+    super(sql, params, conn);
   }
 
   async run() {
-    const conn = await database.connect();
+    const conn = this.connection ?? (await database.connect());
 
     try {
       const [result] = await conn.execute(this.sql, this.params);
@@ -112,13 +174,14 @@ class SqlQuery extends SqlFragment {
   /**
    * @param {string} sql
    * @param {Array.<any>} params
+   * @param {import("mysql2").Connection} [conn]
    */
-  constructor(sql, params) {
-    super(sql, params);
+  constructor(sql, params, conn) {
+    super(sql, params, conn);
   }
 
   async run() {
-    const conn = await database.connect();
+    const conn = this.connection ?? (await database.connect());
 
     try {
       const [result] = await conn.query(this.sql, this.params);
@@ -132,48 +195,79 @@ class SqlQuery extends SqlFragment {
   }
 }
 
-export default function sql(strings, ...values) {
-  return SqlFragment.from(strings, ...values);
+/**
+ * @typedef {object} SqlFunctor
+ * @property {(strings: TemplateStringsArray, ...values: any[]) => SqlFragment}
+ * @property {function(string): SqlFragment} str
+ * @property {SqlFragment} empty
+ * @property {function(string, ...string): SqlFragment} join
+ * @property {(strings: TemplateStringsArray, ...values: any[]) => SqlQuery} query
+ * @property {(strings: TemplateStringsArray, ...values: any[]) => SqlExecutable} exec
+ */
+
+/**
+ * @param {import("mysql2").Connection} [conn]
+ */
+function createSQLFunctor(conn = null) {
+  const sqlFunctor = function sql(strings, ...values) {
+    return conn
+      ? SqlFragment.fromWithConnection(conn, strings, values)
+      : SqlFragment.from(strings, ...values);
+  };
+
+  Object.defineProperty(sqlFunctor, "str", {
+    value: (value) => SqlFragment.from([value]),
+  });
+
+  Object.defineProperty(sqlFunctor, "empty", {
+    get() {
+      return SqlFragment.empty;
+    },
+  });
+
+  Object.defineProperty(sqlFunctor, "join", {
+    value: SqlFragment.join,
+  });
+
+  Object.defineProperty(sqlFunctor, "query", {
+    value:
+      /**
+       * @param {Array.<string>} strings
+       * @param  {...any} values
+       * @returns {SqlQuery}
+       */
+      (strings, ...values) => {
+        const frag = SqlFragment.from(strings, ...values);
+
+        return new SqlQuery(frag.sql, frag.params, conn);
+      },
+  });
+
+  Object.defineProperty(sqlFunctor, "exec", {
+    value:
+      /**
+       * @param {Array.<string>} strings
+       * @param  {...any} values
+       * @returns {SqlExecutable}
+       */
+      (strings, ...values) => {
+        const frag = SqlFragment.from(strings, ...values);
+
+        return new SqlExecutable(frag.sql, frag.params, conn);
+      },
+  });
+
+  return sqlFunctor;
 }
 
-Object.defineProperty(sql, "str", {
-  value: (value) => SqlFragment.from([value]),
-});
+/** @type {SqlFunctor} */
+const sql = createSQLFunctor();
 
-Object.defineProperty(sql, "empty", {
-  get() {
-    return SqlFragment.empty;
-  },
-});
+export default sql;
 
-Object.defineProperty(sql, "join", {
-  value: SqlFragment.join,
-});
-
-Object.defineProperty(sql, "query", {
-  value:
-    /**
-     * @param {Array.<string>} strings
-     * @param  {...any} values
-     * @returns {SqlQuery}
-     */
-    (strings, ...values) => {
-      const frag = SqlFragment.from(strings, ...values);
-
-      return new SqlQuery(frag.sql, frag.params);
-    },
-});
-
-Object.defineProperty(sql, "exec", {
-  value:
-    /**
-     * @param {Array.<string>} strings
-     * @param  {...any} values
-     * @returns {SqlExecutable}
-     */
-    (strings, ...values) => {
-      const frag = SqlFragment.from(strings, ...values);
-
-      return new SqlExecutable(frag.sql, frag.params);
-    },
-});
+/**
+ * @param {function(SqlFunctor): Promise<[boolean, Error|null|undefined]>} callback
+ */
+export async function transaction(callback) {
+  return SqlFragment.transaction(callback);
+}
