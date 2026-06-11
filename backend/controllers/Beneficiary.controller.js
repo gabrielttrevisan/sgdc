@@ -94,7 +94,7 @@ export default class BeneficiaryController {
       return response.internalError();
     } else {
       if (!isDeleted)
-        return response.internalError("Falha ao criar beneficiário");
+        return response.internalError("Falha ao deletar beneficiário");
 
       return response.success({ success: true });
     }
