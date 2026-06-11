@@ -32,6 +32,7 @@
 /**
  * @callback CustomOnSubmitHandler
  * @param {Record<string, string>} data
+ * @param {FormController} controller
  * @param {SubmitEvent} event
  * @returns {Promise<boolean>}
  */
@@ -83,14 +84,14 @@ class FormController extends EventTarget {
     const newField = prevField
       ? { ...prevField, input }
       : {
-        ...fieldInit,
-        touched: false,
-        error: null,
-        valid,
-        required,
-        input,
-        name,
-      };
+          ...fieldInit,
+          touched: false,
+          error: null,
+          valid,
+          required,
+          input,
+          name,
+        };
 
     this.#fields = {
       ...this.#fields,
@@ -183,7 +184,7 @@ class FormController extends EventTarget {
           {},
         );
 
-        const result = await handler(formData, e);
+        const result = await handler(formData, this, e);
 
         if (result) this.reset();
       } catch (e) {
@@ -194,6 +195,29 @@ class FormController extends EventTarget {
         new CustomEvent("form-submit", { detail: { isSubmitting: false } }),
       );
     });
+  }
+
+  setFieldError(name, error) {
+    if (typeof name !== "string" || typeof error !== "string") return;
+
+    const field = this.#fields[name];
+
+    if (!field) return;
+
+    this.#isValid = false;
+    field.valid = false;
+    field.error = error;
+    field.input.setValidity(error);
+
+    this.#emitFieldValidated(field);
+    this.dispatchEvent(
+      new CustomEvent("form-validity", {
+        detail: {
+          isValid: this.#isValid,
+          controller: this,
+        },
+      }),
+    );
   }
 
   reset() {
