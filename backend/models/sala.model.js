@@ -14,9 +14,12 @@ export default class SalaModel {
         `%${query || ""}%`;
 
       const whereClause = query
+
         ? sql`
-          WHERE NOME LIKE ${likeQuery}
+          WHERE
+            NOME LIKE ${likeQuery}
         `
+
         : sql.empty;
 
       const limitClause =
@@ -29,25 +32,38 @@ export default class SalaModel {
         = await Promise.all([
 
         sql.query`
+
           SELECT
             ID,
             NOME,
             CAPACIDADE,
             DESCRICAO
+
           FROM SALAS
+
           ${whereClause}
+
+          ORDER BY NOME ASC
+
           ${limitClause}
+
         `.run(),
 
         sql.query`
-          SELECT COUNT(*) AS TOTAL
+
+          SELECT
+            COUNT(*) AS TOTAL
+
           FROM SALAS
+
+          ${whereClause}
+
         `.run()
 
       ]);
 
       const salas = data.map(
-        (sala) => ({
+        (sala)=>({
 
           id: sala.ID,
 
@@ -83,9 +99,9 @@ export default class SalaModel {
 
       ];
 
-    } catch (error) {
+    } catch(error) {
 
-      return [null, error];
+      return [null,error];
 
     }
 
@@ -96,13 +112,17 @@ export default class SalaModel {
     try {
 
       const data = await sql.query`
+
         SELECT *
+
         FROM SALAS
-        WHERE ID = ${id}
+
+        WHERE ID=${id}
+
       `.run();
 
-      if (!data.length)
-        return [null, null];
+      if(!data.length)
+        return [null,null];
 
       const sala = data[0];
 
@@ -110,9 +130,9 @@ export default class SalaModel {
 
         {
 
-          id: sala.ID,
+          id:sala.ID,
 
-          nome: sala.NOME,
+          nome:sala.NOME,
 
           capacidade:
             sala.CAPACIDADE,
@@ -122,13 +142,13 @@ export default class SalaModel {
 
         },
 
-        null,
+        null
 
       ];
 
-    } catch (error) {
+    } catch(error){
 
-      return [null, error];
+      return [null,error];
 
     }
 
@@ -142,31 +162,33 @@ export default class SalaModel {
 
     try {
 
-      const created = await sql.exec`
+      const created =
+        await sql.exec`
+
         INSERT INTO SALAS
         (
           NOME,
           CAPACIDADE,
           DESCRICAO
         )
+
         VALUES
         (
           ${nome},
           ${capacidade},
           ${descricao}
         )
+
       `.run();
 
-      if (
-        created.affectedRows < 1
-      )
-        return [false, null];
+      return [
+        created.affectedRows > 0,
+        null
+      ];
 
-      return [true, null];
+    } catch(error){
 
-    } catch (error) {
-
-      return [false, error];
+      return [false,error];
 
     }
 
@@ -198,16 +220,14 @@ export default class SalaModel {
 
       `.run();
 
-      if (
-        updated.affectedRows < 1
-      )
-        return [false, null];
+      return [
+        updated.affectedRows > 0,
+        null
+      ];
 
-      return [true, null];
+    } catch(error){
 
-    } catch (error) {
-
-      return [false, error];
+      return [false,error];
 
     }
 
@@ -226,16 +246,14 @@ export default class SalaModel {
 
       `.run();
 
-      if (
-        deleted.affectedRows < 1
-      )
-        return [false, null];
+      return [
+        deleted.affectedRows > 0,
+        null
+      ];
 
-      return [true, null];
+    } catch(error){
 
-    } catch (error) {
-
-      return [false, error];
+      return [false,error];
 
     }
 

@@ -11,9 +11,14 @@ function Armaz() {
 
   const navigate = useNavigate();
 
-  const [salas, setSalas] = useState([]);
-  const [busca, setBusca] = useState("");
-  const [mensagem, setMensagem] = useState("");
+  const [salas,setSalas] =
+    useState([]);
+
+  const [busca,setBusca] =
+    useState("");
+
+  const [mensagem,setMensagem] =
+    useState("");
 
   async function carregarSalas() {
 
@@ -21,85 +26,91 @@ function Armaz() {
 
       const response =
         await fetch(
-          "http://localhost:3004/salas"
+          `http://localhost:3004/salas?q=${busca}`
         );
 
       const json =
         await response.json();
 
+      const ordenadas =
+        json.data.items.sort(
+
+          (a,b)=>
+
+            a.nome.localeCompare(
+              b.nome,
+              "pt-BR"
+            )
+
+        );
+
       setSalas(
-        json.data.items
+        ordenadas
       );
 
-    } catch(error) {
+    } catch(error){
 
       console.error(error);
 
     }
+
   }
 
-  useEffect(() => {
+  useEffect(()=>{
 
     carregarSalas();
 
-  }, []);
+  },[busca]);
 
-  async function excluirSala(id) {
+  async function excluirSala(id){
 
     const confirmar =
       window.confirm(
         "Tem certeza que deseja excluir esta sala?"
       );
 
-    if (!confirmar)
+    if(!confirmar)
       return;
 
     try {
 
       await fetch(
+
         `http://localhost:3004/salas/${id}`,
+
         {
           method:"DELETE"
         }
+
       );
 
-      await carregarSalas();
+      carregarSalas();
 
       setMensagem(
         "Sala excluída com sucesso."
       );
 
-      setTimeout(() => {
+      setTimeout(()=>{
 
         setMensagem("");
 
       },2500);
 
-    } catch(error) {
+    } catch(error){
 
       console.error(error);
 
     }
+
   }
 
-  const salasFiltradas =
-    salas.filter((s)=>
-
-      s.nome
-      .toLowerCase()
-      .includes(
-        busca.toLowerCase()
-      )
-
-    );
-
-  return (
+  return(
 
     <div className="container mt-4">
 
       <div className="card shadow p-4">
 
-        <Cabecalho />
+        <Cabecalho/>
 
         <div className="armaz-header">
 
@@ -113,6 +124,7 @@ function Armaz() {
 
           <button
             className="btn-cadastrar"
+
             onClick={()=>
 
               navigate(
@@ -120,6 +132,7 @@ function Armaz() {
               )
 
             }
+
           >
 
             Cadastrar
@@ -139,7 +152,8 @@ function Armaz() {
         )}
 
         <Lista
-          salas={salasFiltradas}
+
+          salas={salas}
 
           onExcluir={excluirSala}
 
@@ -150,6 +164,7 @@ function Armaz() {
             )
 
           }
+
         />
 
       </div>
@@ -157,6 +172,7 @@ function Armaz() {
     </div>
 
   );
+
 }
 
 export default Armaz;
