@@ -8,6 +8,7 @@ import { CloseIconLarge } from "../../../../components/icons/CloseIconLarge";
 import { VisuallyHidden } from "../../../../components/accessibility/visually-hidden/VisuallyHidden";
 import { useRef } from "react";
 import NoFamilyBeneficiariesService from "../../../../service/NoFamilyBeneficiariesService";
+import { FamilyParticipantsField } from "./FamilyParticipantsField";
 
 /**
  * @typedef {Object} FamilyFormModalProps
@@ -42,69 +43,13 @@ export const FamilyFormModal = ({ ref, onSubmit }) => {
           const trimmed = value.trim();
           const message = "Apelido inválido";
 
-          if (!trimmed.match(/^([0-9a-zÀ-ž-\s]{8,})$/gi)) return message;
+          if (!trimmed.match(/^([0-9a-zÀ-ž-\s]{8,64})$/gi)) return message;
 
           return true;
         }}
       />
 
-      <ItemListField
-        name="participants"
-        label="Familiares"
-        required
-        searchService={NoFamilyBeneficiariesService}
-        propKey="nationalId"
-        ref={listRef}
-        parse={(item) => ({
-          key: item.nationalId ?? item.id,
-          name: item.name,
-          isResponsible: item.isResponsible ?? false,
-        })}
-        validate={(items) => {
-          if (!Array.isArray(items) || items.length < 2)
-            return "Uma família deve conter pelo menos dois integrantes";
-
-          if (items.every((item) => !item.isResponsible))
-            return "Toda família deve ter no mínimo um responsável";
-
-          return true;
-        }}
-        Checkbox={({
-          onChange,
-          onRemove,
-          name,
-          id,
-          isResponsible,
-          disabled,
-        }) => {
-          return (
-            <div className="family-participant">
-              <span className="name">{name}</span>
-
-              <label className="is-responsible">
-                <input
-                  type="checkbox"
-                  name="is-responsible"
-                  onChange={(e) => {
-                    const checked = e.target.checked;
-                    onChange({ key: id, name, isResponsible: checked });
-                  }}
-                  defaultChecked={isResponsible}
-                  disabled={disabled}
-                />
-                <span>É Responsável</span>
-              </label>
-
-              {!disabled && (
-                <button type="button" onClick={onRemove}>
-                  <CloseIconLarge size={16} />
-                  <VisuallyHidden>Remover {name} da Família</VisuallyHidden>
-                </button>
-              )}
-            </div>
-          );
-        }}
-      />
+      <FamilyParticipantsField ref={listRef} />
     </FormModal>
   );
 };

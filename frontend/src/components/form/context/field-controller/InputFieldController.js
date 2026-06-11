@@ -49,10 +49,8 @@ export default class InputFieldController {
   setValidity(value) {
     if (typeof value === "string") {
       this.#input.ariaInvalid = "true";
-      this.#input.setCustomValidity(value);
     } else {
       this.#input.ariaInvalid = "false";
-      this.#input.setCustomValidity("");
     }
   }
 

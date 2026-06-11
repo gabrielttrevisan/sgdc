@@ -91,6 +91,37 @@ export default class APIClient {
 
   /**
    * @param {string} path
+   * @param {Record<string, unknown>} [body]
+   * @param {import("../../global").FetchOptions} [init]
+   * @returns {Promise<import("../../global").APIResponse<any>>}
+   */
+  async put(path, body = {}, init = {}) {
+    let headers = {};
+
+    if (init && init.headers) {
+      if (Array.isArray(init.headers))
+        headers = Object.fromEntries(init.headers);
+      else if (init.headers instanceof Headers)
+        headers = Object.fromEntries(init.headers.entries());
+      else headers = { ...init.headers };
+    }
+
+    const rawResponse = await fetch(`${this.#url}${path}`, {
+      ...init,
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
+      body: JSON.stringify(body),
+    });
+    const response = await rawResponse.json();
+
+    return response;
+  }
+
+  /**
+   * @param {string} path
    * @param {import("../../global").FetchOptions} [init]
    * @returns {Promise<import("../../global").APIResponse<any>>}
    */

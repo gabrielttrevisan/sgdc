@@ -210,6 +210,7 @@ class FormController extends EventTarget {
 
       field.input.enable();
       field.input.clear();
+      field.input.setValidity(true);
 
       this.dispatchEvent(
         new CustomEvent(`validity-change:${field.name}`, {

@@ -56,7 +56,7 @@ class FamiliesService {
    */
   async edit({ id, name, participants }) {
     try {
-      const response = await this.#client.patch(`families/${id}`, {
+      const response = await this.#client.put(`families/${id}`, {
         participants: participants.map(({ key, isResponsible }) => ({
           id: key,
           isResponsible,

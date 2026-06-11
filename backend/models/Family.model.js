@@ -10,8 +10,8 @@ export default class FamilyModel {
     try {
       const likeQuery = `%${query}%`;
       const whereClause = query
-        ? sql`WHERE F.NAME LIKE ${likeQuery}`
-        : sql.empty;
+        ? sql`WHERE F.DELETED_AT IS NULL AND (F.NAME LIKE ${likeQuery} OR F.ID = ${query})`
+        : sql`WHERE F.DELETED_AT IS NULL`;
       const orderByColumn = sortKey === "name" ? sql`NAME` : sql.empty;
       const orderBySorting =
         sortKey === "name" ? sql.str(sortType.toUpperCase()) : sql`DESC`;
@@ -109,7 +109,8 @@ export default class FamilyModel {
   static async delete(id) {
     try {
       const deleted = await sql.exec`
-            DELETE FROM FAMILIES
+            UPDATE FAMILIES
+            SET DELETED_AT = CURRENT_TIMESTAMP()
             WHERE ID = ${id}
           `.run();
 
@@ -120,6 +121,22 @@ export default class FamilyModel {
       console.error(error);
       return [false, error];
     }
+  }
+
+  static async #existsAnyParticipants(participants) {
+    const [{ EXISTING_COUNT: existingMembers }] = sql.query`
+      SELECT COUNT(*) as EXISTING_COUNT
+      FROM FAMILY_PARTICIPANTS FP
+        INNER JOIN FAMILIES F ON F.ID = FP.FAM_ID
+      WHERE
+        FP.BEN_ID IN (${tsql.join(
+          ",",
+          ...participants.map((p) => tsql.str(p.id)),
+        )}) AND
+        F.DELETED_AT IS NULL
+    `;
+
+    return existingMembers > 0;
   }
 
   /**
@@ -135,6 +152,9 @@ export default class FamilyModel {
         `.run();
 
         if (family.insertId) {
+          if (this.#existsAnyParticipants(participants))
+            return [false, new ExintingFamilyParticipantsError()];
+
           const participantsValues = tsql.join(
             ",",
             ...participants.map(
@@ -153,7 +173,7 @@ export default class FamilyModel {
           if (!result.affectedRows)
             return [false, new Error("Falha ao cadastrar família")];
 
-          return [true];
+          return [true, null];
         } else return [false, new Error("Falha ao cadastrar família")];
       });
     } catch (error) {
@@ -200,6 +220,9 @@ export default class FamilyModel {
           );
 
           if (participantsToInsertSet.size) {
+            if (this.#existsAnyParticipants(participants))
+              return [false, new ExintingFamilyParticipantsError()];
+
             const participantsValues = tsql.join(
               ",",
               ...participants
@@ -230,7 +253,7 @@ export default class FamilyModel {
 
             await tsql.exec`
               DELETE FROM FAMILY_PARTICIPANTS
-               WHERE BEN_ID IN (${tsql.join(",", ...participantsToDelete)})
+              WHERE BEN_ID IN (${tsql.join(",", ...participantsToDelete)})
             `.run();
           }
 

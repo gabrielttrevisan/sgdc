@@ -43,6 +43,26 @@ export class FamilyController {
 
       if (isCreated) return response.success({ success: true });
       else {
+        if (error instanceof ExintingFamilyParticipantsError) {
+          return response
+            .badRequest()
+            .withIssue(
+              "EXISTING_FAMILY_MEMBER",
+              "Um ou mais beneficiários já possuem vínculo familiar",
+            )
+            .send();
+        }
+
+        if (error.errno === 1452) {
+          return response
+            .badRequest()
+            .withIssue(
+              "INEXISTING_BENEFICIARY",
+              "Alguns beneficiários da família não existem",
+            )
+            .send();
+        }
+
         console.error(error);
         return response.internalError(error?.message);
       }
@@ -71,6 +91,26 @@ export class FamilyController {
 
       if (isEdited) return response.success({ success: true });
       else {
+        if (error instanceof ExintingFamilyParticipantsError) {
+          return response
+            .badRequest()
+            .withIssue(
+              "EXISTING_FAMILY_MEMBER",
+              "Um ou mais beneficiários adicionados já possuem vínculo familiar",
+            )
+            .send();
+        }
+
+        if (error.errno === 1452) {
+          return response
+            .badRequest()
+            .withIssue(
+              "INEXISTING_BENEFICIARY",
+              "Alguns beneficiários adicionados não existem",
+            )
+            .send();
+        }
+
         console.error(error);
         return response.internalError(error?.message);
       }

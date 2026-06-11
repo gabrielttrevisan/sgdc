@@ -19,6 +19,7 @@ export function ItemListField({
   parse,
   validate,
   ref,
+  showSearch = true,
 }) {
   const [state, setState] = useState({
     items: new Map(),
@@ -51,9 +52,7 @@ export function ItemListField({
     onInput(callback) {
       onInputRef.current = callback;
     },
-    setValidity(value) {
-      console.log("validity updated to: " + value);
-    },
+    setValidity(value) {},
     get value() {
       return Array.from(state.items.values());
     },
@@ -123,27 +122,29 @@ export function ItemListField({
           ) : null}
         </h3>
 
-        <ItemListSearchBox
-          label={label}
-          searchService={searchService}
-          ref={searchRef}
-          onSelect={(item) =>
-            setState((prev) => {
-              const parsed = parse(item);
-              const { key } = parsed;
+        {showSearch && (
+          <ItemListSearchBox
+            label={label}
+            searchService={searchService}
+            ref={searchRef}
+            onSelect={(item) =>
+              setState((prev) => {
+                const parsed = parse(item);
+                const { key } = parsed;
 
-              if (prev.items.has(key)) {
-                return prev;
-              }
+                if (prev.items.has(key)) {
+                  return prev;
+                }
 
-              return {
-                ...prev,
-                items: new Map([...prev.items.entries(), [key, parsed]]),
-                changes: prev.changes + 1,
-              };
-            })
-          }
-        />
+                return {
+                  ...prev,
+                  items: new Map([...prev.items.entries(), [key, parsed]]),
+                  changes: prev.changes + 1,
+                };
+              })
+            }
+          />
+        )}
       </div>
 
       <div>
@@ -198,6 +199,7 @@ export function ItemListField({
  * @prop {string|(item: T) => U} parse
  * @prop {import("react").ElementType<ItemFieldProps<U>>} Checkbox
  * @prop {import("react").Ref<ItemListFieldRef>} [ref]
+ * @prop {boolean} [showSearch]
  */
 
 /**

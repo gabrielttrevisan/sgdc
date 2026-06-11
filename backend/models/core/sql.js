@@ -49,6 +49,33 @@ class SqlFragment {
     return query;
   }
 
+  /**
+   * @param {import("mysql2").Connection} conn
+   * @param {Array.<string>} raw
+   * @param  {any[]} values
+   * @returns {SqlFragment}
+   */
+  static fromWithConnection(conn, strings, values) {
+    const params = [];
+    let raw = "";
+
+    strings.forEach((str, i) => {
+      const value = values[i];
+
+      if (value instanceof SqlFragment) {
+        raw += str + value.#sql;
+        params.push(...value.#params);
+      } else if (value !== undefined) {
+        raw += str + "?";
+        params.push(value);
+      } else {
+        raw += str;
+      }
+    });
+
+    return new SqlFragment(raw, params, conn);
+  }
+
   get sql() {
     return this.#sql;
   }
@@ -129,7 +156,7 @@ class SqlExecutable extends SqlFragment {
   }
 
   async run() {
-    const conn = await database.connect();
+    const conn = this.connection ?? (await database.connect());
 
     try {
       const [result] = await conn.execute(this.sql, this.params);
@@ -154,7 +181,7 @@ class SqlQuery extends SqlFragment {
   }
 
   async run() {
-    const conn = await database.connect();
+    const conn = this.connection ?? (await database.connect());
 
     try {
       const [result] = await conn.query(this.sql, this.params);
@@ -183,7 +210,9 @@ class SqlQuery extends SqlFragment {
  */
 function createSQLFunctor(conn = null) {
   const sqlFunctor = function sql(strings, ...values) {
-    return SqlFragment.from(strings, ...values);
+    return conn
+      ? SqlFragment.fromWithConnection(conn, strings, values)
+      : SqlFragment.from(strings, ...values);
   };
 
   Object.defineProperty(sqlFunctor, "str", {

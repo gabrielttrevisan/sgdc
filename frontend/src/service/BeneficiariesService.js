@@ -149,7 +149,6 @@ class BeneficiariesService {
 
       return response;
     } catch (error) {
-      console.log(error);
       return this.#internal("Erro inesperado");
     }
   }

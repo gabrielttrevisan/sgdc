@@ -26,7 +26,7 @@ export default class SelectFieldController {
   }
 
   clear() {
-    this.#input.value = "";
+    this.#input.selectedIndex = 0;
   }
 
   getFormData() {
@@ -40,10 +40,8 @@ export default class SelectFieldController {
   setValidity(value) {
     if (typeof value === "string") {
       this.#input.ariaInvalid = "true";
-      this.#input.setCustomValidity(value);
     } else {
       this.#input.ariaInvalid = "false";
-      this.#input.setCustomValidity("");
     }
   }
 
