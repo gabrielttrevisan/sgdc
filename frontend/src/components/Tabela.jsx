@@ -1,3 +1,5 @@
+import { maskCPFWithLastDigits } from "../lib/functions/unmask.js";
+
 export default function DonorTable({ donors, onView, onEdit, onDelete, sortAscending, onSort }) {
 
   return (
@@ -29,7 +31,7 @@ export default function DonorTable({ donors, onView, onEdit, onDelete, sortAscen
           donors.map((donor) => (
             <tr key={donor.id}>
               <td>{donor.name}</td>
-              <td>{donor.cpf}</td>
+              <td>{maskCPFWithLastDigits(donor.cpf)}</td>
               <td>{donor.email || "-"}</td>
               <td>{donor.age || "-"}</td>
               <td>{donor.phone}</td>

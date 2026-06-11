@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { maskCPFWithLastDigits } from "../lib/functions/unmask.js"
 
 const initialFormState = {
   name: "",
@@ -191,7 +192,7 @@ export default function DonorModal({
                 pattern="^\d{3}\.\d{3}\.\d{3}-\d{2}$"
                 title="Digite o CPF no formato 000.000.000-00"
                 placeholder="000.000.000-00"
-                value={form.cpf}
+                value={readOnly ? maskCPFWithLastDigits(form.cpf) : form.cpf}
                 onChange={(e) =>
                   setForm({ ...form, cpf: maskCPF(e.target.value) })
                 }
