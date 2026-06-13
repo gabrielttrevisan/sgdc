@@ -108,15 +108,24 @@ export default class FamilyModel {
    */
   static async delete(id) {
     try {
-      const deleted = await sql.exec`
+      return await transaction(async (tsql) => {
+        const deletedFamily = await tsql.exec`
             UPDATE FAMILIES
             SET DELETED_AT = CURRENT_TIMESTAMP()
             WHERE ID = ${id}
           `.run();
 
-      if (deleted.affectedRows < 1) return [false, null];
+        if (deletedFamily.affectedRows < 1) return [false, null];
 
-      return [true, null];
+        const deletedFamilies = await tsql.exec`
+          DELETE FROM FAMILY_PARTICIPANTS
+          WHERE FAM_ID = ${id}
+        `.run();
+
+        if (deletedFamilies.affectedRows < 1) return [false, null];
+
+        return [true, null];
+      });
     } catch (error) {
       console.error(error);
       return [false, error];
@@ -124,17 +133,16 @@ export default class FamilyModel {
   }
 
   static async #existsAnyParticipants(participants) {
-    const [{ EXISTING_COUNT: existingMembers }] = sql.query`
+    const result = await sql.query`
       SELECT COUNT(*) as EXISTING_COUNT
       FROM FAMILY_PARTICIPANTS FP
         INNER JOIN FAMILIES F ON F.ID = FP.FAM_ID
       WHERE
-        FP.BEN_ID IN (${tsql.join(
-          ",",
-          ...participants.map((p) => tsql.str(p.id)),
-        )}) AND
+        FP.BEN_ID IN (${sql.join(",", ...participants)}) AND
         F.DELETED_AT IS NULL
-    `;
+    `.run();
+
+    const [{ EXISTING_COUNT: existingMembers }] = result;
 
     return existingMembers > 0;
   }
@@ -152,7 +160,11 @@ export default class FamilyModel {
         `.run();
 
         if (family.insertId) {
-          if (this.#existsAnyParticipants(participants))
+          if (
+            await this.#existsAnyParticipants(
+              participants.map((p) => sql.str(p.id)),
+            )
+          )
             return [false, new ExintingFamilyParticipantsError()];
 
           const participantsValues = tsql.join(
@@ -220,7 +232,11 @@ export default class FamilyModel {
           );
 
           if (participantsToInsertSet.size) {
-            if (this.#existsAnyParticipants(participants))
+            if (
+              await this.#existsAnyParticipants(
+                [...participantsToInsertSet.values()].map((id) => tsql.str(id)),
+              )
+            )
               return [false, new ExintingFamilyParticipantsError()];
 
             const participantsValues = tsql.join(

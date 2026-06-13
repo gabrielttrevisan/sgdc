@@ -132,7 +132,7 @@ export class FamilyController {
     if (error) {
       return response.internalError();
     } else {
-      if (!isDeleted) return response.internalError("Falha ao remover cidade");
+      if (!isDeleted) return response.internalError("Falha ao remover família");
 
       return response.success({ success: true });
     }
