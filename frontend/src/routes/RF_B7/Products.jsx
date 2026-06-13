@@ -133,6 +133,14 @@ export default function Products() {
     carregarProdutos();
   };
 
+  const ordenarProdutosAlfabeticamente = () => {
+    setProdutos((prevProdutos) =>
+      [...prevProdutos].sort((a, b) =>
+        String(a.nome || "").localeCompare(String(b.nome || ""), "pt", { sensitivity: "base" })
+      )
+    );
+  };
+
   const editarProduto = (item, index) => {
     setProduto(item);
     setEditando(true);
@@ -161,7 +169,18 @@ export default function Products() {
       <table className="products-table">
         <thead>
           <tr>
-            <th>Produto</th>
+            <th>
+              Produto
+              <button
+                type="button"
+                className="btn-sort"
+                onClick={ordenarProdutosAlfabeticamente}
+                title="Ordenar por nome"
+                style={{ marginLeft: 8, padding: "2px 6px", fontSize: 12 }}
+              >
+                A-Z
+              </button>
+            </th>
             <th>Unidade</th>
             <th>Perecível</th>
             <th>Refrigeração</th>
