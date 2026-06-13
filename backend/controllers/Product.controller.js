@@ -1,70 +1,58 @@
+import APIResponse from "../lib/APIResponse.js";
 import Product from "../models/Product.model.js";
 
 class ProductController {
   static async index(req, res) {
+    const response = APIResponse.from(res);
+
     try {
       const { name } = req.query;
 
       const products = await Product.findAll(name);
 
-      return res.status(200).json(products);
+      return response.success(products);
     } catch (error) {
-      return res.status(500).json({
-        message: "Erro ao listar produtos",
-        error: error.message,
-      });
+      return response.internalError(error?.message || "Erro ao listar produtos");
     }
   }
 
   static async store(req, res) {
+    const response = APIResponse.from(res);
+
     try {
       const result = await Product.create(req.body);
 
-      return res.status(201).json({
-        message: "Produto cadastrado com sucesso",
-        result,
-      });
+      return response.success({ success: true, id: result.insertId }, 201);
     } catch (error) {
-      return res.status(500).json({
-        message: "Erro ao cadastrar produto",
-        error: error.message,
-      });
+      return response.internalError(error?.message || "Erro ao cadastrar produto");
     }
   }
 
   static async update(req, res) {
+    const response = APIResponse.from(res);
+
     try {
       const { id } = req.params;
 
-      const result = await Product.update(id, req.body);
+      await Product.update(id, req.body);
 
-      return res.status(200).json({
-        message: "Produto atualizado com sucesso",
-        result,
-      });
+      return response.success({ success: true });
     } catch (error) {
-      return res.status(500).json({
-        message: "Erro ao atualizar produto",
-        error: error.message,
-      });
+      return response.internalError(error?.message || "Erro ao atualizar produto");
     }
   }
 
   static async delete(req, res) {
+    const response = APIResponse.from(res);
+
     try {
       const { id } = req.params;
 
-      const result = await Product.delete(id);
+      await Product.delete(id);
 
-      return res.status(200).json({
-        message: "Produto removido com sucesso",
-        result,
-      });
+      return response.success({ success: true });
     } catch (error) {
-      return res.status(500).json({
-        message: "Erro ao remover produto",
-        error: error.message,
-      });
+      return response.internalError(error?.message || "Erro ao remover produto");
     }
   }
 }

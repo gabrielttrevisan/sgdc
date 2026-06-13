@@ -11,12 +11,12 @@ export default function ProductsForm({
   if (!aberto) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal">
+    <div className="modal-overlay" onClick={fechar}>
+      <div className="modal" onClick={(event) => event.stopPropagation()}>
         <div className="modal-header">
           <h2>Produto</h2>
 
-          <button className="close-btn" onClick={fechar}>
+          <button type="button" className="close-btn" onClick={fechar}>
             ✕
           </button>
         </div>

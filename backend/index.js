@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { env } from "./config/env.js";
+import { initializeDatabase } from "./config/database.js";
 import notFoundHandler from "./routes/404.route.js";
 import beneficiariesRouter from "./routes/beneficiaries.route.js";
 import citiesRouter from "./routes/cities.route.js";
@@ -10,6 +11,7 @@ import measuringUnitsRouter from "./routes/measuringUnits.route.js";
 import familyRouter from "./routes/family.route.js";
 import volunteersRouter from "./routes/volunteers.route.js";
 import router from "./routes/donors.js";
+import productsRouter from "./routes/products.route.js";
 
 const app = express();
 
@@ -24,8 +26,11 @@ app.use("/measuring-units", measuringUnitsRouter);
 app.use("/families", familyRouter);
 app.use("/volunteers", volunteersRouter);
 app.use("/donors", router);
+app.use("/products", productsRouter);
 
 app.use(notFoundHandler);
+
+await initializeDatabase();
 
 app.listen(env.PORT, () => {
   console.log(`🔥 Listening on PORT ${env.PORT}...`);

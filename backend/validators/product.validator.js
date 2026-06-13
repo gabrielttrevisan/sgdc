@@ -1,5 +1,4 @@
 function validateProduct(req, res, next) {
-
     const {
         name,
         description,
@@ -8,10 +7,16 @@ function validateProduct(req, res, next) {
         status
     } = req.body;
 
-    if (!name || !description || !price || !stock || !status) {
-
+    if (
+        !name ||
+        price === undefined ||
+        price === null ||
+        stock === undefined ||
+        stock === null ||
+        !status
+    ) {
         return res.status(400).json({
-            message: 'Todos os campos são obrigatórios'
+            message: 'Todos os campos obrigatórios devem ser preenchidos'
         });
     }
 

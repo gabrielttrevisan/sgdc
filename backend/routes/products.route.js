@@ -11,6 +11,7 @@ router.get("/", ProductController.index);
 router.post("/", validateProduct, ProductController.store);
 
 router.put("/:id", validateProduct, ProductController.update);
+router.patch("/:id", validateProduct, ProductController.update);
 
 router.delete("/:id", ProductController.delete);
 
