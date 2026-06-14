@@ -51,6 +51,8 @@ export const AllocationTypes = () => {
     },
     {
       DataGridCell: ({ description }) => {
+        if (description.length === 0) return <span>--</span>
+
         const text =
           description.length > DESCRIPTION_CLAMP_MAX
             ? description.slice(0, DESCRIPTION_CLAMP_MAX + 1) + "..."

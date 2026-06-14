@@ -12,7 +12,7 @@ export const CREATE_ALLOCATION_TYPE_RULES = [
       if (trimmed.length === 0 || trimmed.length > 32)
         return "Nome não deve ser vazio ou ter mais que 32 caracteres";
 
-      if (!trimmed.match(/^([-A-zÀ-ž\s]+)$/i)) return message;
+      if (!trimmed.match(/^([-A-zÀ-ž0-9\s]+)$/i)) return message;
 
       return true;
     },
@@ -29,6 +29,7 @@ export const CREATE_ALLOCATION_TYPE_RULES = [
 
       return true;
     },
+    required: false,
   },
 ];
 
