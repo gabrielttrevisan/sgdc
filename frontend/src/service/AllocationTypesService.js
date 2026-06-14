@@ -64,9 +64,11 @@ class AllocationTypesService {
    */
   async create({ name, description }) {
     try {
+      const trimmedDesc = description.trim();
+
       const response = await this.#client.post("allocation-types", {
         name: name.trim(),
-        description: description.trim(),
+        description: trimmedDesc.length ? trimmedDesc : undefined,
       });
 
       return response;
