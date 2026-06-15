@@ -1,80 +1,163 @@
 body {
-  background: #dcdcdc;
-  font-family: "Segoe UI", sans-serif;
+  background: #dcdcdc !important;
+  font-family: "Segoe UI", sans-serif !important;
 }
 
 .container {
-  max-width: 1050px;
-  margin: 30px auto;
+  width: 100% !important;
+  max-width: 1050px !important;
+  margin: 30px auto !important;
+  padding: 0 20px !important;
+  box-sizing: border-box !important;
 }
 
 .card {
+  width: 100% !important;
   border: none !important;
   border-radius: 18px !important;
-  background: #ffffff;
-  padding: 10px;
+  background: #ffffff !important;
+  padding: 24px !important;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06) !important;
+  box-sizing: border-box !important;
 }
 
-
 .armaz-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 25px;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  gap: 14px !important;
+  margin-bottom: 25px !important;
 }
 
 .armaz-search {
-  width: 320px;
+  width: 320px !important;
 }
 
 .armaz-search input {
-  width: 100%;
+  width: 100% !important;
 }
 
 .btn-cadastrar {
-  background: #2fb36d;
-  color: white;
-  border: none;
-  padding: 11px 18px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: 0.2s ease;
-  font-weight: 600;
+  background: #2fb36d !important;
+  color: white !important;
+  border: none !important;
+  padding: 11px 18px !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  font-weight: 600 !important;
 }
 
 .btn-cadastrar:hover {
-  background: #27985d;
+  background: #27985d !important;
 }
 
 .alert {
-  margin-top: 10px;
+  margin-top: 10px !important;
 }
 
 .lista {
-  margin-top: 10px;
+  margin-top: 20px !important;
+}
+
+.lista-item {
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  padding: 18px 22px !important;
+  border: 1px solid #ececec !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05) !important;
+}
+
+.lista-topo {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.lista-item strong {
+  font-size: 22px !important;
+}
+
+.capacidade {
+  background: #f1f3f5 !important;
+  padding: 6px 12px !important;
+  border-radius: 20px !important;
+}
+
+.descricao {
+  color: #666 !important;
+  margin-top: 10px !important;
+}
+
+.lista-acoes {
+  display: flex !important;
+  gap: 10px !important;
+  margin-top: 16px !important;
+}
+
+.btn-editar {
+  background: #f1c40f !important;
+  color: #2c2c2c !important;
+}
+
+.btn-excluir {
+  background: #e35d6a !important;
+  color: white !important;
 }
 
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  z-index: 999;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 999 !important;
 }
 
 .modal-card {
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 14px;
-  width: 420px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  background: #ffffff !important;
+  padding: 20px !important;
+  border-radius: 14px !important;
+  width: 420px !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+}
+
+
+.modal-botoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-btn-cancelar,
+.modal-btn-excluir {
+  min-width: 100px;
+  padding: 10px 16px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.modal-btn-cancelar {
+  background: #fff;
+  color: #a42b55;
+  border: 1px solid #a42b55;
+}
+
+.modal-btn-cancelar:hover {
+  background: #fdf2f6;
+}
+
+.modal-btn-excluir {
+  background: #a42b55;
+  color: #fff;
+  border: none;
+}
+
+.modal-btn-excluir:hover {
+  background: #8c2349;
 }

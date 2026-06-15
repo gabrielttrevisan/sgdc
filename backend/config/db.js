@@ -29,7 +29,7 @@ class Database {
       database,
       waitForConnections: true,
       connectionLimit: 10,
-      maxIdle: 60000,
+      maxIdle: 60000, 
       enableKeepAlive: true,
       keepAliveInitialDelay: 0,
     };
