@@ -1,5 +1,5 @@
 /**
- * @implements {IFieldController}
+ * @implements {import("..").IFieldController}
  */
 export default class SelectFieldController {
   #input;
@@ -21,8 +21,8 @@ export default class SelectFieldController {
     this.#input.disabled = true;
   }
 
-  fill(_mask, _value) {
-    return;
+  fill(_mask, value) {
+    this.#input.value = value;
   }
 
   clear() {
