@@ -25,3 +25,21 @@ export type PageData<T> = {
 };
 
 export type PaginatedResponse<T> = APIResponse<PageData<T>>;
+
+export type IAuthContext = Readonly<{
+  get user(): { id: string; name: string };
+}>;
+
+declare global {
+  declare namespace Express {
+    export interface Request {
+      auth: IAuthContext;
+    }
+  }
+}
+
+declare module "jsonwebtoken" {
+  export interface JwtPayload {
+    userId: string;
+  }
+}
