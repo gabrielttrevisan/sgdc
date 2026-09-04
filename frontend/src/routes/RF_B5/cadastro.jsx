@@ -1,180 +1,101 @@
 import { useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
-
+import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
 import Formulario from "./componentes/Formulario";
+import { auth } from "../../auth/Auth.store";
+
 import "./css/cadastro.css";
 
 function CadastroRFB5() {
-
   const navigate = useNavigate();
 
   const { id } = useParams();
 
   const [erro, setErro] = useState("");
 
-  const [salaEditando, setSalaEditando] =
-    useState(null);
+  const [salaEditando, setSalaEditando] = useState(null);
 
   useEffect(() => {
-
     if (!id) return;
 
     async function carregarSala() {
-
       try {
+        const response = await fetch(`http://localhost:3004/salas/${id}`, {
+          headers: auth.getHeaders(),
+        });
 
-        const response =
-          await fetch(
-            `http://localhost:3004/salas/${id}`
-          );
+        const json = await response.json();
 
-        const json =
-          await response.json();
-
-        setSalaEditando(
-          json.data
-        );
-
+        setSalaEditando(json.data);
       } catch {
-
-        setErro(
-          "Erro ao carregar sala"
-        );
-
+        setErro("Erro ao carregar sala");
       }
-
     }
 
     carregarSala();
-
   }, [id]);
 
   async function salvarSala(sala) {
+    const cap = Number(sala.capacidade);
 
-    const cap =
-      Number(sala.capacidade);
-
-    if (
-      !sala.nome.trim() ||
-      !cap ||
-      cap <= 0
-    ) {
-
-      setErro(
-        "Preencha os campos corretamente"
-      );
+    if (!sala.nome.trim() || !cap || cap <= 0) {
+      setErro("Preencha os campos corretamente");
 
       return;
-
     }
 
     try {
+      const response = await fetch(
+        id
+          ? `http://localhost:3004/salas/${id}`
+          : "http://localhost:3004/salas",
 
-      const response =
-        await fetch(
+        {
+          method: id ? "PUT" : "POST",
 
-          id
-            ? `http://localhost:3004/salas/${id}`
-            : "http://localhost:3004/salas",
+          headers: {
+            "Content-Type": "application/json",
+            ...auth.getHeaders(),
+          },
 
-          {
+          body: JSON.stringify({
+            nome: sala.nome,
 
-            method:
-              id ? "PUT" : "POST",
+            capacidade: Number(sala.capacidade),
 
-            headers: {
-
-              "Content-Type":
-                "application/json"
-
-            },
-
-            body: JSON.stringify({
-
-              nome:
-                sala.nome,
-
-              capacidade:
-                Number(
-                  sala.capacidade
-                ),
-
-              descricao:
-                sala.descricao
-
-            })
-
-          }
-
-        );
-
-      if (!response.ok)
-        throw new Error(
-          "Falha ao salvar"
-        );
-
-      navigate(
-        "/locais-de-armazenamento"
+            descricao: sala.descricao,
+          }),
+        },
       );
 
-    } catch (error) {
+      if (!response.ok) throw new Error("Falha ao salvar");
 
+      navigate("/locais-de-armazenamento");
+    } catch (error) {
       console.error(error);
 
-      setErro(
-        "Erro ao salvar sala"
-      );
-
+      setErro("Erro ao salvar sala");
     }
-
   }
 
   return (
-
     <div className="cadastro-container">
-
       <div className="cadastro-card">
-
         <h3 className="cadastro-title">
-
-          {id
-            ? "Alterar Sala"
-            : "Cadastro de Sala"}
-
+          {id ? "Alterar Sala" : "Cadastro de Sala"}
         </h3>
 
-        {erro && (
-
-          <p className="cadastro-erro">
-
-            {erro}
-
-          </p>
-
-        )}
+        {erro && <p className="cadastro-erro">{erro}</p>}
 
         <Formulario
-
           sala={salaEditando}
-
           onSalvar={salvarSala}
-
           erro={setErro}
-
-          fechar={() =>
-            navigate(
-              "/locais-de-armazenamento"
-            )
-          }
-
+          fechar={() => navigate("/locais-de-armazenamento")}
         />
-
       </div>
-
     </div>
-
   );
-
 }
 
-export default CadastroRFB5;
+export default WithAuthGuard(CadastroRFB5);

@@ -1,4 +1,4 @@
-import { Fragment, StrictMode } from "react";
+import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { Layout } from "./components/layout/Layout.jsx";
@@ -7,28 +7,30 @@ import { Beneficiaries } from "./routes/beneficiaries/Beneficiaries.jsx";
 import Armaz from "./routes/RF_B5/armaz.jsx";
 import CadastroRFB5 from "./routes/RF_B5/cadastro.jsx";
 import App from "./components/App.jsx";
-
-import "./index.css";
 import { MatchMediaProvider } from "./components/media-query/MatchMediaProvider.jsx";
 import { AllocationTypes } from "./routes/allocation-types/AllocationTypes.jsx";
 import { MeasuringUnits } from "./routes/measuring-units/MeasuringUnits.jsx";
 import Products from "./routes/RF_B7/Products.jsx";
 import { Families } from "./routes/families/Families.jsx";
+import MeasuringUnitsForm from "./routes/measuring-units/MeasuringUnitsForm.jsx";
+import SignInForm from "./routes/auth/SignIn.jsx";
+import { AuthGuard } from "./auth/WithAuthGuard.hoc.jsx";
+
+import "./index.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <MatchMediaProvider>
       <BrowserRouter>
         <Routes>
-          <Route element={<Layout />}>
-            <Route path="/donativos" element={<Fragment />} />
-            <Route path="/arrecadacoes" element={<Fragment />} />
-            <Route path="/doacoes" element={<Fragment />} />
+          <Route path="/sign-in" element={<SignInForm />} />
 
-            <Route
-              path="/"
-              element={<Navigate to="/locais-de-armazenamento" replace />}
-            />
+          <Route element={<Layout />}>
+            <Route path="/donativos" element={<AuthGuard />} />
+            <Route path="/arrecadacoes" element={<AuthGuard />} />
+            <Route path="/doacoes" element={<AuthGuard />} />
+
+            <Route path="/" element={<AuthGuard />} />
             <Route path="/locais-de-armazenamento" element={<Armaz />} />
             <Route
               path="/locais-de-armazenamento/cadastro/:id?"
@@ -36,8 +38,12 @@ createRoot(document.getElementById("root")).render(
             />
 
             <Route path="/produtos" element={<Products />} />
-            <Route path="/metas" element={<Fragment />} />
+            <Route path="/metas" element={<AuthGuard />} />
             <Route path="/unidades-de-medida" element={<MeasuringUnits />} />
+            <Route
+              path="/unidades-de-medida/cadastrar"
+              element={<MeasuringUnitsForm />}
+            />
             <Route path="/tipos-de-alocacao" element={<AllocationTypes />} />
 
             <Route path="/beneficiarios" element={<Beneficiaries />} />

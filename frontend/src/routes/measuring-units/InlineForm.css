@@ -1,0 +1,33 @@
+.form-inline__breadcrumbs {
+  padding: 1.8rem;
+
+  .form-inline__breadcrumb-path {
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--colors-text-medium);
+  }
+
+  .form-inline__breadcrumb-path-current {
+    margin-top: -4px;
+  }
+}
+
+.form-inline {
+  --form-gap: 0.5rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto;
+  gap: var(--form-gap);
+  border-radius: 0.6rem;
+  box-shadow: var(--data-grid-shadow);
+  overflow: hidden;
+  background-color: white;
+  padding: 1.8rem;
+
+  footer {
+    display: flex;
+    gap: 0.8rem;
+    padding-top: 1.8rem;
+    grid-column: 1 / 3;
+  }
+}

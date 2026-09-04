@@ -1,4 +1,4 @@
-import APIClient from "../lib/services/APIClient";
+import APIClient from "../lib/client/APIClient";
 
 /**
  * @typedef {Object} City
