@@ -51,7 +51,7 @@
  */
 
 import { unmaskDigits } from "../lib/functions/unmask";
-import APIClient from "../lib/services/APIClient";
+import APIClient from "../lib/client/APIClient";
 
 class BeneficiariesService {
   /**

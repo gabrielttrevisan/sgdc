@@ -82,6 +82,14 @@ const COMMON_RULES_VALIDATION_CALLBACKS = {
 
     return true;
   },
+  email: (value, customMessage) => {
+    const message = customMessage ?? "E-mail inválido ou vazio";
+
+    if (!value || !/[a-z][a-z_0-9\.\-\+]+[a-z]@[a-z][a-z0-9\.]+/.test(value))
+      return message;
+
+    return true;
+  },
 };
 
 export default COMMON_RULES_VALIDATION_CALLBACKS;

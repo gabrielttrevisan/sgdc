@@ -9,6 +9,7 @@ const EnvironmentSchema = v.object({
   DB_NAME: v.pipe(v.string()),
   DB_USER: v.pipe(v.string()),
   DB_PASSWORD: v.pipe(v.string()),
+  JWT_SECRET: v.pipe(v.string(), v.minLength(32)),
 });
 
 export const env = v.parse(EnvironmentSchema, config().parsed);

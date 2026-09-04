@@ -12,12 +12,13 @@ import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
 import { FormControllerProvider } from "../../components/form/context/FormControllerProvider";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
 import Toast from "../../components/toast/ToastStorage";
+import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
 
 import "./Beneficiaries.css";
 import BeneficiariesService from "../../service/BeneficiariesService";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 
-export const Beneficiaries = () => {
+export const Beneficiaries = WithAuthGuard(() => {
   const dataGridRef = useRef(null);
   /** @type {import("react").RefObject<import("../../components/sensitive-modal/SensitiveModal").SensitiveModalRef>} */
   const modalRef = useRef(null);
@@ -268,4 +269,4 @@ export const Beneficiaries = () => {
       </DataGrid>
     </>
   );
-};
+});

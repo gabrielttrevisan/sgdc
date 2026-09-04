@@ -12,12 +12,13 @@ import Toast from "../../components/toast/ToastStorage";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 import AllocationTypesService from "../../service/AllocationTypesService";
 import { AllocationTypeFormModal } from "./components/allocation-type-form-modal/AllocationTypeFormModal";
+import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
 
 import "./AllocationTypes.css";
 
 const DESCRIPTION_CLAMP_MAX = 36;
 
-export const AllocationTypes = () => {
+export const AllocationTypes = WithAuthGuard(() => {
   const dataGridRef = useRef(null);
   /** @type {import("react").RefObject<import("../../components/sensitive-modal/SensitiveModal").SensitiveModalRef>} */
   const modalRef = useRef(null);
@@ -51,7 +52,7 @@ export const AllocationTypes = () => {
     },
     {
       DataGridCell: ({ description }) => {
-        if (description.length === 0) return <span>--</span>
+        if (description.length === 0) return <span>--</span>;
 
         const text =
           description.length > DESCRIPTION_CLAMP_MAX
@@ -184,4 +185,4 @@ export const AllocationTypes = () => {
       </DataGrid>
     </>
   );
-};
+});

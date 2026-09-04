@@ -16,52 +16,64 @@
  * @prop {string} state
  */
 
+import { auth } from "../auth/Auth.store";
+
 const BASE_URL = "http://localhost:3004";
 
 export const VolunteerService = {
-/**
-   * @param {string} query 
-   * @param {string} sortKey 
-   * @param {string} sortType 
+  /**
+   * @param {string} query
+   * @param {string} sortKey
+   * @param {string} sortType
    * @returns {Promise<Volunteer[]>}
    */
   async getAll(query = "", sortKey = "name", sortType = "asc") {
     const params = new URLSearchParams();
-    
+
     if (query.trim()) params.append("q", query.trim());
     if (sortKey) params.append("sortKey", sortKey);
     if (sortType) params.append("sortType", sortType);
 
     const url = `${BASE_URL}/volunteers?${params.toString()}`;
-    const response = await fetch(url);
-    
+    const response = await fetch(url, { headers: auth.getHeaders() });
+
     if (!response.ok) throw new Error("Erro ao buscar voluntários");
-    
+
     const json = await response.json();
-    return json.data.items; 
+    return json.data.items;
   },
 
   /**
-   * @param {Volunteer} volunteer 
+   * @param {Volunteer} volunteer
    * @returns {Promise<any>}
    */
   async save(volunteer) {
     const cleanedData = {
       ...volunteer,
-      nationalId: volunteer.nationalId ? volunteer.nationalId.replace(/\D/g, "") : "",
+      nationalId: volunteer.nationalId
+        ? volunteer.nationalId.replace(/\D/g, "")
+        : "",
       phone: volunteer.phone ? volunteer.phone.replace(/\D/g, "") : "",
-      phoneSecondary: volunteer.phoneSecondary ? volunteer.phoneSecondary.replace(/\D/g, "") : "",
-      gender: (!volunteer.gender || volunteer.gender === "Selecione") ? "o" : volunteer.gender
+      phoneSecondary: volunteer.phoneSecondary
+        ? volunteer.phoneSecondary.replace(/\D/g, "")
+        : "",
+      gender:
+        !volunteer.gender || volunteer.gender === "Selecione"
+          ? "o"
+          : volunteer.gender,
     };
 
     const isEdit = !!cleanedData.id;
-    const url = isEdit ? `${BASE_URL}/volunteers/${cleanedData.id}` : `${BASE_URL}/volunteers`;
+    const url = isEdit
+      ? `${BASE_URL}/volunteers/${cleanedData.id}`
+      : `${BASE_URL}/volunteers`;
     const method = isEdit ? "PATCH" : "POST";
 
     const response = await fetch(url, {
       method: method,
       headers: {
         "Content-Type": "application/json",
+        ...auth.getHeaders(),
       },
       body: JSON.stringify(cleanedData),
     });
@@ -74,16 +86,17 @@ export const VolunteerService = {
   },
 
   /**
-   * @param {number|string} id 
+   * @param {number|string} id
    * @returns {Promise<any>}
    */
-    async delete(id) {
+  async delete(id) {
     const response = await fetch(`${BASE_URL}/volunteers/${id}`, {
       method: "DELETE",
+      headers: auth.getHeaders(),
     });
 
     if (!response.ok) throw new Error("Erro ao deletar voluntário");
 
     return await response.json();
-  }
+  },
 };

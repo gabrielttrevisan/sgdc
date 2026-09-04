@@ -12,10 +12,11 @@ import { VisuallyHidden } from "../../components/accessibility/visually-hidden/V
 import Toast from "../../components/toast/ToastStorage";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 import FamiliesService from "../../service/FamiliesService";
+import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
 
 import "./Families.css";
 
-export const Families = () => {
+export const Families = WithAuthGuard(() => {
   const dataGridRef = useRef(null);
   /** @type {import("react").RefObject<import("../../components/sensitive-modal/SensitiveModal").SensitiveModalRef>} */
   const modalRef = useRef(null);
@@ -209,4 +210,4 @@ export const Families = () => {
       </DataGrid>
     </>
   );
-};
+});

@@ -4,9 +4,11 @@ import { useNavigate } from "react-router";
 import Cabecalho from "./componentes/Cabecalho";
 import Busca from "./componentes/Busca";
 import Lista from "./componentes/Lista";
+import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
 
 import "./css/armaz.css";
 import "./css/cadastro.css";
+import { auth } from "../../auth/Auth.store";
 
 function Armaz() {
   const navigate = useNavigate();
@@ -19,14 +21,14 @@ function Armaz() {
 
   async function carregarSalas() {
     try {
-      const response = await fetch(
-        `http://localhost:3004/salas?q=${busca}`
-      );
+      const response = await fetch(`http://localhost:3004/salas?q=${busca}`, {
+        headers: auth.getHeaders(),
+      });
 
       const json = await response.json();
 
       const ordenadas = json.data.items.sort((a, b) =>
-        a.nome.localeCompare(b.nome, "pt-BR")
+        a.nome.localeCompare(b.nome, "pt-BR"),
       );
 
       setSalas(ordenadas);
@@ -51,10 +53,10 @@ function Armaz() {
 
   async function excluirSala() {
     try {
-      await fetch(
-        `http://localhost:3004/salas/${salaParaExcluir}`,
-        { method: "DELETE" }
-      );
+      await fetch(`http://localhost:3004/salas/${salaParaExcluir}`, {
+        method: "DELETE",
+        headers: auth.getHeaders(),
+      });
 
       carregarSalas();
 
@@ -82,27 +84,19 @@ function Armaz() {
 
           <button
             className="btn-cadastrar"
-            onClick={() =>
-              navigate("/locais-de-armazenamento/cadastro")
-            }
+            onClick={() => navigate("/locais-de-armazenamento/cadastro")}
           >
             + Cadastrar
           </button>
         </div>
 
-        {mensagem && (
-          <div className="alert alert-warning mt-3">
-            {mensagem}
-          </div>
-        )}
+        {mensagem && <div className="alert alert-warning mt-3">{mensagem}</div>}
 
         <Lista
           salas={salas}
           onExcluir={abrirModalExcluir}
           onEditar={(sala) =>
-            navigate(
-              `/locais-de-armazenamento/cadastro/${sala.id}`
-            )
+            navigate(`/locais-de-armazenamento/cadastro/${sala.id}`)
           }
         />
       </div>
@@ -110,9 +104,7 @@ function Armaz() {
       {modalExcluir && (
         <div className="modal-overlay">
           <div className="cadastro-card modal-card">
-            <h2 className="cadastro-title">
-              Confirmar exclusão
-            </h2>
+            <h2 className="cadastro-title">Confirmar exclusão</h2>
 
             <p>Tem certeza que deseja excluir esta sala?</p>
 
@@ -124,10 +116,7 @@ function Armaz() {
                 Cancelar
               </button>
 
-              <button
-                className="modal-btn-excluir"
-                onClick={excluirSala}
-              >
+              <button className="modal-btn-excluir" onClick={excluirSala}>
                 Excluir
               </button>
             </div>
@@ -138,4 +127,4 @@ function Armaz() {
   );
 }
 
-export default Armaz;
+export default WithAuthGuard(Armaz);

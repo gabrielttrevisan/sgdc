@@ -3,9 +3,11 @@ import { Eye } from "lucide-react";
 import Toast from "../../components/toast/ToastStorage";
 import ProductsService from "../../service/ProductsService";
 import ProductsForm from "./componentes/ProductsForm";
+import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
+
 import "./css/products.css";
 
-export default function Products() {
+export default WithAuthGuard(function Products() {
   const [modalAberto, setModalAberto] = useState(false);
   const [modalVisualizacao, setModalVisualizacao] = useState(false);
   const [produtoVisualizacao, setProdutoVisualizacao] = useState(null);
@@ -74,7 +76,10 @@ export default function Products() {
     }
 
     if (editando) {
-      const response = await ProductsService.edit({ ...produto, id: produtos[indiceEditando]?.id });
+      const response = await ProductsService.edit({
+        ...produto,
+        id: produtos[indiceEditando]?.id,
+      });
 
       if (response.error) {
         Toast.error(response.error.message || "Erro ao atualizar produto.");
@@ -136,8 +141,10 @@ export default function Products() {
   const ordenarProdutosAlfabeticamente = () => {
     setProdutos((prevProdutos) =>
       [...prevProdutos].sort((a, b) =>
-        String(a.nome || "").localeCompare(String(b.nome || ""), "pt", { sensitivity: "base" })
-      )
+        String(a.nome || "").localeCompare(String(b.nome || ""), "pt", {
+          sensitivity: "base",
+        }),
+      ),
     );
   };
 
@@ -211,7 +218,6 @@ export default function Products() {
                 <td>{item.refrigeracao ? "Sim" : "Não"}</td>
                 <td>{item.descricao}</td>
                 <td className="acoes">
-            
                   <button
                     type="button"
                     className="btn-visualizar"
@@ -257,7 +263,11 @@ export default function Products() {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Detalhes do Produto</h2>
-              <button type="button" className="close-btn" onClick={fecharVisualizacao}>
+              <button
+                type="button"
+                className="close-btn"
+                onClick={fecharVisualizacao}
+              >
                 ✕
               </button>
             </div>
@@ -290,7 +300,11 @@ export default function Products() {
             </div>
 
             <div className="modal-footer">
-              <button type="button" className="cancelar" onClick={fecharVisualizacao}>
+              <button
+                type="button"
+                className="cancelar"
+                onClick={fecharVisualizacao}
+              >
                 Fechar
               </button>
             </div>
@@ -299,4 +313,4 @@ export default function Products() {
       )}
     </div>
   );
-}
+});

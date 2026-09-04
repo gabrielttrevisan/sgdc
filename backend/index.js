@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Router } from "express";
 import cors from "cors";
 import { env } from "./config/env.js";
 import { initializeDatabase } from "./config/database.js";
@@ -12,22 +12,33 @@ import familyRouter from "./routes/family.route.js";
 import volunteersRouter from "./routes/volunteers.route.js";
 import router from "./routes/donors.js";
 import productsRouter from "./routes/products.route.js";
+import userRouter from "./routes/user.route.js";
+import auth from "./middlewares/auth.js";
+import authRouter from "./routes/auth.route.js";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
+app.use(cookieParser());
 app.use(express.json());
-app.use(cors({ origin: env.FRONTEND_URL }));
+app.use(cors({ origin: env.FRONTEND_URL, credentials: true }));
+app.use("/auth", authRouter);
 
-app.use("/beneficiaries", beneficiariesRouter);
-app.use("/cities", citiesRouter);
-app.use("/salas", salasRouter);
-app.use("/allocation-types", allocationTypesRouter);
-app.use("/measuring-units", measuringUnitsRouter);
-app.use("/families", familyRouter);
-app.use("/volunteers", volunteersRouter);
-app.use("/donors", router);
-app.use("/products", productsRouter);
+const protectedRoutes = Router();
 
+protectedRoutes.use("/", auth);
+protectedRoutes.use("/beneficiaries", beneficiariesRouter);
+protectedRoutes.use("/cities", citiesRouter);
+protectedRoutes.use("/salas", salasRouter);
+protectedRoutes.use("/allocation-types", allocationTypesRouter);
+protectedRoutes.use("/measuring-units", measuringUnitsRouter);
+protectedRoutes.use("/families", familyRouter);
+protectedRoutes.use("/volunteers", volunteersRouter);
+protectedRoutes.use("/donors", router);
+protectedRoutes.use("/products", productsRouter);
+protectedRoutes.use("/users", userRouter);
+
+app.use("/", protectedRoutes);
 app.use(notFoundHandler);
 
 await initializeDatabase();

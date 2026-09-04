@@ -1,7 +1,9 @@
+import { auth } from "../../auth/Auth.store";
+
 export default class APIClient {
   #url;
 
-  constructor(url = "http://localhost:3004/") {
+  constructor(url = "http://localhost:3004/", noCredentials = false) {
     this.#url = url;
   }
 
@@ -20,6 +22,7 @@ export default class APIClient {
 
     const rawResponse = await fetch(url, {
       ...init,
+      headers: this.#getHeaders({ init }),
       method: "GET",
     });
     const response = await rawResponse.json();
@@ -28,29 +31,22 @@ export default class APIClient {
   }
 
   /**
+   * @template {T}
    * @param {string} path
    * @param {Record<string, string>} [body]
    * @param {import("../../global").FetchOptions} [init]
-   * @returns {Promise<import("../../global").APIResponse<any>>}
+   * @returns {Promise<import("../../global").APIResponse<T>>}
    */
   async post(path, body = {}, init = {}) {
-    let headers = {};
-
-    if (init && init.headers) {
-      if (Array.isArray(init.headers))
-        headers = Object.fromEntries(init.headers);
-      else if (init.headers instanceof Headers)
-        headers = Object.fromEntries(init.headers.entries());
-      else headers = { ...init.headers };
-    }
+    const headers = this.#getHeaders({
+      init,
+      headers: { "Content-Type": "application/json" },
+    });
 
     const rawResponse = await fetch(`${this.#url}${path}`, {
       ...init,
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...headers,
-      },
+      headers,
       body: JSON.stringify(body),
     });
     const response = await rawResponse.json();
@@ -65,23 +61,13 @@ export default class APIClient {
    * @returns {Promise<import("../../global").APIResponse<any>>}
    */
   async patch(path, body = {}, init = {}) {
-    let headers = {};
-
-    if (init && init.headers) {
-      if (Array.isArray(init.headers))
-        headers = Object.fromEntries(init.headers);
-      else if (init.headers instanceof Headers)
-        headers = Object.fromEntries(init.headers.entries());
-      else headers = { ...init.headers };
-    }
-
     const rawResponse = await fetch(`${this.#url}${path}`, {
       ...init,
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        ...headers,
-      },
+      headers: this.#getHeaders({
+        init,
+        headers: { "Content-Type": "application/json" },
+      }),
       body: JSON.stringify(body),
     });
     const response = await rawResponse.json();
@@ -96,23 +82,13 @@ export default class APIClient {
    * @returns {Promise<import("../../global").APIResponse<any>>}
    */
   async put(path, body = {}, init = {}) {
-    let headers = {};
-
-    if (init && init.headers) {
-      if (Array.isArray(init.headers))
-        headers = Object.fromEntries(init.headers);
-      else if (init.headers instanceof Headers)
-        headers = Object.fromEntries(init.headers.entries());
-      else headers = { ...init.headers };
-    }
-
     const rawResponse = await fetch(`${this.#url}${path}`, {
       ...init,
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        ...headers,
-      },
+      headers: this.#getHeaders({
+        init,
+        headers: { "Content-Type": "application/json" },
+      }),
       body: JSON.stringify(body),
     });
     const response = await rawResponse.json();
@@ -128,6 +104,7 @@ export default class APIClient {
   async delete(path, init) {
     const rawResponse = await fetch(`${this.#url}${path}`, {
       ...init,
+      headers: this.#getHeaders({ init }),
       method: "DELETE",
     });
     const response = await rawResponse.json();
@@ -137,5 +114,35 @@ export default class APIClient {
 
   get url() {
     return this.#url;
+  }
+  /**
+   * @param {import("../../global").FetchOptions} [init]
+   */
+  #getHeadersFromFetchOptions(init) {
+    if (init && init.headers) {
+      if (Array.isArray(init.headers)) return Object.fromEntries(init.headers);
+      else if (init.headers instanceof Headers)
+        return Object.fromEntries(init.headers.entries());
+      else return { ...init.headers };
+    }
+
+    return {};
+  }
+
+  /**
+   * @typedef {Object} HeadersParams
+   * @prop {Record<string, string>} [param.headers]
+   * @prop {import("../../global").FetchOptions} [param.init]
+   */
+
+  /**
+   * @param {HeadersParams} [param]
+   */
+  #getHeaders({ headers, init } = {}) {
+    return {
+      ...headers,
+      ...this.#getHeadersFromFetchOptions(init),
+      ...auth.getHeaders(),
+    };
   }
 }
