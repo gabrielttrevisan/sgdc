@@ -69,7 +69,7 @@ export default WithAuthGuard(function UsersForm() {
           const trimmed = value.trim();
           const message = "Nome de usuário inválido";
 
-          if (!trimmed.match(/^([0-9a-z_.-]{8,})$/gu)) return message;
+          if (!trimmed.match(/^([0-9a-z_.-]{4,})$/gu)) return message;
 
           return true;
         }}

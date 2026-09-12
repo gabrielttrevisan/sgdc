@@ -1,5 +1,6 @@
 import APIClient from "../lib/client/APIClient";
 import { unmaskDigits } from "../lib/functions/unmask";
+import { authStore } from "../store/Auth.store";
 import { Service } from "./Service";
 
 /**
@@ -78,6 +79,10 @@ class UsersService extends Service {
         roleId,
         username: username.trim(),
       });
+      
+      if (authStore.match(id)) {
+        authStore.signOut();
+      }
 
       return response;
     } catch {

@@ -3,55 +3,43 @@ import { InputField } from "../../../components/form/input-field/InputField";
 import { useResourceFormContext } from "../../../components/resource-form/context";
 
 export function PasswordChangeField() {
-    const { id } = useResourceFormContext();
+  const { id } = useResourceFormContext();
 
-    return (
-        <RoleAuthGuard roleId={5} matchId={id}>
-            <InputField
-                name="password"
-                id="password"
-                type="password"
-                label="Senha Atual"
-                validate={(value) => {
-                    const message = "Senha inválida ou não preenchida";
+  return (
+    <RoleAuthGuard roleId={5} matchId={id} key={id}>
+      <InputField
+        name="password"
+        id="password"
+        type="password"
+        label="Senha Atual"
+        validate={() => {
+          return true;
+        }}
+        variant="half-left"
+      />
 
-                    if (typeof value !== "string" || value.trim().length === 0)
-                        return message;
+      <InputField
+        name="newPassword"
+        id="newPassword"
+        type="password"
+        label="Nova Senha"
+        validate={(value) => {
+          const message = "Senha inválida ou não preenchida";
 
-                    const trimmed = value.trim();
+          if (typeof value !== "string" || value.trim().length === 0)
+            return message;
 
-                    if (!/([A-Z])/.test(trimmed)) return message;
-                    if (!/([0-9])/.test(trimmed)) return message;
-                    if (!/([!'"@#$%¨&*()_\-+={}[\]^~?/:;>.<,])/.test(trimmed))
-                        return message;
+          const trimmed = value.trim();
 
-                    return true;
-                }}
-                variant="half-left"
-            />
+          if (!/([A-Z])/.test(trimmed)) return message;
+          if (!/([0-9])/.test(trimmed)) return message;
+          if (!/([!'"@#$%¨&*()_\-+={}[\]^~?/:;>.<,])/.test(trimmed))
+            return message;
 
-            <InputField
-                name="newPassword"
-                id="newPassword"
-                type="password"
-                label="Nova Senha"
-                validate={(value) => {
-                    const message = "Senha inválida ou não preenchida";
-
-                    if (typeof value !== "string" || value.trim().length === 0)
-                        return message;
-
-                    const trimmed = value.trim();
-
-                    if (!/([A-Z])/.test(trimmed)) return message;
-                    if (!/([0-9])/.test(trimmed)) return message;
-                    if (!/([!'"@#$%¨&*()_\-+={}[\]^~?/:;>.<,])/.test(trimmed))
-                        return message;
-
-                    return true;
-                }}
-                variant="half-right"
-            />
-        </RoleAuthGuard>
-    );
+          return true;
+        }}
+        variant="half-right"
+      />
+    </RoleAuthGuard>
+  );
 }

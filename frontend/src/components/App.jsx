@@ -5,7 +5,7 @@ import DonorModal from "./Modal";
 import Pagination from "./Paginação";
 import "../styles/global.css";
 import "./App.css";
-import { auth } from "../store/Auth.store";
+import { authStore } from "../store/Auth.store";
 import { WithAuthGuard } from "./auth/WithAuthGuard.hoc";
 
 const API_URL = "http://localhost:3004/donors";
@@ -39,7 +39,7 @@ const App = WithAuthGuard(function App() {
   const fetchDonors = async () => {
     try {
       setLoading(true);
-      const response = await fetch(API_URL, { headers: auth.getHeaders() });
+      const response = await fetch(API_URL, { headers: authStore.getHeaders() });
       const data = await response.json();
 
       if (!data) {
@@ -106,7 +106,7 @@ const App = WithAuthGuard(function App() {
         // Editar doador existente
         const response = await fetch(`${API_URL}/${editingId}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json", ...auth.getHeaders() },
+          headers: { "Content-Type": "application/json", ...authStore.getHeaders() },
           body: JSON.stringify(data),
         });
 
@@ -122,7 +122,7 @@ const App = WithAuthGuard(function App() {
         // Criar novo doador
         const response = await fetch(API_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json", ...auth.getHeaders() },
+          headers: { "Content-Type": "application/json", ...authStore.getHeaders() },
           body: JSON.stringify(data),
         });
 
@@ -166,7 +166,7 @@ const App = WithAuthGuard(function App() {
     try {
       const response = await fetch(`${API_URL}/${id}`, {
         method: "DELETE",
-        headers: auth.getHeaders(),
+        headers: authStore.getHeaders(),
       });
 
       if (!response.ok) throw new Error("Erro ao deletar");

@@ -71,6 +71,12 @@ class AuthStore {
     this.#emit(false);
   }
 
+  match(id) {
+    const testedId = typeof id === "number" ? id : parseInt(id);
+    
+    return this.#user?.id === testedId;
+  }
+
   get menu() {
     return structuredClone(this.#menu);
   }
@@ -124,8 +130,8 @@ class AuthStore {
   }
 }
 
-export const auth = new AuthStore();
+export const authStore = new AuthStore();
 
 export function useAuth() {
-  return useSyncExternalStore(auth.subscribe, auth.getSnapshot);
+  return useSyncExternalStore(authStore.subscribe, authStore.getSnapshot);
 }

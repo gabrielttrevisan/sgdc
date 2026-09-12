@@ -1,4 +1,4 @@
-import { auth, useAuth } from "../../store/Auth.store";
+import { authStore, useAuth } from "../../store/Auth.store";
 import "./UserControls.css";
 
 export function UserControls() {
@@ -9,7 +9,7 @@ export function UserControls() {
   const abbr = getUserAbbr(user.name);
 
   const handleSignOut = () => {
-    auth.signOut();
+    authStore.signOut();
   };
 
   return (

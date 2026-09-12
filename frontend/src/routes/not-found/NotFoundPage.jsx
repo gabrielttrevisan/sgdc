@@ -1,12 +1,9 @@
 import { NavLink } from "react-router";
-import { useAuth } from "../../store/Auth.store";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc";
 
 import "./NotFoundPage.css";
 
 export const NotFoundPage = WithAuthGuard(function () {
-  const auth = useAuth();
-
   return (
     <div className="not-found-page">
       <div className="not-found-page__header">

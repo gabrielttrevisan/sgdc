@@ -1,4 +1,4 @@
-import { auth } from "../../store/Auth.store";
+import { authStore } from "../../store/Auth.store";
 
 export default class APIClient {
   #url;
@@ -142,7 +142,7 @@ export default class APIClient {
     return {
       ...headers,
       ...this.#getHeadersFromFetchOptions(init),
-      ...auth.getHeaders(),
+      ...authStore.getHeaders(),
     };
   }
 }

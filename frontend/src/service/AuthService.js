@@ -1,4 +1,4 @@
-import { auth } from "../store/Auth.store.js";
+import { authStore } from "../store/Auth.store.js";
 import APIClient from "../lib/client/APIClient.js";
 import { Service } from "./Service.js";
 
@@ -14,7 +14,7 @@ class AuthService extends Service {
       const response = await client.post("auth/sign-in", { user, pass });
 
       if (typeof response.data?.token === "string") {
-        auth.signIn(
+        authStore.signIn(
           response.data.token,
           response.data.user.id,
           response.data.user.name,

@@ -8,12 +8,11 @@ import { PeopleIcon } from "./icon/PeopleIcon";
 
 import "./Layout.css";
 import { useState } from "react";
-import { auth } from "../../store/Auth.store";
+import { authStore } from "../../store/Auth.store";
 import { GraphIcon } from "./icon/GraphIcon";
 import { FilePlotIcon } from "./icon/FilePlotIcon";
 import { HouseIcon } from "./icon/HouseIcon";
 import { UserControls } from "./UserControls";
-import { ErrorBoundary } from "../error-boundary/ErrorBoundary";
 
 /**
  * @typedef {Object} LayoutProps
@@ -30,7 +29,7 @@ const MENU_ICON = {
 
 /** @type {import("react").FC<LayoutProps>} */
 export const Layout = () => {
-  const [menuItems] = useState(() => auth.menu);
+  const [menuItems] = useState(() => authStore.menu);
 
   return (
     <>
@@ -48,14 +47,14 @@ export const Layout = () => {
                 <NavSection
                   title={menuItem.title}
                   id={menuItem.id}
-                  key={menuItem.key}
+                  key={menuItem.id}
                   icon={Icon ? <Icon /> : undefined}
                   to={menuItem.path}
                 >
                   {menuItem.subItems?.map((subItem) => {
                     return (
                       <NavLink
-                        key={`${menuItem.id}${subItem.id}`}
+                        key={`${menuItem.id}-${subItem.id}`}
                         to={subItem.path}
                       >
                         {subItem.title}
@@ -71,9 +70,7 @@ export const Layout = () => {
         </aside>
 
         <main>
-          <ErrorBoundary>
-            <Outlet />
-          </ErrorBoundary>
+          <Outlet />
         </main>
       </div>
 
