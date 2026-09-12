@@ -1,7 +1,8 @@
 import { auth } from "../store/Auth.store.js";
 import APIClient from "../lib/client/APIClient.js";
+import { Service } from "./Service.js";
 
-class AuthService {
+class AuthService extends Service {
   /**
    * @param {{ user: string; pass: string }} user
    * @returns {Promise<import("../global").APIResponse<AuthToken>>}
@@ -23,23 +24,8 @@ class AuthService {
 
       return response;
     } catch (e) {
-      return this.#internal("Erro inesperado");
+      return this.internal("Erro inesperado\n" + (e.message ?? ""));
     }
-  }
-
-  /**
-   * @param {string} [message]
-   * @returns {APIResponse<import("../components/data-grid/DataGrid").PageData<Beneficiary[]>>}
-   */
-  #internal(message = "Erro inesperado") {
-    return {
-      data: null,
-      error: {
-        code: 500,
-        message,
-        issues: [],
-      },
-    };
   }
 }
 

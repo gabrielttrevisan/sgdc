@@ -2,14 +2,10 @@ import { useNavigate } from "react-router";
 import { InputField } from "../../components/form/input-field/InputField.jsx";
 import UsersService from "../../service/UsersService.js";
 import Toast from "../../components/toast/ToastStorage.js";
-import {
-  RoleAuthGuard,
-  WithAuthGuard,
-} from "../../components/auth/WithAuthGuard.hoc.jsx";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import { ResourceForm } from "../../components/resource-form/ResourceForm.jsx";
-import { unmaskDigits } from "../../lib/functions/unmask.js";
-import { isNationalIdValid } from "../../lib/validation/isNationalIdValid.js";
 import { RolesSelectInput } from "./components/RolesSelectInput.jsx";
+import { PasswordChangeField } from "./components/PasswordChangeField.jsx";
 
 export default WithAuthGuard(function UsersForm() {
   const navigate = useNavigate();
@@ -110,53 +106,7 @@ export default WithAuthGuard(function UsersForm() {
 
       <RolesSelectInput />
 
-      <RoleAuthGuard roleId={5}>
-        <InputField
-          name="password"
-          id="password"
-          type="password"
-          label="Senha Atual"
-          validate={(value) => {
-            const message = "Senha inválida ou não preenchida";
-
-            if (typeof value !== "string" || value.trim().length === 0)
-              return message;
-
-            const trimmed = value.trim();
-
-            if (!/([A-Z])/.test(trimmed)) return message;
-            if (!/([0-9])/.test(trimmed)) return message;
-            if (!/([!'"@#$%¨&*()_\-+={}[\]^~?/:;>.<,])/.test(trimmed))
-              return message;
-
-            return true;
-          }}
-          variant="half-left"
-        />
-
-        <InputField
-          name="newPassword"
-          id="newPassword"
-          type="password"
-          label="Nova Senha"
-          validate={(value) => {
-            const message = "Senha inválida ou não preenchida";
-
-            if (typeof value !== "string" || value.trim().length === 0)
-              return message;
-
-            const trimmed = value.trim();
-
-            if (!/([A-Z])/.test(trimmed)) return message;
-            if (!/([0-9])/.test(trimmed)) return message;
-            if (!/([!'"@#$%¨&*()_\-+={}[\]^~?/:;>.<,])/.test(trimmed))
-              return message;
-
-            return true;
-          }}
-          variant="half-right"
-        />
-      </RoleAuthGuard>
+      <PasswordChangeField />
     </ResourceForm>
   );
 });

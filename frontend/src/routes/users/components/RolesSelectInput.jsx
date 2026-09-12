@@ -44,8 +44,8 @@ export function RolesSelectInput() {
   return (
     <>
       <SelectField
-        name="role"
-        id="role"
+        name="roleId"
+        id="roleId"
         required
         label="Nível de Acesso"
         options={roles.options}

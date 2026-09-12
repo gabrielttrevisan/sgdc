@@ -99,7 +99,7 @@ function ResourceFormContent({
   }, [id]);
 
   return (
-    <ResourceFormContext value={{ isEditing: Boolean(id) }}>
+    <ResourceFormContext value={{ isEditing: Boolean(id), id }}>
       <div className="form-inline__breadcrumbs">
         {breadcrumbs && (
           <div className="form-inline__breadcrumb-path">

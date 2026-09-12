@@ -68,14 +68,14 @@ class UsersService extends Service {
    * @param {EditUser} user
    * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
    */
-  async edit({ id, email, name, password, newPassword, role, username }) {
+  async edit({ id, email, name, password, newPassword, roleId, username }) {
     try {
       const response = await this.#client.patch(`users/${id}`, {
         email: email.trim(),
         name: name.trim(),
         pass: password || undefined,
         newPass: newPassword || undefined,
-        roleId: role,
+        roleId,
         username: username.trim(),
       });
 
@@ -146,7 +146,7 @@ export default new UsersService();
  * @prop {string} name
  * @prop {string} username
  * @prop {string} email
- * @prop {number} role
+ * @prop {number} roleId
  * @prop {string} [password]
  * @prop {string} [newPassword]
  */
