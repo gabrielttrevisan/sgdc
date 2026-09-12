@@ -1,4 +1,4 @@
-import { auth } from "../auth/Auth.store.js";
+import { auth } from "../store/Auth.store.js";
 import APIClient from "../lib/client/APIClient.js";
 
 class AuthService {
@@ -13,7 +13,12 @@ class AuthService {
       const response = await client.post("auth/sign-in", { user, pass });
 
       if (typeof response.data?.token === "string") {
-        auth.signIn(response.data.token);
+        auth.signIn(
+          response.data.token,
+          response.data.user.id,
+          response.data.user.name,
+          response.data.menu,
+        );
       }
 
       return response;
@@ -43,4 +48,6 @@ export default new AuthService();
 /**
  * @typedef {Object} AuthToken
  * @prop {string} token
+ * @prop {string} user.id
+ * @prop {string} user.name
  */

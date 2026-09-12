@@ -16,7 +16,7 @@
  * @prop {string} state
  */
 
-import { auth } from "../auth/Auth.store";
+import { auth } from "../store/Auth.store";
 
 const BASE_URL = "http://localhost:3004";
 

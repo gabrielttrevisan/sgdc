@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from "react-router";
-import { useAuth } from "./Auth.store";
+import { useAuth } from "../../store/Auth.store";
 import { Fragment } from "react";
 
 export function WithAuthGuard(Component) {
@@ -15,3 +15,12 @@ export function WithAuthGuard(Component) {
 }
 
 export const AuthGuard = WithAuthGuard(Fragment);
+
+export function RoleAuthGuard({ roleId, children }) {
+  const auth = useAuth();
+
+  if (!auth || auth.roleId !== roleId)
+    return <></>;
+
+  return <>{children}</>;
+}

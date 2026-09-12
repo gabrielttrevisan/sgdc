@@ -1,94 +1,87 @@
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { InputField } from "../../components/form/input-field/InputField";
-import { InputHidden } from "../../components/form/input-field/InputHidden";
-import { Form } from "../../components/form/Form";
-import { FormModalCancelButton } from "../../components/form/modal/button/FormModalCancelButton";
-import { FormModalSubmitButton } from "../../components/form/modal/button/FormModalSubmitButton";
-import { FormControllerProvider } from "../../components/form/context/FormControllerProvider";
 import MeasuringUnitsService from "../../service/MeasuringTypesService";
 import Toast from "../../components/toast/ToastStorage";
-import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 
-import "./InlineForm.css";
+import { ResourceForm } from "../../components/resource-form/ResourceForm.jsx";
 
-export default WithAuthGuard(function MeasuringUnitsForm({ className = "" }) {
-  const { id } = useParams();
+export default WithAuthGuard(function MeasuringUnitsForm() {
   const navigate = useNavigate();
 
-  const submitLabel = id ? "Atualizar Dados" : "Cadastrar";
-  const variantClass = className ? `form-inline--${className}` : "";
-
-  const handleSubmit = async (data) => {
-    const response = await MeasuringUnitsService.create(data);
-
-    if (response.data?.success) {
-      Toast.success("Unidade de medida cadastrada com sucesso");
-      navigate("/unidades-de-medida");
-    } else if (response.error) {
-      Toast.error("Falha ao cadastrar unidade de medida");
-    }
+  const handleCancel = () => {
+    navigate("/unidades-de-medida");
   };
 
   return (
-    <FormControllerProvider>
-      <div className="form-inline__breadcrumbs">
-        <div className="form-inline__breadcrumb-path">
-          <h3>Unidades de Medida</h3>
-        </div>
+    <ResourceForm
+      fetchResource={async (id) => await MeasuringUnitsService.getById(id)}
+      breadcrumbs={[
+        { id: "donativos", name: "Donativos" },
+        { id: "measuring-units", name: "Unidades de Medida" },
+      ]}
+      title="Cadastrar Unidade de Medida"
+      onCancel={handleCancel}
+      onSubmit={async (data, isEditing) => {
+        if (isEditing) {
+          const response = await MeasuringUnitsService.edit(data);
 
-        <h2 className="form-inline__breadcrumb-path-current">Criar</h2>
-      </div>
-
-      <Form onSubmit={handleSubmit} className={`form-inline ${variantClass}`}>
-        {id && <InputHidden name="id" id="id" value={id} />}
-
-        <InputField
-          name="name"
-          required
-          id="name"
-          label="Nome"
-          placeholder="Quilograma, litro, grama..."
-          validate={(value) => {
-            const trimmed = value.trim();
-
-            if (trimmed.length === 0 || trimmed.length > 32)
-              return "O nome não pode ser vazio ou ter mais que 32 caracteres";
-
+          if (response.data?.success) {
+            Toast.success("Unidade de medida cadastrada com sucesso");
+            navigate("/unidades-de-medida");
             return true;
-          }}
-        />
+          } else if (response.error) {
+            Toast.error("Falha ao cadastrar unidade de medida");
+          }
 
-        <InputField
-          name="symbol"
-          required
-          id="symbol"
-          label="Unidade de Medida (Abreviação/Símbolo)"
-          placeholder="kg, g, l, ml..."
-          variant="half-left"
-          validate={(value) => {
-            const trimmed = value.trim();
+          return false;
+        }
 
-            if (trimmed.length === 0 || trimmed.length > 8)
-              return "O nome não pode ser vazio ou ter mais que 8 caracteres";
+        const response = await MeasuringUnitsService.create(data);
 
-            return true;
-          }}
-        />
+        if (response.data?.success) {
+          Toast.success("Unidade de medida cadastrada com sucesso");
+          navigate("/unidades-de-medida");
+          return true;
+        } else if (response.error) {
+          Toast.error("Falha ao cadastrar unidade de medida");
+        }
 
-        <footer>
-          <FormModalCancelButton
-            type="button"
-            onClick={() => {}}
-            className="button-block --outline --primary"
-          >
-            Cancelar
-          </FormModalCancelButton>
+        return false;
+      }}
+    >
+      <InputField
+        name="name"
+        required
+        id="name"
+        label="Nome"
+        placeholder="Quilograma, litro, grama..."
+        validate={(value) => {
+          const trimmed = value.trim();
 
-          <FormModalSubmitButton>
-            <span>{submitLabel}</span>
-          </FormModalSubmitButton>
-        </footer>
-      </Form>
-    </FormControllerProvider>
+          if (trimmed.length === 0 || trimmed.length > 32)
+            return "O nome não pode ser vazio ou ter mais que 32 caracteres";
+
+          return true;
+        }}
+      />
+
+      <InputField
+        name="symbol"
+        required
+        id="symbol"
+        label="Unidade de Medida (Abreviação/Símbolo)"
+        placeholder="kg, g, l, ml..."
+        variant="half-left"
+        validate={(value) => {
+          const trimmed = value.trim();
+
+          if (trimmed.length === 0 || trimmed.length > 8)
+            return "O nome não pode ser vazio ou ter mais que 8 caracteres";
+
+          return true;
+        }}
+      />
+    </ResourceForm>
   );
-})
+});

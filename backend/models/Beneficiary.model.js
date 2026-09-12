@@ -1,3 +1,4 @@
+import { censorCPF } from "../lib/utils/censorCPF.js";
 import sql from "./core/sql.js";
 
 /**
@@ -68,10 +69,7 @@ export default class BeneficiaryModel {
         const beneficiary = {
           id: datum.ID,
           name: datum.FULL_NAME,
-          nationalId: datum.NATIONAL_ID.replace(
-            /^(\d{3})(\d{6})(\d{2})$/i,
-            "$1.***.***.-$3",
-          ),
+          nationalId: censorCPF(datum.NATIONAL_ID),
           hasOpenRequest: datum.HAS_OPEN_REQUEST ? "sim" : "não",
         };
 

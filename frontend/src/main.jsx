@@ -14,9 +14,13 @@ import Products from "./routes/RF_B7/Products.jsx";
 import { Families } from "./routes/families/Families.jsx";
 import MeasuringUnitsForm from "./routes/measuring-units/MeasuringUnitsForm.jsx";
 import SignInForm from "./routes/auth/SignIn.jsx";
-import { AuthGuard } from "./auth/WithAuthGuard.hoc.jsx";
+import { AuthGuard } from "./components/auth/WithAuthGuard.hoc.jsx";
+import { NotFoundPage } from "./routes/not-found/NotFoundPage.jsx";
 
 import "./index.css";
+import { Users } from "./routes/users/Users.jsx";
+import CreateUsersForm from "./routes/users/CreateUsersForm.jsx";
+import EditUserForm from "./routes/users/EditUserForm.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -39,17 +43,29 @@ createRoot(document.getElementById("root")).render(
 
             <Route path="/produtos" element={<Products />} />
             <Route path="/metas" element={<AuthGuard />} />
+
             <Route path="/unidades-de-medida" element={<MeasuringUnits />} />
             <Route
               path="/unidades-de-medida/cadastrar"
               element={<MeasuringUnitsForm />}
             />
+            <Route
+              path="/unidades-de-medida/:id"
+              element={<MeasuringUnitsForm />}
+            />
+
             <Route path="/tipos-de-alocacao" element={<AllocationTypes />} />
 
             <Route path="/beneficiarios" element={<Beneficiaries />} />
             <Route path="/familias" element={<Families />} />
             <Route path="/doadores" element={<App />} />
             <Route path="/voluntarios" element={<Volunteers />} />
+
+            <Route path="/usuarios" element={<Users />} />
+            <Route path="/usuarios/cadastrar" element={<CreateUsersForm />} />
+            <Route path="/usuarios/:id" element={<EditUserForm />} />
+
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

@@ -4,7 +4,7 @@ import { VolunteersTable } from "../../components/VolunteersTable/VolunteersTabl
 import { VolunteerFormModal } from "./volunteers-form-modal/VolunteersFormModal";
 import { useVolunteersData } from "../../hooks/useVolunteersData";
 import Toast from "../../components/toast/ToastStorage";
-import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 
 import "./Volunteers.css";
 

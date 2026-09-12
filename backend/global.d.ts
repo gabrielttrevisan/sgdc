@@ -43,3 +43,25 @@ declare module "jsonwebtoken" {
     userId: string;
   }
 }
+
+type Resource =
+  | "measuring_unit"
+  | "allocation_type"
+  | "beneficiary"
+  | "family"
+  | "city"
+  | "donor"
+  | "product"
+  | "sala"
+  | "volunteer"
+  | (string & {});
+
+type ResourceAction =
+  | "list"
+  | "view"
+  | "create"
+  | "delete"
+  | "restore"
+  | "pay"
+  | "reset"
+  | (string & {});

@@ -1,5 +1,7 @@
 import UserCredentialMismatchError from "../exception/UserCredentialMismatchError.js";
 import APIResponse from "../lib/APIResponse.js";
+import { AuthSingleton } from "../lib/Auth.singleton.js";
+import { MenuBuilder } from "../lib/Menu.builder.js";
 import AuthModel from "../models/Auth.model.js";
 
 export default class AuthController {
@@ -9,11 +11,20 @@ export default class AuthController {
    */
   static async signIn(req, res) {
     const { user, pass } = req.body;
-    const [token, error] = await AuthModel.signIn({ user, pass });
+    const [authentication, error] = await AuthModel.signIn({ user, pass });
     const response = APIResponse.from(res);
 
-    if (token) {
-      return response.success(token);
+    if (authentication) {
+      AuthSingleton.instance.setRole(
+        authentication.user.roleId,
+        authentication.permissions,
+      );
+
+      return response.success({
+        token: authentication.token,
+        user: authentication.user,
+        menu: MenuBuilder.fromPermissions(authentication.permissions).getMenu(),
+      });
     }
 
     if (error instanceof UserCredentialMismatchError) {

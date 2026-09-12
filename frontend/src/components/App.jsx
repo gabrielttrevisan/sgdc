@@ -5,11 +5,12 @@ import DonorModal from "./Modal";
 import Pagination from "./Paginação";
 import "../styles/global.css";
 import "./App.css";
-import { auth } from "../auth/Auth.store";
+import { auth } from "../store/Auth.store";
+import { WithAuthGuard } from "./auth/WithAuthGuard.hoc";
 
 const API_URL = "http://localhost:3004/donors";
 
-export default function App() {
+const App = WithAuthGuard(function App() {
   const [donors, setDonors] = useState([]);
   const [, setLoading] = useState(true);
 
@@ -40,6 +41,12 @@ export default function App() {
       setLoading(true);
       const response = await fetch(API_URL, { headers: auth.getHeaders() });
       const data = await response.json();
+
+      if (!data) {
+        setDeleteMessage("Erro ao carregar doadores.");
+        return;
+      }
+
       setDonors(
         data.map((donor) => ({
           ...donor,
@@ -266,4 +273,6 @@ export default function App() {
       />
     </div>
   );
-}
+});
+
+export default App;

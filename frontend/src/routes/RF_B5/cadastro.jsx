@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
-import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import Formulario from "./componentes/Formulario";
-import { auth } from "../../auth/Auth.store";
+import { auth } from "../../store/Auth.store";
 
 import "./css/cadastro.css";
 

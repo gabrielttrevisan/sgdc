@@ -61,6 +61,7 @@
       padding: 2rem;
       background-color: white;
       transition: all 200ms ease-out;
+      overflow-y: auto;
 
       &.--mobile {
         transform: translateX(0);
@@ -120,9 +121,10 @@
         right: unset;
         bottom: unset;
         background-color: transparent;
-        margin-right: 2.3333rem;
         width: auto;
         padding: unset;
+        max-height: calc(100dvh - 193px);
+        overflow: hidden auto;
       }
     }
 

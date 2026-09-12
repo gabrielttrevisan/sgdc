@@ -1,4 +1,4 @@
-import { auth } from "../../auth/Auth.store";
+import { auth } from "../../store/Auth.store";
 
 export default class APIClient {
   #url;

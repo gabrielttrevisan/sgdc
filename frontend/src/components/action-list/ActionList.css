@@ -22,6 +22,19 @@
         --bb-base-bg: var(--colors-primary-2);
     }
 
+    &.--deactivate {
+        --bb-base-bg: #f8e094;
+        --bb-base-color: var(--colors-text-dark);
+
+        > svg {
+            fill: var(--colors-text-dark);
+        }
+
+        &:hover {
+            --bb-base-bg: #ffd035;
+        }
+    }
+
     &.--show {
         --bb-base-bg: rgba(91, 70, 108, 0.6);
 
@@ -38,7 +51,7 @@
         }
     }
 
-    &.--donate {
+    &.--donate, &.--restore {
         --bb-base-bg: rgba(61, 174, 118, 0.85);
 
         &:hover {

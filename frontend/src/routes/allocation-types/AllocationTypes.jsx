@@ -12,7 +12,7 @@ import Toast from "../../components/toast/ToastStorage";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 import AllocationTypesService from "../../service/AllocationTypesService";
 import { AllocationTypeFormModal } from "./components/allocation-type-form-modal/AllocationTypeFormModal";
-import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 
 import "./AllocationTypes.css";
 
