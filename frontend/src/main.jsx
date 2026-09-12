@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router";
+import { BrowserRouter, Routes, Route } from "react-router";
 import { Layout } from "./components/layout/Layout.jsx";
 import { Volunteers } from "./routes/Volunteers/Volunteers.jsx";
 import { Beneficiaries } from "./routes/beneficiaries/Beneficiaries.jsx";
@@ -21,13 +21,15 @@ import "./index.css";
 import { Users } from "./routes/users/Users.jsx";
 import CreateUsersForm from "./routes/users/CreateUsersForm.jsx";
 import EditUserForm from "./routes/users/EditUserForm.jsx";
+import { ErrorBoundary } from "./components/error-boundary/ErrorBoundary.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <MatchMediaProvider>
-      <BrowserRouter>
+      <BrowserRouter >
         <Routes>
           <Route path="/sign-in" element={<SignInForm />} />
+          <Route ErrorBoundary={ErrorBoundary} />
 
           <Route element={<Layout />}>
             <Route path="/donativos" element={<AuthGuard />} />
