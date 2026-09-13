@@ -73,8 +73,15 @@ class AuthStore {
 
   match(id) {
     const testedId = typeof id === "number" ? id : parseInt(id);
-    
+
     return this.#user?.id === testedId;
+  }
+
+  updateName(name) {
+    if (!this.#user) return;
+
+    this.#user.name = name;
+    this.#emit(true, this.#menu);
   }
 
   get menu() {
@@ -82,6 +89,7 @@ class AuthStore {
   }
 
   #emit(isSignedIn, menu) {
+    this.#user = structuredClone(this.#user);
     this.#target.dispatchEvent(new AuthChangeEvent(isSignedIn, menu));
   }
 

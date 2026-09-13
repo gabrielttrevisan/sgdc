@@ -16,6 +16,7 @@ export function PasswordChangeField() {
           return true;
         }}
         variant="half-left"
+        required={true}
       />
 
       <InputField
@@ -23,12 +24,18 @@ export function PasswordChangeField() {
         id="newPassword"
         type="password"
         label="Nova Senha"
-        validate={(value) => {
-          const message = "Senha inválida ou não preenchida";
+        validate={(value, state) => {
+
+          if (!state.password && !state.newPassword) return true;
+
+          if (value === state.password)
+            return "A nova senha não pode ser igual a senha atual";
+
 
           if (typeof value !== "string" || value.trim().length === 0)
-            return message;
+            return true;
 
+          const message = "Senha inválida ou não preenchida";
           const trimmed = value.trim();
 
           if (!/([A-Z])/.test(trimmed)) return message;

@@ -1,4 +1,5 @@
 import DuplicatedFieldError from "../exception/DuplicatedFieldError.js";
+import PasswordChangeMatchError from "../exception/PasswordChangeMatchError.js";
 import RecordReferenceError from "../exception/RecordReferenceError.js";
 import APIResponse from "../lib/APIResponse.js";
 import UserCredentialMismatchError from "../exception/UserCredentialMismatchError.js";
@@ -145,6 +146,7 @@ export default class UserController {
         roleId,
         email,
         name,
+        pass,
         newPass,
         username,
       },
@@ -166,6 +168,13 @@ export default class UserController {
           .send();
       }
 
+      if (error instanceof PasswordChangeMatchError) {
+        return response
+          .badRequest()
+          .withIssue("PASSWORD_CHANGE_MATCH", error.message)
+          .send();
+      }
+
       return response.internalError();
     } else {
       if (!isUpdated)
@@ -174,7 +183,11 @@ export default class UserController {
           .withIssue("INSERT_FAILURE", "Falha ao editar usuário")
           .send();
 
-      return response.success({ success: true });
+      return response.success({
+        success: true,
+        name,
+        hasChangedPassword: Boolean(newPass),
+      });
     }
   }
 

@@ -1,4 +1,5 @@
 import DuplicatedFieldError from "../exception/DuplicatedFieldError.js";
+import PasswordChangeMatchError from "../exception/PasswordChangeMatchError.js";
 import RecordReferenceError from "../exception/RecordReferenceError.js";
 import sql from "./core/sql.js";
 import bcrypt from "bcryptjs";
@@ -180,8 +181,14 @@ export default class UserModel {
    * @param {import("../global.js").IAuthContext} authContext
    * @returns {Promise<BooleanTuple>}
    */
-  static async edit({ id, name, newPass, username, email, roleId }, userId) {
+  static async edit(
+    { id, name, pass, newPass, username, email, roleId },
+    userId,
+  ) {
     try {
+      if (newPass && newPass === pass)
+        return [false, new PasswordChangeMatchError()];
+
       const updateName = name ? sql`NAME = ${name}` : sql.empty;
       const updatePass = newPass
         ? sql`PASS = ${await bcrypt.hash(newPass, 10)}`
@@ -355,6 +362,7 @@ export default class UserModel {
  * @prop {string} [name]
  * @prop {string} [username]
  * @prop {string} [email]
+ * @prop {string} [pass]
  * @prop {string} [newPass]
  * @prop {number} id
  * @prop {number} roleId

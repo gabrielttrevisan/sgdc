@@ -23,7 +23,10 @@ export default class AuthController {
       return response.success({
         token: authentication.token,
         user: authentication.user,
-        menu: MenuBuilder.fromPermissions(authentication.permissions).getMenu(),
+        menu: MenuBuilder.fromPermissions(
+          authentication.permissions,
+          authentication.user.id,
+        ).getMenu(),
       });
     }
 

@@ -79,9 +79,15 @@ class UsersService extends Service {
         roleId,
         username: username.trim(),
       });
-      
+
+      if (!response.data?.success) return response;
+
       if (authStore.match(id)) {
-        authStore.signOut();
+        if (response.data.hasChangedPassword) {
+          authStore.signOut();
+        } else if (response.data.name) {
+          authStore.updateName(response.data.name);
+        }
       }
 
       return response;

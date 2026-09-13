@@ -13,7 +13,7 @@ export class MenuBuilder {
   }
 
   /** @param {PermissionHelper} permissions */
-  static fromPermissions(permissions) {
+  static fromPermissions(permissions, userId) {
     const permissionsService = new PermissionHelper(permissions);
     const menuStructure = permissionsService.arrayBuilder();
 
@@ -132,7 +132,11 @@ export class MenuBuilder {
               title: "Níveis de Usuário",
               path: "/niveis-de-usuario",
             },
-            { id: new RandID(), title: "Você", path: `/usuarios/atual` },
+            {
+              id: new RandID(),
+              title: "Você",
+              path: `/usuarios/${userId}`,
+            },
             {
               id: new RandID(),
               title: "Contas a Pagar",
