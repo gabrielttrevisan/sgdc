@@ -3,7 +3,6 @@ import { AtoZIconAsc } from "../../components/icons/AtoZIconAsc";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 import { EditIcon } from "../../components/icons/EditIcon";
 import { ShowIcon } from "../../components/icons/ShowIcon";
-import { UserIcon } from "../../components/icons/UserIcon";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
 import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
@@ -13,6 +12,7 @@ import { useRef } from "react";
 import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
 import Toast from "../../components/toast/ToastStorage";
 import { CloseIconLarge } from "../../components/icons/CloseIconLarge.jsx";
+import { CheckIcon } from "../../components/icons/CheckIcon.jsx";
 
 const DESCRIPTION_CLAMP_MAX = 36;
 
@@ -153,7 +153,7 @@ export const Roles = WithAuthGuard(() => {
             type: "restore",
             content: (
               <>
-                <UserIcon />
+                <CheckIcon />
                 <span>Reativar</span>
               </>
             ),
