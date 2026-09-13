@@ -16,6 +16,7 @@ import userRouter from "./routes/user.route.js";
 import auth from "./middlewares/auth.js";
 import authRouter from "./routes/auth.route.js";
 import cookieParser from "cookie-parser";
+import rolesRouter from "./routes/roles.route.js";
 
 const app = express();
 
@@ -37,6 +38,7 @@ protectedRoutes.use("/volunteers", volunteersRouter);
 protectedRoutes.use("/donors", router);
 protectedRoutes.use("/products", productsRouter);
 protectedRoutes.use("/users", userRouter);
+protectedRoutes.use("/roles", rolesRouter);
 
 app.use("/", protectedRoutes);
 app.use(notFoundHandler);

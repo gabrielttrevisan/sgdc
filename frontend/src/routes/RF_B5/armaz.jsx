@@ -4,11 +4,11 @@ import { useNavigate } from "react-router";
 import Cabecalho from "./componentes/Cabecalho";
 import Busca from "./componentes/Busca";
 import Lista from "./componentes/Lista";
-import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
+import { authStore } from "../../store/Auth.store";
 
 import "./css/armaz.css";
 import "./css/cadastro.css";
-import { auth } from "../../auth/Auth.store";
 
 function Armaz() {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ function Armaz() {
   async function carregarSalas() {
     try {
       const response = await fetch(`http://localhost:3004/salas?q=${busca}`, {
-        headers: auth.getHeaders(),
+        headers: authStore.getHeaders(),
       });
 
       const json = await response.json();
@@ -55,7 +55,7 @@ function Armaz() {
     try {
       await fetch(`http://localhost:3004/salas/${salaParaExcluir}`, {
         method: "DELETE",
-        headers: auth.getHeaders(),
+        headers: authStore.getHeaders(),
       });
 
       carregarSalas();

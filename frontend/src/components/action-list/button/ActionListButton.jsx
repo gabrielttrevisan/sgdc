@@ -27,7 +27,7 @@ export const ActionListButton = ({
         async (e) => {
           setLoading(true);
 
-          await onAction(type, target, e);
+          await onAction?.(type, target, e);
 
           setLoading(false);
         },

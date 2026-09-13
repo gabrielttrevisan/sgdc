@@ -8,33 +8,49 @@ import {
 } from "../validators/beneficiary.validator.js";
 import { pagination } from "../middlewares/validator/pagination.js";
 import identifier from "../middlewares/validator/id.js";
+import requiresPermission from "../middlewares/permission.js";
 
 const beneficiariesRouter = Router();
+const canAccessResource = requiresPermission.forResource("beneficiary");
 
 beneficiariesRouter.get(
   "/",
+  canAccessResource.withAction("list"),
   pagination(FILTER_BENEFICIARIES_RULES),
   BeneficiaryController.findAll,
 );
 
 beneficiariesRouter.get(
   "/no-family",
+  canAccessResource.withAction("list"),
   pagination(FILTER_BENEFICIARIES_RULES),
   BeneficiaryController.findAllWithoutFamily,
 );
 
-beneficiariesRouter.get("/:id", identifier, BeneficiaryController.findById);
+beneficiariesRouter.get(
+  "/:id",
+  canAccessResource.withAction("view"),
+  identifier,
+  BeneficiaryController.findById,
+);
 
-beneficiariesRouter.delete("/:id", identifier, BeneficiaryController.delete);
+beneficiariesRouter.delete(
+  "/:id",
+  canAccessResource.withAction("delete"),
+  identifier,
+  BeneficiaryController.delete,
+);
 
 beneficiariesRouter.post(
   "/",
+  canAccessResource.withAction("create"),
   validateRequest.body.withRules(CREATE_BENEFICIARY_RULES).middleware,
   BeneficiaryController.create,
 );
 
 beneficiariesRouter.patch(
   "/:id",
+  canAccessResource.withAction("edit"),
   identifier,
   validateRequest.body.withRules(EDIT_BENEFICIARY_BODY_RULES).middleware,
   BeneficiaryController.edit,

@@ -7,7 +7,7 @@
 /**
  * @callback ValidateFieldCallback
  * @param {string} value
- * @param {Record<string, FieldState>} state
+ * @param {Readonly<Record<string, unknown>>} state
  * @return {true|string}
  */
 
@@ -72,6 +72,22 @@ class FormController extends EventTarget {
     this.validate = this.validate.bind(this);
   }
 
+  #getFieldsProxy() {
+    return new Proxy(this.#fields, {
+      get(target, p) {
+        const state = target[p];
+
+        if (state) return state.input.value;
+
+        return undefined;
+      },
+    });
+  }
+
+  getFieldRef(field) {
+    return this.#fields[field].input;
+  }
+
   /**
    * @param {string} name
    * @param {FieldStateInit} fieldInit
@@ -114,7 +130,7 @@ class FormController extends EventTarget {
         fieldValidationTimeout = setTimeout(() => {
           const trimmed =
             typeof input.value === "string" ? input.value.trim() : input.value;
-          const result = field.validate(trimmed);
+          const result = field.validate(trimmed, this.#getFieldsProxy());
 
           if (typeof result === "string") {
             this.#isValid = false;
@@ -257,7 +273,7 @@ class FormController extends EventTarget {
     for (const [, field] of fields) {
       if (!field.validate) continue;
 
-      const result = field.validate(field.input.value);
+      const result = field.validate(field.input.value, this.#getFieldsProxy());
 
       this.#emitFieldValidated(field);
 
@@ -288,7 +304,7 @@ class FormController extends EventTarget {
     for (const [, field] of fields) {
       if (!field.validate) continue;
 
-      const result = field.validate(field.input.value);
+      const result = field.validate(field.input.value, this.#getFieldsProxy());
 
       if (typeof result === "string") {
         this.#isValid = false;
@@ -367,4 +383,5 @@ export default FormController;
  * @prop {() => any} getFormData
  * @prop {VoidFunction} enable
  * @prop {VoidFunction} disable
+ * @prop {HTMLElement} element
  */

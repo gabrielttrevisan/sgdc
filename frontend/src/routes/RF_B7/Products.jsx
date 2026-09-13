@@ -3,7 +3,7 @@ import { Eye } from "lucide-react";
 import Toast from "../../components/toast/ToastStorage";
 import ProductsService from "../../service/ProductsService";
 import ProductsForm from "./componentes/ProductsForm";
-import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 
 import "./css/products.css";
 

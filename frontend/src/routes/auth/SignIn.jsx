@@ -1,21 +1,16 @@
-import { useNavigate, useParams } from "react-router";
+import { useNavigate } from "react-router";
 import { InputField } from "../../components/form/input-field/InputField";
-import { InputHidden } from "../../components/form/input-field/InputHidden";
 import { Form } from "../../components/form/Form";
-import { FormModalCancelButton } from "../../components/form/modal/button/FormModalCancelButton";
 import { FormModalSubmitButton } from "../../components/form/modal/button/FormModalSubmitButton";
 import { FormControllerProvider } from "../../components/form/context/FormControllerProvider";
-import MeasuringUnitsService from "../../service/MeasuringTypesService";
 import Toast from "../../components/toast/ToastStorage";
 import AuthService from "../../service/AuthService";
 
-import "../measuring-units/InlineForm.css";
+import "../../components/resource-form/InlineForm.css"
 import "./SignIn.css";
 
 export default function SignInForm() {
   const navigate = useNavigate();
-
-  const variantClass = "sigin-in";
 
   const handleSubmit = async (data) => {
     const response = await AuthService.signIn(data);
@@ -24,7 +19,11 @@ export default function SignInForm() {
       Toast.success("Autenticação realizada com sucesso");
       navigate("/");
     } else if (response.error) {
-      Toast.error("Erro");
+      Toast.error(
+        response.error.issues?.[0]?.description ??
+          response.error.message ??
+          "Erro",
+      );
     }
   };
 

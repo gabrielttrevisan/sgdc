@@ -13,7 +13,7 @@ import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 import MeasuringUnitsService from "../../service/MeasuringTypesService";
 import { MeasuringUnitFormModal } from "./components/measuring-unit-form-modal/MeasuringUnitFormModal";
 import { useNavigate } from "react-router";
-import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 
 import "./MeasuringUnits.css";
 
@@ -137,7 +137,7 @@ export const MeasuringUnits = WithAuthGuard(() => {
               </>
             ),
             onAction: async (_, target) => {
-              formModalRef.current?.toggle(target);
+              navigate("/unidades-de-medida/" + target.id);
             },
           },
           {

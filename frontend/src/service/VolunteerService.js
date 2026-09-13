@@ -1,3 +1,5 @@
+import { authStore } from "../store/Auth.store";
+
 /**
  * @typedef {Object} Volunteer
  * @prop {number} [id]
@@ -16,8 +18,6 @@
  * @prop {string} state
  */
 
-import { auth } from "../auth/Auth.store";
-
 const BASE_URL = "http://localhost:3004";
 
 export const VolunteerService = {
@@ -35,7 +35,7 @@ export const VolunteerService = {
     if (sortType) params.append("sortType", sortType);
 
     const url = `${BASE_URL}/volunteers?${params.toString()}`;
-    const response = await fetch(url, { headers: auth.getHeaders() });
+    const response = await fetch(url, { headers: authStore.getHeaders() });
 
     if (!response.ok) throw new Error("Erro ao buscar voluntários");
 
@@ -73,7 +73,7 @@ export const VolunteerService = {
       method: method,
       headers: {
         "Content-Type": "application/json",
-        ...auth.getHeaders(),
+        ...authStore.getHeaders(),
       },
       body: JSON.stringify(cleanedData),
     });
@@ -92,7 +92,7 @@ export const VolunteerService = {
   async delete(id) {
     const response = await fetch(`${BASE_URL}/volunteers/${id}`, {
       method: "DELETE",
-      headers: auth.getHeaders(),
+      headers: authStore.getHeaders(),
     });
 
     if (!response.ok) throw new Error("Erro ao deletar voluntário");

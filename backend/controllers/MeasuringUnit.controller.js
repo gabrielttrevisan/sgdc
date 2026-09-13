@@ -34,6 +34,27 @@ export default class MeasuringUnitController {
    * @param {import("express").Request} req
    * @param {import("express").Response} res
    */
+  static async findById(req, res) {
+    const response = APIResponse.from(res);
+
+    const parsedId = parseInt(req.params.id);
+
+    const [measuringUnit, error] = await MeasuringUnitModel.findById(parsedId);
+
+    if (error) {
+      return res.status(500).send(APIResponse.internalError());
+    } else {
+      if (!measuringUnit)
+        return response.notFound("Unidade de Medida não encontrado");
+
+      return response.success(measuringUnit);
+    }
+  }
+
+  /**
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
   static async delete(req, res) {
     const response = APIResponse.from(res);
 

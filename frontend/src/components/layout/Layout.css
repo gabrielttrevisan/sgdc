@@ -61,6 +61,7 @@
       padding: 2rem;
       background-color: white;
       transition: all 200ms ease-out;
+      overflow-y: auto;
 
       &.--mobile {
         transform: translateX(0);
@@ -100,6 +101,9 @@
 
     .scdc-layout__img-wrapper {
       margin: 1.5rem var(--sgdc-logo-mr) 1.5rem var(--sgdc-logo-ml);
+      position: sticky;
+      top: 24px;
+      left: 0;
     }
 
     > aside {
@@ -114,15 +118,16 @@
       box-shadow: none;
 
       > nav {
-        position: relative;
-        top: unset;
-        left: unset;
+        position: sticky;
+        left: 0;
+        top: 84px;
         right: unset;
         bottom: unset;
         background-color: transparent;
-        margin-right: 2.3333rem;
         width: auto;
         padding: unset;
+        max-height: calc(100dvh - 193px);
+        overflow: hidden auto;
       }
     }
 

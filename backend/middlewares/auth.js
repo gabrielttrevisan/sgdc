@@ -31,6 +31,7 @@ const auth = (req, res, next) => {
         return {
           id: payload.user.id,
           name: payload.user.name,
+          roleId: payload.user.roleId,
         };
       },
     });

@@ -44,6 +44,20 @@ class MeasuringUnitsService {
   }
 
   /**
+   * @param {number} id
+   * @returns {Promise<import("../global").APIResponse<MeasuringUnit>>}
+   */
+  async getById(id) {
+    try {
+      const response = await this.#client.get(`measuring-units/${id}`);
+
+      return response;
+    } catch (error) {
+      return this.#internal("Erro inesperado");
+    }
+  }
+
+  /**
    *
    * @param {string} id
    * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}

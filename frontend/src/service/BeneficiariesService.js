@@ -149,7 +149,7 @@ class BeneficiariesService {
 
       return response;
     } catch (error) {
-      return this.#internal("Erro inesperado");
+      return this.#internal("Erro inesperado\n" + (error.message ?? ""));
     }
   }
 

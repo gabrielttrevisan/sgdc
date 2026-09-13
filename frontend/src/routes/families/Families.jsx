@@ -12,7 +12,7 @@ import { VisuallyHidden } from "../../components/accessibility/visually-hidden/V
 import Toast from "../../components/toast/ToastStorage";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 import FamiliesService from "../../service/FamiliesService";
-import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 
 import "./Families.css";
 

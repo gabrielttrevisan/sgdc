@@ -1,4 +1,5 @@
 import InputFieldController from "./field-controller/InputFieldController";
+import PermissionsTableFieldController from "./field-controller/PermissionsTableFieldController";
 import SelectFieldController from "./field-controller/SelectFieldController";
 import { useFormController } from "./useFormController";
 
@@ -15,12 +16,14 @@ export function useRegisterField(name, stateInit) {
     ref: (instance) => {
       if (instance) {
         const controllerInterface =
-          instance instanceof HTMLInputElement ||
-          instance instanceof HTMLTextAreaElement
-            ? new InputFieldController(instance)
-            : instance instanceof HTMLSelectElement
-              ? new SelectFieldController(instance)
-              : instance;
+          instance.dataset?.fieldType === "permissions"
+            ? new PermissionsTableFieldController(instance)
+            : instance instanceof HTMLInputElement ||
+                instance instanceof HTMLTextAreaElement
+              ? new InputFieldController(instance)
+              : instance instanceof HTMLSelectElement
+                ? new SelectFieldController(instance)
+                : instance;
 
         controller.registerField(name, stateInit, controllerInterface);
       }

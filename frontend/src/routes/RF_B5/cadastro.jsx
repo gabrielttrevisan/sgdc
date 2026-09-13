@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from "react-router";
 import { useEffect, useState } from "react";
-import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import Formulario from "./componentes/Formulario";
-import { auth } from "../../auth/Auth.store";
+import { authStore } from "../../store/Auth.store";
 
 import "./css/cadastro.css";
 
@@ -21,7 +21,7 @@ function CadastroRFB5() {
     async function carregarSala() {
       try {
         const response = await fetch(`http://localhost:3004/salas/${id}`, {
-          headers: auth.getHeaders(),
+          headers: authStore.getHeaders(),
         });
 
         const json = await response.json();
@@ -55,7 +55,7 @@ function CadastroRFB5() {
 
           headers: {
             "Content-Type": "application/json",
-            ...auth.getHeaders(),
+            ...authStore.getHeaders(),
           },
 
           body: JSON.stringify({

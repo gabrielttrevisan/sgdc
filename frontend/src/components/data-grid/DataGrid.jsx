@@ -1,17 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import {
-  Activity,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
+import { useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { ActionList } from "../action-list/ActionList";
 import { PaginationInfo } from "../pagination-info/PaginationInfo";
 import { PaginationLinks } from "../pagination-links/PaginationLinks";
 import { SearchBox } from "../search-box/SearchBox";
 import Toast from "../toast/ToastStorage";
-import "./DataGrid.css";
 import { DataGridContent } from "./grid/DataGridContent";
 import { DataGridFilterList } from "./grid/DataGridFilterList";
 import { DataGridItemList } from "./grid/DataGridItemList";
@@ -23,6 +16,8 @@ import { DataGridFilter } from "./grid/DataGridFilter";
 import { IsDataGridMobileProvider } from "./context/IsDataGridMobileProvider";
 import { DataGridHeader } from "./grid/DataGridHeader";
 import { DataGridHeaderActions } from "./grid/DataGridHeaderActions";
+
+import "./DataGrid.css";
 
 /**
  * @typedef {"none"|"asc"|"desc"} SortState
@@ -206,11 +201,11 @@ export function DataGrid({
           className="data-grid__table-wrapper data-grid__has-overlay"
           aria-busy={page.loading}
         >
-          <Activity mode={page.loading ? "visible" : "hidden"}>
+          {page.loading && (
             <div className="data-grid__loading-overlay">
               <p>Carregando</p>
             </div>
-          </Activity>
+          )}
 
           <DataGridContent
             className="data-grid__table --beneficiaries"

@@ -12,7 +12,7 @@ import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
 import { FormControllerProvider } from "../../components/form/context/FormControllerProvider";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
 import Toast from "../../components/toast/ToastStorage";
-import { WithAuthGuard } from "../../auth/WithAuthGuard.hoc";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 
 import "./Beneficiaries.css";
 import BeneficiariesService from "../../service/BeneficiariesService";

@@ -61,4 +61,8 @@ export default class InputFieldController {
   set value(value) {
     this.#input.value = value;
   }
+
+  get element() {
+    return this.#input;
+  }
 }

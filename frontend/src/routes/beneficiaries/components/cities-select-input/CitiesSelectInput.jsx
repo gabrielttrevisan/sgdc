@@ -51,7 +51,6 @@ export function CitiesSelectInput() {
         id="state"
         required
         label="Estado"
-        disabled
         options={[{ label: "São Paulo", value: "sp" }]}
         variant="half-right"
         onChange={(option) => {
@@ -65,7 +64,6 @@ export function CitiesSelectInput() {
         id="city"
         required
         label="Cidade"
-        disabled
         options={cities.options}
         variant="half-left"
         disabled={cities.loading || cities.options.length === 0}

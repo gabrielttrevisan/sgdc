@@ -52,4 +52,8 @@ export default class SelectFieldController {
   set value(value) {
     this.#input.value = value;
   }
+
+  get element() {
+    return this.#input;
+  }
 }
