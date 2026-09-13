@@ -101,6 +101,9 @@
 
     .scdc-layout__img-wrapper {
       margin: 1.5rem var(--sgdc-logo-mr) 1.5rem var(--sgdc-logo-ml);
+      position: sticky;
+      top: 24px;
+      left: 0;
     }
 
     > aside {
@@ -115,9 +118,9 @@
       box-shadow: none;
 
       > nav {
-        position: relative;
-        top: unset;
-        left: unset;
+        position: sticky;
+        left: 0;
+        top: 84px;
         right: unset;
         bottom: unset;
         background-color: transparent;

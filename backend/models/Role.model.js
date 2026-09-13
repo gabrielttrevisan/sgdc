@@ -6,11 +6,11 @@ export class RoleModel {
    * @param {Role} role
    * @returns {Promise<BooleanTuple>}
    */
-  static async create({ name, permissions }) {
+  static async create({ name, description, permissions }) {
     try {
       const created = await sql.exec`
-        INSERT INTO ROLES (NAME, PERMISSIONS)
-        VALUES (${name}, ${JSON.stringify(permissions)})
+        INSERT INTO ROLES (NAME, DESCRIPTION, PERMISSIONS)
+        VALUES (${name}, ${description ?? null}, ${JSON.stringify(permissions)})
       `.run();
 
       if (created.affectedRows < 1) return [false, null];
@@ -68,7 +68,7 @@ export class RoleModel {
       const [data, [{ TOTAL: total }]] = await Promise.all([
         sql.query`
               SELECT
-                ID, NAME
+                ID, NAME, DESCRIPTION
               FROM ROLES
               ${whereClause}
               ${orderByClause}
@@ -84,6 +84,7 @@ export class RoleModel {
         const role = {
           id: datum.ID,
           name: datum.NAME,
+          description: datum.DESCRIPTION,
         };
 
         return role;
@@ -129,6 +130,7 @@ export class RoleModel {
  * @typedef {Object} Role
  * @prop {number} id
  * @prop {string} name
+ * @prop {string|null} [description]
  * @prop {Record<string, string[]>} permissions
  */
 

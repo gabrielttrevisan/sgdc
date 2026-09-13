@@ -84,6 +84,10 @@ class FormController extends EventTarget {
     });
   }
 
+  getFieldRef(field) {
+    return this.#fields[field].input;
+  }
+
   /**
    * @param {string} name
    * @param {FieldStateInit} fieldInit
@@ -379,4 +383,5 @@ export default FormController;
  * @prop {() => any} getFormData
  * @prop {VoidFunction} enable
  * @prop {VoidFunction} disable
+ * @prop {HTMLElement} element
  */

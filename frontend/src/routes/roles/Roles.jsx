@@ -4,10 +4,14 @@ import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 import { EditIcon } from "../../components/icons/EditIcon";
 import { ShowIcon } from "../../components/icons/ShowIcon";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
+import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import RolesService from "../../service/RolesService";
+import { useNavigate } from "react-router";
 
 export const Roles = WithAuthGuard(() => {
+  const navigate = useNavigate();
+
   const columns = [
     {
       DataGridCell: ({ name }) => <span>{name}</span>,
@@ -65,6 +69,15 @@ export const Roles = WithAuthGuard(() => {
           ),
         },
       ]}
-    />
+    >
+      <button
+        type="button"
+        onClick={() => navigate("/niveis-de-acesso/cadastrar")}
+        className="button-block --solid --btn-safe"
+      >
+        <AddLargeIcon />
+        <span>Cadastrar Nível de Acesso</span>
+      </button>
+    </DataGrid>
   );
 });

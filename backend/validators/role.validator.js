@@ -12,7 +12,7 @@ export const CREATE_ROLE_RULES = [
       if (
         trimmed.length === 0 ||
         trimmed.length > 64 ||
-        !trimmed.match(/^([-A-zÀ-ž\s]+)$/i)
+        !trimmed.match(/^[\p{L}\s]+$/u)
       )
         return message;
 
@@ -41,6 +41,16 @@ export const CREATE_ROLE_RULES = [
       );
 
       return hasInvalidPermission ? "Permissões inválidas" : true;
+    },
+  },
+  {
+    property: "description",
+    required: false,
+    validate: (value) => {
+      if (typeof value !== "string" || value.length > 128)
+        return "Descrição inválida ou maior que 128 caracteres";
+
+      return true;
     },
   },
 ];

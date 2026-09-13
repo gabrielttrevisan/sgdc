@@ -9,9 +9,13 @@ export class RoleController {
    */
   static async create(req, res) {
     const response = APIResponse.from(res);
-    const { name, permissions } = req.body;
+    const { name, description, permissions } = req.body;
 
-    const [isCreated, error] = await RoleModel.create({ name, permissions });
+    const [isCreated, error] = await RoleModel.create({
+      name,
+      description,
+      permissions,
+    });
 
     if (error) {
       if (error instanceof DuplicatedFieldError) {
