@@ -3,7 +3,7 @@ import Toast from "../../../components/toast/ToastStorage";
 import RolesService from "../../../service/RolesService";
 import { SelectField } from "../../../components/form/input-field/SelectField";
 
-export function RolesSelectInput() {
+export function RolesSelectInput({ readOnly = false }) {
   const [roles, setRoles] = useState({
     options: [],
     loading: false,
@@ -46,11 +46,11 @@ export function RolesSelectInput() {
       <SelectField
         name="roleId"
         id="roleId"
-        required
+        required={!readOnly}
         label="Nível de Acesso"
         options={roles.options}
         variant="half-right"
-        disabled={roles.loading || roles.options.length === 0}
+        disabled={readOnly || roles.loading || roles.options.length === 0}
       />
     </>
   );

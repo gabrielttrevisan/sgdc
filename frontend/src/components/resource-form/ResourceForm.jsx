@@ -8,6 +8,7 @@ import Toast from "../toast/ToastStorage";
 import { InputHidden } from "../form/input-field/InputHidden";
 import { useFormController } from "../form/context/useFormController";
 import { ResourceFormContext } from "./context";
+import { FormBreadcrumbs } from "./FormBreadcrumbs";
 
 /**
  * @typedef {Object} Breadcrumb
@@ -67,6 +68,7 @@ function ResourceFormContent({
     isLoading: false,
     loadedResource: null,
   });
+  const [resource, setResource] = useState(null);
 
   const { submitLabel, actualTitle } = id
     ? { submitLabel: "Atualizar Dados", actualTitle: editTitle ?? title }
@@ -87,6 +89,7 @@ function ResourceFormContent({
         .then((resource) => {
           if (resource.data) {
             setEditState({ isLoading: false, loadedResource: id });
+            setResource(resource.data);
             form.fill(resource.data);
           }
         })
@@ -99,18 +102,8 @@ function ResourceFormContent({
   }, [id]);
 
   return (
-    <ResourceFormContext value={{ isEditing: Boolean(id), id }}>
-      <div className="form-inline__breadcrumbs">
-        {breadcrumbs && (
-          <div className="form-inline__breadcrumb-path">
-            {breadcrumbs.map(({ id, name }) => (
-              <h3 key={id}>{name}</h3>
-            ))}
-          </div>
-        )}
-
-        <h2 className="form-inline__breadcrumb-path-current">{actualTitle}</h2>
-      </div>
+    <ResourceFormContext value={{ isEditing: Boolean(id), id, resource }}>
+      <FormBreadcrumbs breadcrumbs={breadcrumbs} title={actualTitle} />
 
       <Form
         onSubmit={handleSubmit}

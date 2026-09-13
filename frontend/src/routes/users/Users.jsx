@@ -109,7 +109,9 @@ export const Users = WithAuthGuard(() => {
                 <VisuallyHidden>Ver Beneficiário</VisuallyHidden>
               </>
             ),
-            onAction: async (_type, target) => {},
+            onAction: async (_type, target) => {
+              navigate("/usuarios/" + target.id + "/visualizar");
+            },
           },
           {
             type: "edit",

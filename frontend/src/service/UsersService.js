@@ -168,4 +168,13 @@ export default new UsersService();
  * @prop {string} username
  * @prop {string} email
  * @prop {number} roleId
+ * @prop {UserAction[]} actions
+ */
+
+/**
+ * @typedef {Object} UserAction
+ * @prop {number} userId
+ * @prop {string} userName
+ * @prop {string} date
+ * @prop {"create"|"update"|"delete"} type
  */

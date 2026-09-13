@@ -93,14 +93,24 @@ export default class UserModel {
       const data = await sql.query`
           SELECT
             U.NAME, U.USER_NAME,
-            U.EMAIL, U.CPF,
-            U.ROLE_ID
+            U.EMAIL, U.CPF, U.ROLE_ID,
+            U.CREATED_AT, U.CREATED_BY,
+            C.NAME AS CREATED_BY_NAME,
+            U.UPDATED_AT, U.UPDATED_BY,
+            UP.NAME AS UPDATED_BY_NAME,
+            U.DELETED_AT, U.DELETED_BY,
+            D.NAME AS DELETED_BY_NAME
           FROM USERS U
+          LEFT JOIN USERS C ON C.ID = U.CREATED_BY
+          LEFT JOIN USERS UP ON UP.ID = U.UPDATED_BY
+          LEFT JOIN USERS D ON D.ID = U.DELETED_BY
           WHERE U.ID = ${id}`.run();
 
       if (data.length === 0) return [null, null];
 
       const [user] = data;
+      const toIsoDate = (value) =>
+        value ? new Date(value).toISOString() : undefined;
 
       /** @type {PersistedSingleUser} */
       const parsed = {
@@ -108,6 +118,34 @@ export default class UserModel {
         name: user.NAME,
         roleId: user.ROLE_ID,
         username: user.USER_NAME,
+        actions: [
+          {
+            userId: user.CREATED_BY,
+            userName: user.CREATED_BY_NAME,
+            date: toIsoDate(user.CREATED_AT),
+            type: "create",
+          },
+          ...(user.UPDATED_AT
+            ? [
+                {
+                  userId: user.UPDATED_BY,
+                  userName: user.UPDATED_BY_NAME,
+                  date: toIsoDate(user.UPDATED_AT),
+                  type: "update",
+                },
+              ]
+            : []),
+          ...(user.DELETED_AT
+            ? [
+                {
+                  userId: user.DELETED_BY,
+                  userName: user.DELETED_BY_NAME,
+                  date: toIsoDate(user.DELETED_AT),
+                  type: "delete",
+                },
+              ]
+            : []),
+        ],
       };
 
       return [parsed, null];
@@ -331,7 +369,17 @@ export default class UserModel {
  * @prop {string} NAME
  * @prop {string} USER_NAME
  * @prop {string} EMAIL
+ * @prop {string} CPF
  * @prop {number} ROLE_ID
+ * @prop {Date} CREATED_AT
+ * @prop {number} CREATED_BY
+ * @prop {string} CREATED_BY_NAME
+ * @prop {Date} UPDATED_AT
+ * @prop {number} UPDATED_BY
+ * @prop {string} UPDATED_BY_NAME
+ * @prop {Date} DELETED_AT
+ * @prop {number} DELETED_BY
+ * @prop {string} DELETED_BY_NAME
  */
 
 /**
@@ -340,6 +388,15 @@ export default class UserModel {
  * @prop {string} username
  * @prop {string} email
  * @prop {number} roleId
+ * @prop {UserAction[]} actions
+ */
+
+/**
+ * @typedef {Object} UserAction
+ * @prop {number} userId
+ * @prop {string} userName
+ * @prop {string} date
+ * @prop {"create"|"update"|"delete"} type
  */
 
 /**

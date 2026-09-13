@@ -21,6 +21,7 @@ import "./index.css";
 import { Users } from "./routes/users/Users.jsx";
 import CreateUsersForm from "./routes/users/CreateUsersForm.jsx";
 import EditUserForm from "./routes/users/EditUserForm.jsx";
+import UserDetailsForm from "./routes/users/UserDetailsForm.jsx";
 import { ErrorBoundary } from "./components/error-boundary/ErrorBoundary.jsx";
 
 createRoot(document.getElementById("root")).render(
@@ -65,6 +66,7 @@ createRoot(document.getElementById("root")).render(
 
             <Route path="/usuarios" element={<Users />} />
             <Route path="/usuarios/cadastrar" element={<CreateUsersForm />} />
+            <Route path="/usuarios/:id/visualizar" element={<UserDetailsForm />} />
             <Route path="/usuarios/:id" element={<EditUserForm />} />
 
             <Route path="*" element={<NotFoundPage />} />
