@@ -23,7 +23,7 @@
     }
 
     &.--deactivate {
-        --bb-base-bg: #f8e094;
+        --bb-base-bg: rgb(var(--colors-status-warning-secondary) / 90%);
         --bb-base-color: var(--colors-text-dark);
 
         > svg {
@@ -31,7 +31,7 @@
         }
 
         &:hover {
-            --bb-base-bg: #ffd035;
+            --bb-base-bg: rgb(var(--colors-status-warning-secondary-vibrant) / 90%);
         }
     }
 

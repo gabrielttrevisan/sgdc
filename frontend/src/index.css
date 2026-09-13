@@ -34,6 +34,8 @@
   --colors-state-error-60: rgba(162, 46, 75, 0.6);
   --colors-state-error-light: #c47e90;
   --colors-status-warning: rgba(248, 224, 148, 1);
+  --colors-status-warning-secondary: 248 196 148;
+  --colors-status-warning-secondary-vibrant: 255 199 96;
   --colors-status-warning-60: rgba(248, 224, 148, 0.6);
   --colors-status-warning-75: rgba(248, 224, 148, 0.75);
   --colors-status-warning-90: rgba(248, 224, 148, 0.9);
