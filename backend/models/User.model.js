@@ -25,7 +25,7 @@ export default class UserModel {
       const orderBySorting =
         sortKey === "name" ? sql.str(sortType.toUpperCase()) : sql`DESC`;
       const orderByClause = sortKey
-        ? sql`ORDER BY ${sql.join(",", orderByColumn.isEmpty ? sql.empty : sql.join(" ", orderByColumn, orderBySorting), sql`IS_ACTIVE ${orderBySorting}`)}`
+        ? sql`ORDER BY ${sql.join(",", orderByColumn.isEmpty ? sql.empty : sql.join(" ", orderByColumn, orderBySorting), sql`IS_ACTIVE ASC`)}`
         : sql.empty;
       const limitClause = sql`LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
 

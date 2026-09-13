@@ -9,6 +9,7 @@ export function UserControls() {
   if (!user) return null;
 
   const abbr = getUserAbbr(user.name);
+  const name = getUserName(user.name);
 
   const handleSignOut = () => {
     authStore.signOut();
@@ -23,7 +24,7 @@ export function UserControls() {
       <div className="nav-user-info__abbr">{abbr}</div>
 
       <div className="nav-user-info__data">
-        <p className="nav-user-info__name">{user.name}</p>
+        <p className="nav-user-info__name">{name}</p>
 
         <div className="nav-user-info__actions">
           <button
@@ -75,4 +76,24 @@ function getUserAbbr(name) {
   }
 
   return `${firstName[0]}${firstName[firstName.length - 1]}`.toUpperCase();
+}
+
+function getUserName(name) {
+  if (!name || typeof name !== "string" || name.trim() === "")
+    return "Usuário Desconhecido";
+
+  const [firstName, ...rest] = name.split(/\s+/);
+  const lastName = rest.pop();
+  const middleNames = rest.length
+    ? " " +
+      rest
+        .map((n) => {
+          if (n.length <= 3) return n;
+
+          return `${n[0]}.`;
+        })
+        .join(" ")
+    : "";
+
+  return `${firstName}${middleNames} ${lastName}`.trim();
 }
