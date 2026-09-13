@@ -3,14 +3,23 @@ import { AtoZIconAsc } from "../../components/icons/AtoZIconAsc";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 import { EditIcon } from "../../components/icons/EditIcon";
 import { ShowIcon } from "../../components/icons/ShowIcon";
+import { DeleteIcon } from "../../components/icons/DeleteIcon";
+import { UserIcon } from "../../components/icons/UserIcon";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
 import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import RolesService from "../../service/RolesService";
 import { useNavigate } from "react-router";
+import { useRef } from "react";
+import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
+import Toast from "../../components/toast/ToastStorage";
+
+const DESCRIPTION_CLAMP_MAX = 36;
 
 export const Roles = WithAuthGuard(() => {
   const navigate = useNavigate();
+  const dataGridRef = useRef(null);
+  const modalRef = useRef(null);
 
   const columns = [
     {
@@ -36,48 +45,133 @@ export const Roles = WithAuthGuard(() => {
       sortKey: "name",
       sortType: ["asc", "desc"],
     },
+    {
+      DataGridCell: ({ description }) => {
+        if (!description) return <span>--</span>;
+
+        return (
+          <span>
+            {description.length > DESCRIPTION_CLAMP_MAX
+              ? `${description.slice(0, DESCRIPTION_CLAMP_MAX + 1)}...`
+              : description}
+          </span>
+        );
+      },
+      title: "Descrição",
+      id: "description",
+      className: "roles__col --description",
+    },
+    {
+      DataGridCell: ({ isActive }) => (
+        <span
+          className={`user__is-active-badge ${isActive ? "--inactive" : "--active"}`}
+        >
+          <VisuallyHidden>Nível de acesso está ativo: </VisuallyHidden>
+          {isActive ? "SIM" : "NÃO"}
+        </span>
+      ),
+      title: "Ativo",
+      id: "is-active",
+      className: "users__col --is-active",
+    },
   ];
 
   return (
-    <DataGrid
-      columns={columns}
-      paginatableService={RolesService}
-      singularName="nível de acesso"
-      pluralName="níveis de acesso"
-      rowClassName="roles__row"
-      actionsCellClassName="roles__col --actions"
-      keyProp="id"
-      sortKeyDefault="name"
-      sortTypeDefault="asc"
-      actionsConfig={[
-        {
-          type: "show",
-          content: (
-            <>
-              <ShowIcon />
-              <VisuallyHidden>Ver nível de acesso</VisuallyHidden>
-            </>
-          ),
-        },
-        {
-          type: "edit",
-          content: (
-            <>
-              <EditIcon />
-              <span>Editar</span>
-            </>
-          ),
-        },
-      ]}
-    >
-      <button
-        type="button"
-        onClick={() => navigate("/niveis-de-acesso/cadastrar")}
-        className="button-block --solid --btn-safe"
+    <>
+      <SensitiveModal ref={modalRef} showCloseButton>
+        O nível de acesso ainda existirá e poderá ser recuperado. Dados
+        vinculados também serão mantidos.
+      </SensitiveModal>
+
+      <DataGrid
+        ref={dataGridRef}
+        columns={columns}
+        paginatableService={RolesService}
+        singularName="nível de acesso"
+        pluralName="níveis de acesso"
+        rowClassName="roles__row"
+        actionsCellClassName="roles__col --actions"
+        keyProp="id"
+        sortKeyDefault="name"
+        sortTypeDefault="asc"
+        actionsConfig={[
+          {
+            type: "show",
+            content: (
+              <>
+                <ShowIcon />
+                <VisuallyHidden>Ver nível de acesso</VisuallyHidden>
+              </>
+            ),
+          },
+          {
+            type: "edit",
+            content: (
+              <>
+                <EditIcon />
+                <span>Editar</span>
+              </>
+            ),
+          },
+          {
+            type: "delete",
+            content: (
+              <>
+                <DeleteIcon />
+                <span>Deletar</span>
+              </>
+            ),
+            onAction: async (_, target) => {
+              const confirmed = await modalRef.current?.open();
+
+              if (!confirmed) return;
+
+              const { data, error } = await RolesService.delete(target.id);
+
+              if (data?.success) {
+                Toast.success("Nível de acesso deletado com sucesso");
+                dataGridRef.current?.update();
+              } else if (error) {
+                Toast.error(error.issues?.[0]?.description ?? error.message);
+              }
+            },
+            shouldRender: (target) => target.isActive,
+          },
+          {
+            type: "restore",
+            content: (
+              <>
+                <UserIcon />
+                <span>Reativar</span>
+              </>
+            ),
+            onAction: async (_, target) => {
+              const response = await RolesService.restore(target.id);
+
+              if (response.data?.success) {
+                Toast.success("Nível de acesso reativado com sucesso");
+                dataGridRef.current?.update();
+              } else {
+                Toast.error(
+                  response.error?.issues?.[0]?.description ??
+                    response.error?.message ??
+                    "Não foi possível reativar nível de acesso",
+                );
+              }
+            },
+            shouldRender: (target) => !target.isActive,
+          },
+        ]}
       >
-        <AddLargeIcon />
-        <span>Cadastrar Nível de Acesso</span>
-      </button>
-    </DataGrid>
+        <button
+          type="button"
+          onClick={() => navigate("/niveis-de-acesso/cadastrar")}
+          className="button-block --solid --btn-safe"
+        >
+          <AddLargeIcon />
+          <span>Cadastrar Nível de Acesso</span>
+        </button>
+      </DataGrid>
+    </>
   );
 });

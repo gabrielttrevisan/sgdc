@@ -36,7 +36,7 @@ export default class UserModel {
                 U.NAME, U.USER_NAME, U.ID,
                 U.ROLE_ID, R.NAME AS ROLE_NAME,
                 CASE
-                  WHEN DELETED_AT IS NULL THEN 1
+                  WHEN U.DELETED_AT IS NULL THEN 1
                   ELSE 0
                 END AS IS_ACTIVE
               FROM USERS U

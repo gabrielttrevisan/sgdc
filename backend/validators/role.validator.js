@@ -58,6 +58,12 @@ export const CREATE_ROLE_RULES = [
 /** @type {import("../middlewares/validator/validator.js").ValidationRule[]} */
 export const FILTER_ROLES_RULES = [
   {
+    property: "filter",
+    required: false,
+    validate: (value) =>
+      value === "inactive" ? true : "Filtro de níveis de acesso inválido",
+  },
+  {
     property: "sortKey",
     required: false,
     validate: (value, target) => {

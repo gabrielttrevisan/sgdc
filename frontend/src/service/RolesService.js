@@ -5,19 +5,23 @@ import { Service } from "./Service";
  * @typedef {Object} Role
  * @prop {int} id
  * @prop {string} name
+ * @prop {string|null} description
  */
 
 class RolesService extends Service {
   #client = new APIClient();
 
   /**
-   * @param {string|null} state
+   * @param {{filter?: "inactive", query?: string, page?: number, perPage?: number}} [query]
    * @returns {Promise<import("../global").APIResponse<import("../global").PageData<Role>>}
    */
-  async list({ query, ...rest } = { page: 1, perPage: 10 }) {
+  async list(
+    { query, filter = "inactive", ...rest } = { page: 1, perPage: 10 },
+  ) {
     try {
       const response = await this.#client.get("roles", {
         q: query,
+        filter,
         ...rest,
       });
 
@@ -36,6 +40,30 @@ class RolesService extends Service {
       });
     } catch {
       return this.internal("Não foi possível cadastrar nível de acesso");
+    }
+  }
+
+  /**
+   * @param {number} id
+   * @returns {Promise<import("../global").APIResponse<{success: boolean}>>}
+   */
+  async delete(id) {
+    try {
+      return await this.#client.delete(`roles/${id}`);
+    } catch {
+      return this.internal("Não foi possível deletar nível de acesso");
+    }
+  }
+
+  /**
+   * @param {number} id
+   * @returns {Promise<import("../global").APIResponse<{success: boolean}>>}
+   */
+  async restore(id) {
+    try {
+      return await this.#client.patch(`roles/activate/${id}`);
+    } catch {
+      return this.internal("Não foi possível reativar nível de acesso");
     }
   }
 }

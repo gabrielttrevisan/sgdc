@@ -1,5 +1,6 @@
 import sql from "./core/sql.js";
 import DuplicatedFieldError from "../exception/DuplicatedFieldError.js";
+import ForeignKeyViolationError from "../exception/ForeignKeyViolationError.js";
 
 export class RoleModel {
   /**
@@ -32,7 +33,8 @@ export class RoleModel {
   static async findAllWithPermissions() {
     try {
       const roles = await sql.query`
-            SELECT ID, PERMISSIONS FROM ROLES
+        SELECT ID, PERMISSIONS FROM ROLES
+        WHERE DELETED_AT IS NULL
         `.run();
 
       return [
@@ -46,16 +48,29 @@ export class RoleModel {
       return [null, e];
     }
   }
+
   /**
    * @param {FindAllRolesFilter} [filter]
    * @returns {Promise<[import("../global.js").PageData<Role>, null] | [null, Error]>}
    */
-  static async findAll({ query, sortKey, sortType, page = 1, perPage = 10 }) {
+  static async findAll({
+    query,
+    filter,
+    sortKey,
+    sortType,
+    page = 1,
+    perPage = 10,
+  }) {
     try {
       const likeQuery = `%${query}%`;
-      const whereClause = query
-        ? sql`WHERE ID = ${query} OR NAME LIKE ${likeQuery}`
-        : sql.empty;
+      const whereClause =
+        filter === "inactive"
+          ? query
+            ? sql`WHERE ID = ${query} OR NAME LIKE ${likeQuery} OR DESCRIPTION LIKE ${likeQuery}`
+            : sql.empty
+          : query
+            ? sql`WHERE DELETED_AT IS NULL AND (ID = ${query} OR NAME LIKE ${likeQuery} OR DESCRIPTION LIKE ${likeQuery})`
+            : sql`WHERE DELETED_AT IS NULL`;
       const orderByColumn = sortKey === "name" ? sql`NAME` : sql.empty;
       const orderBySorting =
         sortKey === "name" ? sql([sortType.toUpperCase()]) : sql`DESC`;
@@ -68,7 +83,11 @@ export class RoleModel {
       const [data, [{ TOTAL: total }]] = await Promise.all([
         sql.query`
               SELECT
-                ID, NAME, DESCRIPTION
+                ID, NAME, DESCRIPTION,
+                CASE
+                  WHEN DELETED_AT IS NULL THEN 1
+                  ELSE 0
+                END AS IS_ACTIVE
               FROM ROLES
               ${whereClause}
               ${orderByClause}
@@ -85,8 +104,8 @@ export class RoleModel {
           id: datum.ID,
           name: datum.NAME,
           description: datum.DESCRIPTION,
+          isActive: datum.IS_ACTIVE === 1,
         };
-
         return role;
       });
 
@@ -97,6 +116,7 @@ export class RoleModel {
           page,
           totalPages: Math.ceil(total / perPage),
           query,
+          filter,
           sortKey,
           sortType,
         },
@@ -104,6 +124,46 @@ export class RoleModel {
       ];
     } catch (error) {
       return [null, error];
+    }
+  }
+
+  /**
+   * @param {number} id
+   * @returns {Promise<BooleanTuple>}
+   */
+  static async delete(id) {
+    try {
+      const deleted = await sql.exec`
+        UPDATE ROLES
+        SET DELETED_AT = CURRENT_TIMESTAMP()
+        WHERE ID = ${id} AND DELETED_AT IS NULL
+      `.run();
+
+      if (deleted.affectedRows < 1) return [false, null];
+
+      return [true, null];
+    } catch (error) {
+      return [false, error];
+    }
+  }
+
+  /**
+   * @param {number} id
+   * @returns {Promise<BooleanTuple>}
+   */
+  static async restore(id) {
+    try {
+      const restored = await sql.exec`
+        UPDATE ROLES
+        SET DELETED_AT = NULL
+        WHERE ID = ${id} AND DELETED_AT IS NOT NULL
+      `.run();
+
+      if (restored.affectedRows < 1) return [false, null];
+
+      return [true, null];
+    } catch (error) {
+      return [false, error];
     }
   }
 }
@@ -124,6 +184,8 @@ export class RoleModel {
  * @typedef {Object} QueriedRole
  * @prop {number} ID
  * @prop {string} NAME
+ * @prop {string|null} DESCRIPTION
+ * @prop {number} IS_ACTIVE
  */
 
 /**
@@ -131,12 +193,14 @@ export class RoleModel {
  * @prop {number} id
  * @prop {string} name
  * @prop {string|null} [description]
+ * @prop {boolean} isActive
  * @prop {Record<string, string[]>} permissions
  */
 
 /**
  * @typedef {Object} FindAllRolesFilter
  * @prop {string} [query]
+ * @prop {"inactive"} [filter]
  * @prop {string} [sortKey]
  * @prop {string} [sortType]
  * @prop {number} [page]

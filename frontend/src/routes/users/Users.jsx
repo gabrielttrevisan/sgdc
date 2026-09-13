@@ -1,8 +1,6 @@
 import { DataGrid } from "../../components/data-grid/DataGrid.jsx";
 import { ShowIcon } from "../../components/icons/ShowIcon.jsx";
 import { EditIcon } from "../../components/icons/EditIcon.jsx";
-import { ArrowDownIcon } from "../../components/icons/ArrowDownIcon.jsx";
-import { ArrowUpIcon } from "../../components/icons/ArrowUpIcon.jsx";
 import { AtoZIconAsc } from "../../components/icons/AtoZIconAsc.jsx";
 import { useRef } from "react";
 import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal.jsx";
@@ -12,11 +10,11 @@ import Toast from "../../components/toast/ToastStorage.js";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import UsersService from "../../service/UsersService.js";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc.jsx";
-
-import "./Users.css";
 import { UserForbidIcon } from "../../components/icons/UserForbidIcon.jsx";
 import { UserIcon } from "../../components/icons/UserIcon.jsx";
 import { useNavigate } from "react-router";
+
+import "./Users.css";
 
 export const Users = WithAuthGuard(() => {
   const dataGridRef = useRef(null);

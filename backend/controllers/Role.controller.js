@@ -1,5 +1,6 @@
 import APIResponse from "../lib/APIResponse.js";
 import DuplicatedFieldError from "../exception/DuplicatedFieldError.js";
+import ForeignKeyViolationError from "../exception/ForeignKeyViolationError.js";
 import { RoleModel } from "../models/Role.model.js";
 
 export class RoleController {
@@ -45,23 +46,59 @@ export class RoleController {
     const response = APIResponse.from(res);
     /** @type {import("../models/Role.model.js").FindAllRolesFilter} */
     const filter = {};
-    const { q, sortKey, sortType, page, perPage } = req.query;
+    const { q, filter: roleFilter, sortKey, sortType, page, perPage } =
+      req.query;
 
     filter.query = q;
+    filter.filter = roleFilter;
     filter.page = page ? parseInt(page) : 1;
     filter.perPage = perPage ? parseInt(perPage) : 10;
     filter.sortKey = sortKey;
     filter.sortType = sortType;
 
-    const [cities, error] = await RoleModel.findAll(filter);
+    const [roles, error] = await RoleModel.findAll(filter);
 
     if (error) {
       return response.internalError();
     } else {
-      if (cities.length === 0)
+      if (roles.items.length === 0)
         return response.notFound("Nenhum nível de acesso encontrado");
 
-      return response.success(cities);
+      return response.success(roles);
     }
+  }
+
+  /**
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
+  static async delete(req, res) {
+    const response = APIResponse.from(res);
+
+    const [isDeleted, error] = await RoleModel.delete(req.params.id);
+
+    if (error) return response.internalError();
+
+    if (!isDeleted)
+      return response.internalError("Falha ao remover nível de acesso");
+
+    return response.success({ success: true });
+  }
+
+  /**
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
+  static async restore(req, res) {
+    const response = APIResponse.from(res);
+
+    const [isRestored, error] = await RoleModel.restore(req.params.id);
+
+    if (error) return response.internalError();
+
+    if (!isRestored)
+      return response.internalError("Falha ao reativar nível de acesso");
+
+    return response.success({ success: true });
   }
 }

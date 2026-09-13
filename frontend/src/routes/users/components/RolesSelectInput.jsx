@@ -13,7 +13,9 @@ export function RolesSelectInput({ readOnly = false }) {
   const fetchRoles = useCallback(async () => {
     setRoles((prev) => ({ ...prev, loading: true }));
 
-    const { data, error } = await RolesService.list();
+    const { data, error } = await RolesService.list({
+      filter: readOnly ? "inactive" : undefined,
+    });
 
     if (error) {
       Toast.error(error.message);
@@ -35,7 +37,7 @@ export function RolesSelectInput({ readOnly = false }) {
         loading: false,
       }));
     }
-  }, []);
+  }, [readOnly]);
 
   useEffect(() => {
     fetchRoles(null);
