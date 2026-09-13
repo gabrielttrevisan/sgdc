@@ -3,7 +3,6 @@ import { AtoZIconAsc } from "../../components/icons/AtoZIconAsc";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 import { EditIcon } from "../../components/icons/EditIcon";
 import { ShowIcon } from "../../components/icons/ShowIcon";
-import { DeleteIcon } from "../../components/icons/DeleteIcon";
 import { UserIcon } from "../../components/icons/UserIcon";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
 import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
@@ -13,6 +12,7 @@ import { useNavigate } from "react-router";
 import { useRef } from "react";
 import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
 import Toast from "../../components/toast/ToastStorage";
+import { CloseIconLarge } from "../../components/icons/CloseIconLarge.jsx";
 
 const DESCRIPTION_CLAMP_MAX = 36;
 
@@ -78,9 +78,18 @@ export const Roles = WithAuthGuard(() => {
 
   return (
     <>
-      <SensitiveModal ref={modalRef} showCloseButton>
-        O nível de acesso ainda existirá e poderá ser recuperado. Dados
-        vinculados também serão mantidos.
+      <SensitiveModal
+        ref={modalRef}
+        showCloseButton
+        confirmLabel="Desativar mesmo assim"
+        title="Deseja realmente desativar esse nível de acesso?"
+      >
+        Não será possível mais vinculá-lo a novos usuários, porém usuários
+        vinculados a ele ainda permanecerão com este nivel de acesso.
+        <br />
+        Usuários com nível de acesso inativo não conseguirão mais logar no
+        sistema.
+        <br />É possível reativá-lo a qualquer momento.
       </SensitiveModal>
 
       <DataGrid
@@ -112,16 +121,16 @@ export const Roles = WithAuthGuard(() => {
                 <span>Editar</span>
               </>
             ),
-              onAction: async (_, target) => {
-                navigate(`/niveis-de-acesso/${target.id}`);
-              },
+            onAction: async (_, target) => {
+              navigate(`/niveis-de-acesso/${target.id}`);
+            },
           },
           {
-            type: "delete",
+            type: "deactivate",
             content: (
               <>
-                <DeleteIcon />
-                <span>Deletar</span>
+                <CloseIconLarge size="12px" />
+                <span>Desativar</span>
               </>
             ),
             onAction: async (_, target) => {

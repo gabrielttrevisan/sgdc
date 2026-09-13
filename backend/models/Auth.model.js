@@ -1,6 +1,7 @@
 import sql from "./core/sql.js";
 import RecordNotFoundError from "../exception/RecordNotFoundError.js";
 import UserCredentialMismatchError from "../exception/UserCredentialMismatchError.js";
+import InactiveRoleError from "../exception/InactiveRoleError.js";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
 import bcrypt from "bcryptjs";
@@ -36,7 +37,7 @@ export default class AuthModel {
       const [foundUser] = await sql.query`
             SELECT
               U.pass, U.id, U.name,
-              R.permissions, U.role_id
+              R.permissions, R.deleted_at AS role_deleted_at, U.role_id
             FROM users U
               INNER JOIN roles R
                 ON R.ID = U.ROLE_ID
@@ -51,6 +52,9 @@ export default class AuthModel {
       const isCredentialsOk = await bcrypt.compare(pass, foundUser.pass);
 
       if (!isCredentialsOk) return [null, new UserCredentialMismatchError()];
+
+      if (foundUser.role_deleted_at)
+        return [null, new InactiveRoleError()];
 
       const userData = {
         id: foundUser.id,

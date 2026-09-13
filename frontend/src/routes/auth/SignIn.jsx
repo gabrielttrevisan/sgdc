@@ -19,8 +19,11 @@ export default function SignInForm() {
       Toast.success("Autenticação realizada com sucesso");
       navigate("/");
     } else if (response.error) {
-      debugger;
-      Toast.error("Erro");
+      Toast.error(
+        response.error.issues?.[0]?.description ??
+          response.error.message ??
+          "Erro",
+      );
     }
   };
 
