@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useRegisterField } from "../context/useRegisterField";
 import { ErrorMessage } from "../error-message/ErrorMessage";
 import Toast from "../../toast/ToastStorage";
@@ -102,8 +102,10 @@ const PERMISSION_GROUPS = [
     actions: [
       PermissionGroupAction.CREATE,
       PermissionGroupAction.EDIT,
+      PermissionGroupAction.DELETE,
       PermissionGroupAction.VIEW,
       PermissionGroupAction.LIST,
+      PermissionGroupAction.RESTORE,
     ],
   },
   {
@@ -157,6 +159,7 @@ export function PermissionsTableField({
   });
   const availablePermissionsRef = useRef(null);
   const controller = useFormController();
+  const filledRef = useRef(false);
 
   /**
    * @param {PermissionsTableState} value
@@ -180,21 +183,36 @@ export function PermissionsTableField({
     );
   };
 
-  const handleAppendCurrentPermission = () => {
-    if (!availablePermissionsRef.current?.value) {
-      Toast.error("Permissão inválida ou não encontrada");
-      return;
-    }
-
-    const resource = availablePermissionsRef.current.value;
+  /**
+   *
+   * @param {string} resource
+   * @param {Set<string>} [actions]
+   * @returns
+   */
+  const handleAppendPermission = (resource, actions) => {
     const permission = state.availablePermissions.find(
       (perm) => perm.resource === resource,
     );
 
     if (!permission) {
-      Toast.error("Permissão inválida ou não encontrada");
+      Toast.error(`Permissão '${resource}' inválida ou não encontrada`);
       return;
     }
+
+    const minActions = permission.minActions ?? MIN_PERMISSIONS;
+    const selected = actions
+      ? Array.from(
+          new Map(
+            [...minActions, ...permission.actions]
+              .filter((action) => actions.has(action.value))
+              .map((action) => [action.value, action]),
+          ).values(),
+        )
+      : minActions;
+    const selectedSet = new Set(selected.map((a) => a.value));
+    const available = actions
+      ? permission.actions.filter((action) => !selectedSet.has(action.value))
+      : permission.actions;
 
     setState((prev) => {
       const newState = {
@@ -202,8 +220,8 @@ export function PermissionsTableField({
         permissions: {
           ...prev.permissions,
           [resource]: prev.permissions[resource] ?? {
-            selected: [...(permission.minActions ?? MIN_PERMISSIONS)],
-            available: permission.actions,
+            selected,
+            available,
             label: permission.label,
           },
         },
@@ -216,6 +234,16 @@ export function PermissionsTableField({
 
       return newState;
     });
+  };
+
+  const handleAppendCurrentPermission = () => {
+    if (!availablePermissionsRef.current?.value) {
+      Toast.error("Permissão inválida ou não encontrada");
+      return;
+    }
+
+    const resource = availablePermissionsRef.current.value;
+    handleAppendPermission(resource);
   };
 
   const handleRemovePermissionFrom = (resource) => {
@@ -313,18 +341,37 @@ export function PermissionsTableField({
     });
   };
 
+  const { ref: refCallback, ...registry } = useRegisterField(name, {
+    required,
+    validate: (value) =>
+      Object.keys(parsePermissions(value)).length > 0
+        ? true
+        : "Selecione ao menos uma permissão",
+  });
+
+  const handleFillField = (data) => {
+    if (!filledRef.current) {
+      for (const key in data) {
+        handleAppendPermission(key, new Set(data[key]));
+      }
+
+      filledRef.current = true;
+    }
+  };
+
   return (
     <div
       className="permissions-field input-field"
       data-field-type="permissions"
       data-value="{}"
-      {...useRegisterField(name, {
-        required,
-        validate: (value) =>
-          Object.keys(parsePermissions(value)).length > 0
-            ? true
-            : "Selecione ao menos uma permissão",
-      })}
+      {...registry}
+      ref={useCallback(
+        (instance) => {
+          if (instance) instance.forceUpdate = handleFillField;
+          refCallback(instance);
+        },
+        [refCallback, handleFillField],
+      )}
     >
       <div className="permissions-field__header">
         <label
@@ -362,14 +409,19 @@ export function PermissionsTableField({
         {Object.entries(state.permissions).map(
           ([resource, { label, available, selected }]) => (
             <div className="permissions-field__row" key={resource}>
-              <label htmlFor={`${name}-${resource}`} className="permissions-field__row-left">{label}</label>
+              <label
+                htmlFor={`${name}-${resource}`}
+                className="permissions-field__row-left"
+              >
+                {label}
+              </label>
 
               <div className="permissions-field__row-right">
                 <div className="permissions-field__row-right-selected">
                   {selected.map(({ value, label }) => (
                     <div
                       className="permissions-field__row-right-selected-item"
-                      key={value}
+                      key={`${resource}-${value}`}
                     >
                       <span>{label}</span>
 

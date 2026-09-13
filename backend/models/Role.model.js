@@ -1,6 +1,5 @@
 import sql from "./core/sql.js";
 import DuplicatedFieldError from "../exception/DuplicatedFieldError.js";
-import ForeignKeyViolationError from "../exception/ForeignKeyViolationError.js";
 
 export class RoleModel {
   /**
@@ -46,6 +45,36 @@ export class RoleModel {
       ];
     } catch (e) {
       return [null, e];
+    }
+  }
+
+  /**
+   * @param {number} id
+   * @returns {Promise<[Role, null] | [null, Error]>}
+   */
+  static async findById(id) {
+    try {
+      const roles = await sql.query`
+        SELECT ID, NAME, DESCRIPTION, PERMISSIONS
+        FROM ROLES
+        WHERE ID = ${id}
+      `.run();
+
+      if (roles.length === 0) return [null, null];
+
+      const [role] = roles;
+
+      return [
+        {
+          id: role.ID,
+          name: role.NAME,
+          description: role.DESCRIPTION,
+          permissions: role.PERMISSIONS,
+        },
+        null,
+      ];
+    } catch (error) {
+      return [null, error];
     }
   }
 
@@ -143,6 +172,36 @@ export class RoleModel {
 
       return [true, null];
     } catch (error) {
+      return [false, error];
+    }
+  }
+
+  /**
+   * @param {{id: number, name: string, description?: string, permissions: Record<string, string[]>}} role
+   * @returns {Promise<BooleanTuple>}
+   */
+  static async edit({ id, name, description, permissions }) {
+    try {
+      const updated = await sql.exec`
+        UPDATE ROLES
+        SET NAME = ${name},
+            DESCRIPTION = ${description ?? null},
+            PERMISSIONS = ${JSON.stringify(permissions)}
+        WHERE ID = ${id} AND DELETED_AT IS NULL
+      `.run();
+
+      if (updated.affectedRows < 1) return [false, null];
+
+      return [true, null];
+    } catch (error) {
+      if (error instanceof Error && error.code === "ER_DUP_ENTRY")
+        return [
+          false,
+          new DuplicatedFieldError("nome", "nível de acesso", {
+            cause: error,
+          }),
+        ];
+
       return [false, error];
     }
   }

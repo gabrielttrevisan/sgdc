@@ -45,6 +45,30 @@ class RolesService extends Service {
 
   /**
    * @param {number} id
+   * @returns {Promise<import("../global").APIResponse<Role>>}
+   */
+  async getById(id) {
+    try {
+      return await this.#client.get(`roles/${id}`);
+    } catch {
+      return this.internal("Não foi possível carregar nível de acesso");
+    }
+  }
+
+  async edit({ id, name, description, permissions }) {
+    try {
+      return await this.#client.patch(`roles/${id}`, {
+        name: name.trim(),
+        description: description?.trim() || undefined,
+        permissions,
+      });
+    } catch {
+      return this.internal("Não foi possível editar nível de acesso");
+    }
+  }
+
+  /**
+   * @param {number} id
    * @returns {Promise<import("../global").APIResponse<{success: boolean}>>}
    */
   async delete(id) {

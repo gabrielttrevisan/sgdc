@@ -112,6 +112,9 @@ export const Roles = WithAuthGuard(() => {
                 <span>Editar</span>
               </>
             ),
+              onAction: async (_, target) => {
+                navigate(`/niveis-de-acesso/${target.id}`);
+              },
           },
           {
             type: "delete",

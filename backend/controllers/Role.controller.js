@@ -72,6 +72,22 @@ export class RoleController {
    * @param {import("express").Request} req
    * @param {import("express").Response} res
    */
+  static async findById(req, res) {
+    const response = APIResponse.from(res);
+
+    const [role, error] = await RoleModel.findById(parseInt(req.params.id));
+
+    if (error) return response.internalError();
+
+    if (!role) return response.notFound("Nível de acesso não encontrado");
+
+    return response.success(role);
+  }
+
+  /**
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
   static async delete(req, res) {
     const response = APIResponse.from(res);
 
@@ -81,6 +97,40 @@ export class RoleController {
 
     if (!isDeleted)
       return response.internalError("Falha ao remover nível de acesso");
+
+    return response.success({ success: true });
+  }
+
+  /**
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
+  static async edit(req, res) {
+    const response = APIResponse.from(res);
+    const { name, description, permissions } = req.body;
+
+    const [isUpdated, error] = await RoleModel.edit({
+      id: parseInt(req.params.id),
+      name,
+      description,
+      permissions,
+    });
+
+    if (error) {
+      if (error instanceof DuplicatedFieldError)
+        return response
+          .badRequest()
+          .withIssue(`DUPLICATED_${error.field}`, error.message)
+          .send();
+
+      return response.internalError();
+    }
+
+    if (!isUpdated)
+      return response
+        .badRequest()
+        .withIssue("UPDATE_FAILURE", "Falha ao editar nível de acesso")
+        .send();
 
     return response.success({ success: true });
   }

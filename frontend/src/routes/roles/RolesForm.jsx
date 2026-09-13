@@ -12,20 +12,29 @@ export default WithAuthGuard(function RolesForm() {
 
   return (
     <ResourceForm
+      fetchResource={async (id) => await RolesService.getById(id)}
       breadcrumbs={[
         { id: "institutional", name: "Institucional" },
         { id: "roles", name: "Níveis de acesso" },
       ]}
       title="Cadastrar Nível de Acesso"
+      editTitle="Editar Nível de Acesso"
       onCancel={() => navigate("/niveis-de-acesso")}
-      onSubmit={async (data) => {
-        const response = await RolesService.create({
+      onSubmit={async (data, isEditing) => {
+        const payload = {
           ...data,
           permissions: JSON.parse(data.permissions),
-        });
+        };
+        const response = await (isEditing
+          ? RolesService.edit(payload)
+          : RolesService.create(payload));
 
         if (response.data?.success) {
-          Toast.success("Nível de acesso cadastrado com sucesso");
+          Toast.success(
+            isEditing
+              ? "Nível de acesso editado com sucesso"
+              : "Nível de acesso cadastrado com sucesso",
+          );
           navigate("/niveis-de-acesso");
           return true;
         }

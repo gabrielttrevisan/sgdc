@@ -2,14 +2,10 @@
  * @implements {import("..").IFieldController}
  */
 export default class PermissionsTableFieldController {
+  /** @type {HTMLElement & { forceUpdate(): void; }} */
   #input;
 
   constructor(input) {
-    if (!(input instanceof HTMLElement))
-      throw new TypeError(
-        "PermissionsTableFieldController can only control an HTMLElement",
-      );
-
     this.#input = input;
   }
 
@@ -28,6 +24,7 @@ export default class PermissionsTableFieldController {
   fill(_mask, value) {
     this.#input.dataset.value =
       typeof value === "string" ? value : JSON.stringify(value ?? {});
+    this.#input.forceUpdate(value);
   }
 
   clear() {

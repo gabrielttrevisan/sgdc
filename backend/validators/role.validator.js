@@ -55,6 +55,8 @@ export const CREATE_ROLE_RULES = [
   },
 ];
 
+export const EDIT_ROLE_RULES = CREATE_ROLE_RULES;
+
 /** @type {import("../middlewares/validator/validator.js").ValidationRule[]} */
 export const FILTER_ROLES_RULES = [
   {

@@ -65,6 +65,7 @@ createRoot(document.getElementById("root")).render(
               path="/niveis-de-acesso/cadastrar"
               element={<RolesForm />}
             />
+            <Route path="/niveis-de-acesso/:id" element={<RolesForm />} />
 
             <Route path="/beneficiarios" element={<Beneficiaries />} />
             <Route path="/familias" element={<Families />} />
