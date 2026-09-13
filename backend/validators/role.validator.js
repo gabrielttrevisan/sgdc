@@ -1,31 +1,49 @@
 /** @type {import("../middlewares/validator/validator.js").ValidationRule[]} */
-export const CREATE_CITY_RULES = [
+export const CREATE_ROLE_RULES = [
   {
     property: "name",
     validate: (value) => {
-      const message = "Nome de cidade inválido";
+      const message = "Nome de nível de acesso inválido";
 
       if (typeof value !== "string") return message;
 
       const trimmed = value.trim();
 
-      if (trimmed.length === 0 || !trimmed.match(/^([-A-zÀ-ž\s]+)$/i))
+      if (
+        trimmed.length === 0 ||
+        trimmed.length > 64 ||
+        !trimmed.match(/^([-A-zÀ-ž\s]+)$/i)
+      )
         return message;
 
       return true;
     },
   },
   {
-    property: "state",
-    validator: "state",
+    property: "permissions",
+    validate: (value) => {
+      if (
+        !value ||
+        typeof value !== "object" ||
+        Array.isArray(value) ||
+        Object.keys(value).length === 0
+      )
+        return "Permissões inválidas";
+
+      const hasInvalidPermission = Object.entries(value).some(
+        ([resource, actions]) =>
+          resource.trim().length === 0 ||
+          !Array.isArray(actions) ||
+          actions.length === 0 ||
+          actions.some(
+            (action) => typeof action !== "string" || action.trim().length === 0,
+          ),
+      );
+
+      return hasInvalidPermission ? "Permissões inválidas" : true;
+    },
   },
 ];
-
-/** @type {import("../middlewares/validator/validator.js").ValidationRule[]} */
-export const EDIT_CITY_BODY_RULES = CREATE_CITY_RULES.map((rule) => ({
-  ...rule,
-  required: false,
-}));
 
 /** @type {import("../middlewares/validator/validator.js").ValidationRule[]} */
 export const FILTER_ROLES_RULES = [

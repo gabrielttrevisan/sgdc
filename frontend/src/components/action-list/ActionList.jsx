@@ -22,7 +22,7 @@ import { ActionListButton } from "./button/ActionListButton";
  * @typedef {Object} ActionConfig
  * @prop {string} type
  * @prop {import("react").ReactNode} content
- * @prop {OnActionHandler<T>} onAction
+ * @prop {OnActionHandler<T>} [onAction]
  * @prop {string} [className]
  * @prop {Partial<import("react").HTMLProps<"button">>} [buttonProps]
  * @prop {ConditionCallback} [shouldRender]

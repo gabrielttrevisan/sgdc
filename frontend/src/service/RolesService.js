@@ -14,11 +14,11 @@ class RolesService extends Service {
    * @param {string|null} state
    * @returns {Promise<import("../global").APIResponse<import("../global").PageData<Role>>}
    */
-  async list(state) {
+  async list(state = {}) {
     try {
       const response = await this.#client.get("roles", {
         perPage: 40,
-        ...(state ? { q: state } : {}),
+        ...state,
       });
 
       return response;

@@ -1,6 +1,34 @@
 import sql from "./core/sql.js";
+import DuplicatedFieldError from "../exception/DuplicatedFieldError.js";
 
 export class RoleModel {
+  /**
+   * @param {Role} role
+   * @returns {Promise<BooleanTuple>}
+   */
+  static async create({ name, permissions }) {
+    try {
+      const created = await sql.exec`
+        INSERT INTO ROLES (NAME, PERMISSIONS)
+        VALUES (${name}, ${JSON.stringify(permissions)})
+      `.run();
+
+      if (created.affectedRows < 1) return [false, null];
+
+      return [true, null];
+    } catch (error) {
+      if (error instanceof Error && error.code === "ER_DUP_ENTRY")
+        return [
+          false,
+          new DuplicatedFieldError("nome", "nível de acesso", {
+            cause: error,
+          }),
+        ];
+
+      return [false, error];
+    }
+  }
+
   static async findAllWithPermissions() {
     try {
       const roles = await sql.query`
@@ -101,6 +129,7 @@ export class RoleModel {
  * @typedef {Object} Role
  * @prop {number} id
  * @prop {string} name
+ * @prop {Record<string, string[]>} permissions
  */
 
 /**

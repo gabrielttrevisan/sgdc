@@ -129,8 +129,8 @@ export class MenuBuilder {
             { id: new RandID(), title: "Usuários", path: "/usuarios" },
             {
               id: new RandID(),
-              title: "Níveis de Usuário",
-              path: "/niveis-de-usuario",
+              title: "Níveis de Acesso",
+              path: "/niveis-de-acesso",
             },
             {
               id: new RandID(),

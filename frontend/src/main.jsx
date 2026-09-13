@@ -22,6 +22,7 @@ import { Users } from "./routes/users/Users.jsx";
 import CreateUsersForm from "./routes/users/CreateUsersForm.jsx";
 import EditUserForm from "./routes/users/EditUserForm.jsx";
 import UserDetailsForm from "./routes/users/UserDetailsForm.jsx";
+import { Roles } from "./routes/roles/Roles.jsx";
 import { ErrorBoundary } from "./components/error-boundary/ErrorBoundary.jsx";
 
 createRoot(document.getElementById("root")).render(
@@ -58,6 +59,7 @@ createRoot(document.getElementById("root")).render(
             />
 
             <Route path="/tipos-de-alocacao" element={<AllocationTypes />} />
+            <Route path="/niveis-de-acesso" element={<Roles />} />
 
             <Route path="/beneficiarios" element={<Beneficiaries />} />
             <Route path="/familias" element={<Families />} />
