@@ -6,24 +6,22 @@ import { DonateIcon } from "../../components/icons/DonateIcon";
 import { ArrowDownIcon } from "../../components/icons/ArrowDownIcon";
 import { AtoZIconAsc } from "../../components/icons/AtoZIconAsc";
 import { useRef } from "react";
+import { useNavigate } from "react-router";
 import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
-import { BeneficiaryFormModal } from "./components/beneficiary-form-modal/BeneficiaryFormModal";
 import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
-import { FormControllerProvider } from "../../components/form/context/FormControllerProvider";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
 import Toast from "../../components/toast/ToastStorage";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
-
-import "./Beneficiaries.css";
 import BeneficiariesService from "../../service/BeneficiariesService";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 
+import "./Beneficiaries.css";
+
 export const Beneficiaries = WithAuthGuard(() => {
+  const navigate = useNavigate();
   const dataGridRef = useRef(null);
   /** @type {import("react").RefObject<import("../../components/sensitive-modal/SensitiveModal").SensitiveModalRef>} */
   const modalRef = useRef(null);
-  /** @type {import("react").RefObject<import("../../components/form/modal/FormModal").FormModalRef>} */
-  const formModalRef = useRef(null);
 
   /** @type {import("../../components/data-grid/DataGrid").DataGridColumn<import("../../service/BeneficiariesService").Beneficiary>[]} */
   const columns = [
@@ -91,65 +89,6 @@ export const Beneficiaries = WithAuthGuard(() => {
         vinculados também serão mantidos.
       </SensitiveModal>
 
-      <FormControllerProvider>
-        <BeneficiaryFormModal
-          ref={formModalRef}
-          onSubmit={{
-            create: async (data, controller) => {
-              const response = await BeneficiariesService.create(data);
-
-              if (response.data?.success) {
-                dataGridRef.current?.update();
-                formModalRef.current?.close();
-                Toast.success("Beneficiário cadastrado com sucesso");
-
-                return true;
-              } else if (response.error) {
-                if (response.error.issues.length > 0) {
-                  const [{ description, code }] = response.error.issues;
-
-                  if (code === "DUPLICATE_BENEFICIARY") {
-                    controller.setFieldError(
-                      "nationalId",
-                      "CPF já cadastrado no sistema",
-                    );
-                  }
-
-                  if (description) {
-                    Toast.error(
-                      <>
-                        <strong>Falha ao cadastrar beneficiário</strong>
-                        <br />
-                        <span>{description}</span>
-                      </>,
-                    );
-                  }
-                } else {
-                  Toast.error("Falha ao cadastrar beneficiário");
-                }
-              }
-
-              return false;
-            },
-            edit: async (data) => {
-              const reponse = await BeneficiariesService.edit(data);
-
-              if (reponse.data?.success) {
-                dataGridRef.current?.update();
-                formModalRef.current?.close();
-                Toast.success("Beneficiário editado com sucesso");
-
-                return true;
-              } else if (reponse.error) {
-                Toast.error("Falha ao editar beneficiário");
-              }
-
-              return false;
-            },
-          }}
-        />
-      </FormControllerProvider>
-
       <DataGrid
         ref={dataGridRef}
         columns={columns}
@@ -170,26 +109,8 @@ export const Beneficiaries = WithAuthGuard(() => {
                 <VisuallyHidden>Ver Beneficiário</VisuallyHidden>
               </>
             ),
-            onAction: async (_type, target) => {
-              const { data, error } = await BeneficiariesService.getById(
-                target.id,
-              );
-
-              if (error?.message) {
-                Toast.error(error.message);
-              } else if (data) {
-                formModalRef.current?.toggle(
-                  {
-                    ...data,
-                    gender: data.gender.id.toLowerCase(),
-                    state: data.city.state.toLowerCase(),
-                    city: data.city.id,
-                  },
-                  "show",
-                );
-              } else {
-                Toast.error(error.message);
-              }
+            onAction: (_type, target) => {
+              navigate(`/beneficiarios/${target.id}/visualizar`);
             },
           },
           {
@@ -200,23 +121,8 @@ export const Beneficiaries = WithAuthGuard(() => {
                 <span>Editar</span>
               </>
             ),
-            onAction: async (_type, target) => {
-              const { data, error } = await BeneficiariesService.getById(
-                target.id,
-              );
-
-              if (error?.message) {
-                Toast.error(error.message);
-              } else if (data) {
-                formModalRef.current?.toggle({
-                  ...data,
-                  gender: data.gender.id.toLowerCase(),
-                  state: data.city.state.toLowerCase(),
-                  city: data.city.id,
-                });
-              } else {
-                Toast.error(error.message);
-              }
+            onAction: (_type, target) => {
+              navigate(`/beneficiarios/${target.id}`);
             },
           },
           {
@@ -259,7 +165,7 @@ export const Beneficiaries = WithAuthGuard(() => {
       >
         <button
           type="button"
-          onClick={() => formModalRef.current?.toggle()}
+          onClick={() => navigate("/beneficiarios/cadastrar")}
           className="button-block --solid --btn-safe"
         >
           <AddLargeIcon />
