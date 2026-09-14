@@ -64,13 +64,13 @@ export const Roles = WithAuthGuard(() => {
     {
       DataGridCell: ({ isActive }) => (
         <span
-          className={`user__is-active-badge ${isActive ? "--inactive" : "--active"}`}
+          className={`user__is-active-badge ${isActive ? "--active" : "--inactive"}`}
         >
           <VisuallyHidden>Nível de acesso está ativo: </VisuallyHidden>
-          {isActive ? "SIM" : "NÃO"}
+          {isActive ? "ATIVO" : "INATIVO"}
         </span>
       ),
-      title: "Ativo",
+      title: "Status",
       id: "is-active",
       className: "users__col --is-active",
     },
@@ -112,6 +112,9 @@ export const Roles = WithAuthGuard(() => {
                 <VisuallyHidden>Ver nível de acesso</VisuallyHidden>
               </>
             ),
+            onAction: async (_, target) => {
+              navigate(`/niveis-de-acesso/${target.id}/visualizar`);
+            },
           },
           {
             type: "edit",

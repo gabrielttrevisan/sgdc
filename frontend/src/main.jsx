@@ -24,6 +24,7 @@ import EditUserForm from "./routes/users/EditUserForm.jsx";
 import UserDetailsForm from "./routes/users/UserDetailsForm.jsx";
 import { Roles } from "./routes/roles/Roles.jsx";
 import RolesForm from "./routes/roles/RolesForm.jsx";
+import RoleDetailsForm from "./routes/roles/RoleDetailsForm.jsx";
 import { ErrorBoundary } from "./components/error-boundary/ErrorBoundary.jsx";
 
 createRoot(document.getElementById("root")).render(
@@ -64,6 +65,10 @@ createRoot(document.getElementById("root")).render(
             <Route
               path="/niveis-de-acesso/cadastrar"
               element={<RolesForm />}
+            />
+            <Route
+              path="/niveis-de-acesso/:id/visualizar"
+              element={<RoleDetailsForm />}
             />
             <Route path="/niveis-de-acesso/:id" element={<RolesForm />} />
 

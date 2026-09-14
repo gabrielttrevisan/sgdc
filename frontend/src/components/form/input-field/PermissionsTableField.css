@@ -161,6 +161,11 @@
         overflow: hidden;
         font-size: 0.8rem;
 
+        &[data-readonly="true"] {
+          padding-right: 0.5rem;
+          cursor: default !important;
+        }
+
         > span {
           display: block;
           padding-block: 0.25rem;
