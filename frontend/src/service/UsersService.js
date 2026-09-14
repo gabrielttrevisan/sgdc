@@ -48,14 +48,14 @@ class UsersService extends Service {
    * @param {UnpersistedUser} user
    * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
    */
-  async create({ cpf, email, name, password, role, username }) {
+  async create({ cpf, email, name, password, roleId, username }) {
     try {
       const response = await this.#client.post("users", {
         name: name.trim(),
         pass: password,
         nationalId: unmaskDigits(cpf),
         email: email.trim(),
-        roleId: role,
+        roleId,
         userName: username.trim(),
       });
 

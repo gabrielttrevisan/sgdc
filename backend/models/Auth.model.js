@@ -42,9 +42,8 @@ export default class AuthModel {
               INNER JOIN roles R
                 ON R.ID = U.ROLE_ID
             WHERE
-                USER_NAME = ${user} OR
-                EMAIL = ${user} OR
-                CPF = ${user}
+                U.DELETED_AT IS NULL AND
+                (USER_NAME = ${user} OR EMAIL = ${user} OR CPF = ${user})
         `.run();
 
       if (!foundUser) return [null, new RecordNotFoundError("usuário")];
