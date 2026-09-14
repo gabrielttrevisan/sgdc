@@ -1,43 +1,24 @@
-import { FormModal } from "../../../../components/form/modal/FormModal";
-import { InputField } from "../../../../components/form/input-field/InputField";
-import { SelectField } from "../../../../components/form/input-field/SelectField";
-import { unmaskDigits } from "../../../../lib/functions/unmask";
-import { isNationalIdValid } from "../../../../lib/validation/isNationalIdValid";
-import { CitiesSelectInput } from "../cities-select-input/CitiesSelectInput";
-import { InputHidden } from "../../../../components/form/input-field/InputHidden";
+import { InputField } from "../../../components/form/input-field/InputField";
+import { SelectField } from "../../../components/form/input-field/SelectField";
+import { unmaskDigits } from "../../../lib/functions/unmask";
+import { isNationalIdValid } from "../../../lib/validation/isNationalIdValid";
+import { CitiesSelectInput } from "./cities-select-input/CitiesSelectInput";
 
-import "./BeneficiaryFormModal.css";
-
-/**
- * @typedef {Object} BeneficiaryFormModalProps
- * @prop {import("../../../../components/form/modal/FormModal").FormModalRef} [ref]
- * @prop {Record<"create"|"edit",import("../../../../components/form/context/FormController").CustomOnSubmitHandler>} onSubmit
- */
-
-/** @type {import("react").FC<BeneficiaryFormModalProps>} */
-export const BeneficiaryFormModal = ({ ref, onSubmit }) => {
+export function BeneficiaryFields({ readOnly = false }) {
   return (
-    <FormModal
-      ref={ref}
-      title="Beneficiário"
-      editLabel="Atualizar Dados"
-      className="beneficiary-form-modal"
-      onSubmit={onSubmit}
-    >
-      <InputHidden name="id" id="id" />
-
+    <>
       <InputField
         name="name"
-        required={true}
+        required={!readOnly}
         id="name"
         label="Nome Completo"
+        readOnly={readOnly}
         mask={(input) => input.replace(/[0-9\d]/gi, "")}
         validate={(value) => {
           const trimmed = value.trim();
-          const message = "Nome inválido";
 
           if (!trimmed.match(/^([^0-9\d]{2,}\s[^0-9\d]{1,})$/gu))
-            return message;
+            return "Nome inválido";
 
           return true;
         }}
@@ -46,13 +27,9 @@ export const BeneficiaryFormModal = ({ ref, onSubmit }) => {
       <SelectField
         name="gender"
         id="gender"
-        required={true}
+        required={!readOnly}
         label="Sexo"
-        validate={(value) => {
-          if (!["f", "m", "o"].includes(value)) return "Sexo inválido";
-
-          return true;
-        }}
+        disabled={readOnly}
         options={[
           { label: "Feminino", value: "f" },
           { label: "Masculino", value: "m" },
@@ -63,9 +40,10 @@ export const BeneficiaryFormModal = ({ ref, onSubmit }) => {
 
       <InputField
         name="nationalId"
-        required={true}
+        required={!readOnly}
         id="nationalId"
         label="CPF"
+        readOnly={readOnly}
         inputMode="numeric"
         variant="half-right"
         mask={(input) =>
@@ -75,8 +53,8 @@ export const BeneficiaryFormModal = ({ ref, onSubmit }) => {
               /(\d{1,3})(\d{1,3})(\d{1,3})(\d{1,2})/gi,
               (_all, one, two, three, four) => {
                 if (four) return `${one}.${two}.${three}-${four}`;
-                else if (three) return `${one}.${two}.${three}`;
-                else if (two) return `${one}.${two}`;
+                if (three) return `${one}.${two}.${three}`;
+                if (two) return `${one}.${two}`;
 
                 return one;
               },
@@ -94,9 +72,10 @@ export const BeneficiaryFormModal = ({ ref, onSubmit }) => {
 
       <InputField
         name="phone"
-        required={true}
+        required={!readOnly}
         id="phone"
         label="Telefone"
+        readOnly={readOnly}
         inputMode="numeric"
         variant="half-left"
         mask={(input) =>
@@ -106,7 +85,7 @@ export const BeneficiaryFormModal = ({ ref, onSubmit }) => {
               /(\d{1,2})(\d{1,5})(\d{1,4})/gi,
               (_all, one, two, three) => {
                 if (three) return `(${one}) ${two}-${three}`;
-                else if (two) return `(${one}) ${two}`;
+                if (two) return `(${one}) ${two}`;
 
                 return `(${one})`;
               },
@@ -114,9 +93,8 @@ export const BeneficiaryFormModal = ({ ref, onSubmit }) => {
         }
         validate={(value) => {
           const trimmed = unmaskDigits(value);
-          const message = "Telefone inválido";
 
-          if (trimmed.length < 10) return message;
+          if (trimmed.length < 10) return "Telefone inválido";
 
           return true;
         }}
@@ -124,14 +102,15 @@ export const BeneficiaryFormModal = ({ ref, onSubmit }) => {
 
       <InputField
         name="street"
-        required={true}
+        required={!readOnly}
         id="street"
         label="Logradouro"
+        readOnly={readOnly}
         validate={(value) => {
           const trimmed = value.trim();
 
           if (trimmed.length < 4) return "Logradouro muito curto";
-          else if (trimmed.length > 140) return "Logradouro muito longo";
+          if (trimmed.length > 140) return "Logradouro muito longo";
 
           return true;
         }}
@@ -139,44 +118,36 @@ export const BeneficiaryFormModal = ({ ref, onSubmit }) => {
 
       <InputField
         name="number"
-        required={true}
+        required={!readOnly}
         id="number"
         label="Número"
+        readOnly={readOnly}
         inputMode="numeric"
         variant="half-left"
-        validate={(value) => {
-          const trimmed = value.trim();
-
-          if (!trimmed.length) return "Número inválido";
-
-          return true;
-        }}
+        validate={(value) => (value.trim().length ? true : "Número inválido")}
       />
 
       <InputField
         name="complement"
-        required={false}
         id="complement"
         label="Complemento"
+        readOnly={readOnly}
         variant="half-right"
       />
 
       <InputField
         name="neighborhood"
-        required={true}
+        required={!readOnly}
         id="neighborhood"
         label="Bairro"
+        readOnly={readOnly}
         variant="half-left"
-        validate={(value) => {
-          const trimmed = value.trim();
-
-          if (!trimmed.length) return "Bairro inválido";
-
-          return true;
-        }}
+        validate={(value) =>
+          value.trim().length ? true : "Bairro inválido"
+        }
       />
 
-      <CitiesSelectInput />
-    </FormModal>
+      <CitiesSelectInput readOnly={readOnly} />
+    </>
   );
-};
+}

@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from "react-router";
 import { Layout } from "./components/layout/Layout.jsx";
 import { Volunteers } from "./routes/Volunteers/Volunteers.jsx";
 import { Beneficiaries } from "./routes/beneficiaries/Beneficiaries.jsx";
+import BeneficiaryForm from "./routes/beneficiaries/BeneficiaryForm.jsx";
+import BeneficiaryDetails from "./routes/beneficiaries/BeneficiaryDetails.jsx";
 import Armaz from "./routes/RF_B5/armaz.jsx";
 import CadastroRFB5 from "./routes/RF_B5/cadastro.jsx";
 import App from "./components/App.jsx";
@@ -73,6 +75,15 @@ createRoot(document.getElementById("root")).render(
             <Route path="/niveis-de-acesso/:id" element={<RolesForm />} />
 
             <Route path="/beneficiarios" element={<Beneficiaries />} />
+            <Route
+              path="/beneficiarios/cadastrar"
+              element={<BeneficiaryForm />}
+            />
+            <Route
+              path="/beneficiarios/:id/visualizar"
+              element={<BeneficiaryDetails />}
+            />
+            <Route path="/beneficiarios/:id" element={<BeneficiaryForm />} />
             <Route path="/familias" element={<Families />} />
             <Route path="/doadores" element={<App />} />
             <Route path="/voluntarios" element={<Volunteers />} />
