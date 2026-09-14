@@ -14,8 +14,8 @@ export class MenuBuilder {
 
   /** @param {PermissionHelper} permissions */
   static fromPermissions(permissions, userId) {
-    const permissionsService = new PermissionHelper(permissions);
-    const menuStructure = permissionsService.arrayBuilder();
+    const helper = new PermissionHelper(permissions);
+    const menuStructure = helper.arrayBuilder();
 
     menuStructure
       .pushUnsafe({
@@ -24,69 +24,118 @@ export class MenuBuilder {
         title: "Dashboard",
         path: "/",
       })
-      .pushByCategories(
-        {
-          id: new RandID(),
-          title: "Donativos",
-          icon: "box",
-          subItems: permissionsService
-            .arrayBuilder()
-            .pushUnsafe(
-              { id: new RandID(), title: "Donativos", path: "/donativos" },
-              {
-                id: new RandID(),
-                title: "Arrecadações",
-                path: "/arrecadacoes",
-              },
-              { id: new RandID(), title: "Doações", path: "/doacoes" },
-              { id: new RandID(), title: "Descartes", path: "/descartes" },
-              {
-                id: new RandID(),
-                title: "Locais de Armazenamento",
-                path: "/locais-de-armazenamento",
-              },
-              { id: new RandID(), title: "Produtos", path: "/produtos" },
-              { id: new RandID(), title: "Metas", path: "/metas" },
-              {
-                id: new RandID(),
-                title: "Unidades de Medida",
-                path: "/unidades-de-medida",
-              },
-            )
-            .getArray(),
-        },
-        "measuring_unit",
-        "allocation_type",
-        "sala",
-        "product",
-      )
-      .pushByCategories(
-        {
-          id: new RandID(),
-          title: "Pessoas",
-          icon: "people",
-          subItems: [
+      .pushUnsafe({
+        id: new RandID(),
+        title: "Donativos",
+        icon: "box",
+        subItems: helper
+          .arrayBuilder()
+          .pushByCategory(
+            {
+              id: new RandID(),
+              title: "Donativos",
+              path: "/donativos",
+            },
+            "product",
+          )
+          .pushByCategory(
+            {
+              id: new RandID(),
+              title: "Arrecadações",
+              path: "/arrecadacoes",
+            },
+            "product",
+          )
+          .pushByCategory(
+            {
+              id: new RandID(),
+              title: "Doações",
+              path: "/doacoes",
+            },
+            "product",
+          )
+          .pushByCategory(
+            {
+              id: new RandID(),
+              title: "Descartes",
+              path: "/descartes",
+            },
+            "product",
+          )
+          .pushByCategory(
+            {
+              id: new RandID(),
+              title: "Locais de Armazenamento",
+              path: "/locais-de-armazenamento",
+            },
+            "sala",
+          )
+          .pushByCategory(
+            {
+              id: new RandID(),
+              title: "Produtos",
+              path: "/produtos",
+            },
+            "product",
+          )
+          .pushByCategory(
+            {
+              id: new RandID(),
+              title: "Metas",
+              path: "/metas",
+            },
+            "product",
+          )
+          .pushByCategory(
+            {
+              id: new RandID(),
+              title: "Unidades de Medida",
+              path: "/unidades-de-medida",
+            },
+            "measuring_unit",
+          )
+          .getArray(),
+      })
+      .pushUnsafe({
+        id: new RandID(),
+        title: "Pessoas",
+        icon: "people",
+        subItems: helper
+          .arrayBuilder()
+          .pushByCategory(
             {
               id: new RandID(),
               title: "Beneficiários",
               path: "/beneficiarios",
             },
+            "beneficiary",
+          )
+          .pushByCategory(
             { id: new RandID(), title: "Famílias", path: "/familias" },
+            "family",
+          )
+          .pushByCategory(
             { id: new RandID(), title: "Doadores", path: "/doadores" },
+            "donor",
+          )
+          .pushByCategory(
             { id: new RandID(), title: "Voluntários", path: "/voluntarios" },
+            "volunteer",
+          )
+          .pushByCategory(
             { id: new RandID(), title: "Alocações", path: "/alocacoes" },
+            "volunteer",
+          )
+          .pushByCategory(
             {
               id: new RandID(),
               title: "Tipos de Alocação",
               path: "/tipos-de-alocacao",
             },
-          ],
-        },
-        "beneficiary",
-        "family",
-        "donor",
-        "volunteer",
-      )
+            "allocation_type",
+          )
+          .getArray(),
+      })
       .pushUnsafe({
         id: new RandID(),
         title: "Relatórios",
