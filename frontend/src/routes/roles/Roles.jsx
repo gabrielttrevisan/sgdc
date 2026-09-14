@@ -112,6 +112,9 @@ export const Roles = WithAuthGuard(() => {
                 <VisuallyHidden>Ver nível de acesso</VisuallyHidden>
               </>
             ),
+            onAction: async (_, target) => {
+              navigate(`/niveis-de-acesso/${target.id}/visualizar`);
+            },
           },
           {
             type: "edit",

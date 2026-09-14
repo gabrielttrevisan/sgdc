@@ -152,6 +152,7 @@ function parsePermissions(value) {
 export function PermissionsTableField({
   name = "permissions",
   required = true,
+  readOnly = false,
 }) {
   const [state, setState] = useState({
     availablePermissions: PERMISSION_GROUPS,
@@ -381,28 +382,30 @@ export function PermissionsTableField({
           Permissões
         </label>
 
-        <div
-          className="available-permissions__field"
-          hidden={state.availablePermissions.length === 0}
-        >
-          <select
-            id="available-permissions"
-            className="available-permissions"
-            name="available-permissions"
-            ref={availablePermissionsRef}
+        {!readOnly && (
+          <div
+            className="available-permissions__field"
+            hidden={state.availablePermissions.length === 0}
           >
-            {state.availablePermissions.map(({ resource, label }) => (
-              <option value={resource} key={resource}>
-                {label}
-              </option>
-            ))}
-          </select>
+            <select
+              id="available-permissions"
+              className="available-permissions"
+              name="available-permissions"
+              ref={availablePermissionsRef}
+            >
+              {state.availablePermissions.map(({ resource, label }) => (
+                <option value={resource} key={resource}>
+                  {label}
+                </option>
+              ))}
+            </select>
 
-          <button type="button" onClick={handleAppendCurrentPermission}>
-            <VisuallyHidden>Adicionar permissão</VisuallyHidden>
-            <AddLargeIcon size="12px" />
-          </button>
-        </div>
+            <button type="button" onClick={handleAppendCurrentPermission}>
+              <VisuallyHidden>Adicionar permissão</VisuallyHidden>
+              <AddLargeIcon size="12px" />
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="permissions-field__table">
@@ -422,45 +425,50 @@ export function PermissionsTableField({
                     <div
                       className="permissions-field__row-right-selected-item"
                       key={`${resource}-${value}`}
+                      data-readonly={readOnly}
                     >
                       <span>{label}</span>
 
-                      <button
-                        type="button"
-                        onClick={() => handleDeselectAction(value, resource)}
-                      >
-                        <VisuallyHidden>
-                          Remover ação da permissão
-                        </VisuallyHidden>
-                        <CloseIconLarge size="10px" />
-                      </button>
+                      {!readOnly && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeselectAction(value, resource)}
+                        >
+                          <VisuallyHidden>
+                            Remover ação da permissão
+                          </VisuallyHidden>
+                          <CloseIconLarge size="10px" />
+                        </button>
+                      )}
                     </div>
                   ))}
                 </div>
 
-                <div className="permissions-field__row-right-actions">
-                  <select
-                    id={`${name}-${resource}`}
-                    onChange={(e) => handleSelectAction(e, resource)}
-                    hidden={available.length === 0}
-                  >
-                    <option value="">Adicionar uma Ação</option>
+                {!readOnly && (
+                  <div className="permissions-field__row-right-actions">
+                    <select
+                      id={`${name}-${resource}`}
+                      onChange={(e) => handleSelectAction(e, resource)}
+                      hidden={available.length === 0}
+                    >
+                      <option value="">Adicionar uma Ação</option>
 
-                    {available.map(({ label, value }) => (
-                      <option value={value} key={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
+                      {available.map(({ label, value }) => (
+                        <option value={value} key={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
 
-                  <button
-                    type="button"
-                    onClick={() => handleRemovePermissionFrom(resource)}
-                  >
-                    <VisuallyHidden>Remover permissão</VisuallyHidden>
-                    <CloseIconLarge size="14px" />
-                  </button>
-                </div>
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePermissionFrom(resource)}
+                    >
+                      <VisuallyHidden>Remover permissão</VisuallyHidden>
+                      <CloseIconLarge size="14px" />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           ),
