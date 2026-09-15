@@ -28,6 +28,9 @@ import { Roles } from "./routes/roles/Roles.jsx";
 import RolesForm from "./routes/roles/RolesForm.jsx";
 import RoleDetailsForm from "./routes/roles/RoleDetailsForm.jsx";
 import { ErrorBoundary } from "./components/error-boundary/ErrorBoundary.jsx";
+import CreateVolunteerForm from "./routes/Volunteers/VolunteerForm.jsx";
+import EditVolunteerForm from "./routes/Volunteers/VolunteerForm.jsx";
+import VolunteerDetailsForm from "./routes/Volunteers/VolunteersDetails.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -86,7 +89,11 @@ createRoot(document.getElementById("root")).render(
             <Route path="/beneficiarios/:id" element={<BeneficiaryForm />} />
             <Route path="/familias" element={<Families />} />
             <Route path="/doadores" element={<App />} />
+
             <Route path="/voluntarios" element={<Volunteers />} />
+            <Route path="/voluntarios/cadastrar" element={<CreateVolunteerForm/>} />
+            <Route path="/voluntarios/:id/visualizar" element={<VolunteerDetailsForm/>} />
+            <Route path="/voluntarios/:id" element={<EditVolunteerForm/>} />
 
             <Route path="/usuarios" element={<Users />} />
             <Route path="/usuarios/cadastrar" element={<CreateUsersForm />} />

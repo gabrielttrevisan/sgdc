@@ -1,4 +1,5 @@
 import InputFieldController from "./field-controller/InputFieldController";
+import CheckboxFieldController from "./field-controller/CheckboxFieldController";
 import PermissionsTableFieldController from "./field-controller/PermissionsTableFieldController";
 import SelectFieldController from "./field-controller/SelectFieldController";
 import { useFormController } from "./useFormController";
@@ -18,14 +19,17 @@ export function useRegisterField(name, stateInit) {
         const controllerInterface =
           instance.dataset?.fieldType === "permissions"
             ? new PermissionsTableFieldController(instance)
-            : instance instanceof HTMLInputElement ||
-                instance instanceof HTMLTextAreaElement
-              ? new InputFieldController(instance)
-              : instance instanceof HTMLSelectElement
-                ? new SelectFieldController(instance)
-                : instance;
+            : instance instanceof HTMLInputElement &&
+                instance.type === "checkbox"
+              ? new CheckboxFieldController(instance)
+              : instance instanceof HTMLInputElement ||
+                  instance instanceof HTMLTextAreaElement
+                ? new InputFieldController(instance)
+                : instance instanceof HTMLSelectElement
+                  ? new SelectFieldController(instance)
+                  : instance;
 
-        controller.registerField(name, stateInit, controllerInterface);
+        controller.registerField(name,stateInit,controllerInterface,);
       }
     },
   };
