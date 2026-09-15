@@ -6,25 +6,24 @@ import { DonateIcon } from "../../components/icons/DonateIcon";
 import { ArrowDownIcon } from "../../components/icons/ArrowDownIcon";
 import { AtoZIconAsc } from "../../components/icons/AtoZIconAsc";
 import { useRef } from "react";
+import { useNavigate } from "react-router";
 import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
-import { BeneficiaryFormModal } from "./components/beneficiary-form-modal/BeneficiaryFormModal";
 import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
-import { FormControllerProvider } from "../../components/form/context/FormControllerProvider";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
 import Toast from "../../components/toast/ToastStorage";
-
-import "./Beneficiaries.css";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import BeneficiariesService from "../../service/BeneficiariesService";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 
-export const Beneficiaries = () => {
+import "./Beneficiaries.css";
+
+export const Beneficiaries = WithAuthGuard(() => {
+  const navigate = useNavigate();
   const dataGridRef = useRef(null);
   /** @type {import("react").RefObject<import("../../components/sensitive-modal/SensitiveModal").SensitiveModalRef>} */
   const modalRef = useRef(null);
-  /** @type {import("react").RefObject<import("../../components/form/modal/FormModal").FormModalRef>} */
-  const formModalRef = useRef(null);
 
-  /** @type {import("../../components/data-grid/DataGrid").DataGridColumn<import("./BeneficiariesService").Beneficiary>[]} */
+  /** @type {import("../../components/data-grid/DataGrid").DataGridColumn<import("../../service/BeneficiariesService").Beneficiary>[]} */
   const columns = [
     {
       DataGridCell: ({ name }) => <span>{name}</span>,
@@ -90,44 +89,6 @@ export const Beneficiaries = () => {
         vinculados também serão mantidos.
       </SensitiveModal>
 
-      <FormControllerProvider>
-        <BeneficiaryFormModal
-          ref={formModalRef}
-          onSubmit={{
-            create: async (data) => {
-              const response = await BeneficiariesService.create(data);
-
-              if (response.data?.success) {
-                dataGridRef.current?.update();
-                formModalRef.current?.close();
-                Toast.success("Beneficiário cadastrado com sucesso");
-
-                return true;
-              } else if (response.error) {
-                Toast.error("Falha ao cadastrar beneficiário");
-              }
-
-              return false;
-            },
-            edit: async (data) => {
-              const reponse = await BeneficiariesService.edit(data);
-
-              if (reponse.data?.success) {
-                dataGridRef.current?.update();
-                formModalRef.current?.close();
-                Toast.success("Beneficiário editado com sucesso");
-
-                return true;
-              } else if (reponse.error) {
-                Toast.error("Falha ao editar beneficiário");
-              }
-
-              return false;
-            },
-          }}
-        />
-      </FormControllerProvider>
-
       <DataGrid
         ref={dataGridRef}
         columns={columns}
@@ -136,6 +97,9 @@ export const Beneficiaries = () => {
         pluralName="beneficiários"
         rowClassName="beneficiary__row"
         actionsCellClassName="beneficiary__col --actions"
+        keyProp="nationalId"
+        sortKeyDefault="name"
+        sortTypeDefault="asc"
         actionsConfig={[
           {
             type: "show",
@@ -145,26 +109,8 @@ export const Beneficiaries = () => {
                 <VisuallyHidden>Ver Beneficiário</VisuallyHidden>
               </>
             ),
-            onAction: async (_type, target) => {
-              const { data, error } = await BeneficiariesService.getById(
-                target.id,
-              );
-
-              if (error?.message) {
-                Toast.error(error.message);
-              } else if (data) {
-                formModalRef.current?.toggle(
-                  {
-                    ...data,
-                    gender: data.gender.id.toLowerCase(),
-                    state: data.city.state.toLowerCase(),
-                    city: data.city.id,
-                  },
-                  "show",
-                );
-              } else {
-                Toast.error(error.message);
-              }
+            onAction: (_type, target) => {
+              navigate(`/beneficiarios/${target.id}/visualizar`);
             },
           },
           {
@@ -175,23 +121,8 @@ export const Beneficiaries = () => {
                 <span>Editar</span>
               </>
             ),
-            onAction: async (_type, target) => {
-              const { data, error } = await BeneficiariesService.getById(
-                target.id,
-              );
-
-              if (error?.message) {
-                Toast.error(error.message);
-              } else if (data) {
-                formModalRef.current?.toggle({
-                  ...data,
-                  gender: data.gender.id.toLowerCase(),
-                  state: data.city.state.toLowerCase(),
-                  city: data.city.id,
-                });
-              } else {
-                Toast.error(error.message);
-              }
+            onAction: (_type, target) => {
+              navigate(`/beneficiarios/${target.id}`);
             },
           },
           {
@@ -202,7 +133,10 @@ export const Beneficiaries = () => {
                 <span>Doar</span>
               </>
             ),
-            onAction: async () => {},
+            onAction: async () => {
+              Toast.warn("Função não implementada!");
+            },
+            buttonProps: { disabled: true },
           },
           {
             type: "delete",
@@ -231,7 +165,7 @@ export const Beneficiaries = () => {
       >
         <button
           type="button"
-          onClick={() => formModalRef.current?.toggle()}
+          onClick={() => navigate("/beneficiarios/cadastrar")}
           className="button-block --solid --btn-safe"
         >
           <AddLargeIcon />
@@ -241,4 +175,4 @@ export const Beneficiaries = () => {
       </DataGrid>
     </>
   );
-};
+});

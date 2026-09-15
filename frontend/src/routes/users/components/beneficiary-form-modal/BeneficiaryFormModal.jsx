@@ -2,10 +2,11 @@ import { FormModal } from "../../../../components/form/modal/FormModal";
 import { InputField } from "../../../../components/form/input-field/InputField";
 import { SelectField } from "../../../../components/form/input-field/SelectField";
 import { unmaskDigits } from "../../../../lib/functions/unmask";
-import "./BeneficiaryFormModal.css";
 import { isNationalIdValid } from "../../../../lib/validation/isNationalIdValid";
 import { CitiesSelectInput } from "../cities-select-input/CitiesSelectInput";
 import { InputHidden } from "../../../../components/form/input-field/InputHidden";
+
+import "./BeneficiaryFormModal.css";
 
 /**
  * @typedef {Object} BeneficiaryFormModalProps
@@ -119,16 +120,6 @@ export const BeneficiaryFormModal = ({ ref, onSubmit }) => {
 
           return true;
         }}
-      />
-
-      <SelectField
-        name="family"
-        id="family"
-        required={true}
-        label="Família"
-        disabled
-        options={[]}
-        variant="half-right"
       />
 
       <InputField

@@ -1,3 +1,5 @@
+-- depends on ./cities.sql
+
 CREATE TABLE beneficiaries (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     FULL_NAME VARCHAR(144) NOT NULL,

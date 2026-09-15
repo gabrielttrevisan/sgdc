@@ -1,43 +1,81 @@
 import { useNavigate, useParams } from "react-router";
-import { useMemo, useState } from "react";
-
+import { useEffect, useState } from "react";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import Formulario from "./componentes/Formulario";
+import { authStore } from "../../store/Auth.store";
+
 import "./css/cadastro.css";
 
 function CadastroRFB5() {
   const navigate = useNavigate();
+
   const { id } = useParams();
 
   const [erro, setErro] = useState("");
 
-  const salaEditando = useMemo(() => {
-    const dados = JSON.parse(localStorage.getItem("salas")) || [];
-    return dados.find((s) => s.id === Number(id)) || null;
+  const [salaEditando, setSalaEditando] = useState(null);
+
+  useEffect(() => {
+    if (!id) return;
+
+    async function carregarSala() {
+      try {
+        const response = await fetch(`http://localhost:3004/salas/${id}`, {
+          headers: authStore.getHeaders(),
+        });
+
+        const json = await response.json();
+
+        setSalaEditando(json.data);
+      } catch {
+        setErro("Erro ao carregar sala");
+      }
+    }
+
+    carregarSala();
   }, [id]);
 
-  function salvarSala(sala) {
+  async function salvarSala(sala) {
     const cap = Number(sala.capacidade);
 
-    if (!sala.nome.trim() || !sala.capacidade || cap <= 0) {
-      setErro("Preencha os campos corretamente (nome e capacidade > 0)");
+    if (!sala.nome.trim() || !cap || cap <= 0) {
+      setErro("Preencha os campos corretamente");
+
       return;
     }
 
-    const dados = JSON.parse(localStorage.getItem("salas")) || [];
+    try {
+      const response = await fetch(
+        id
+          ? `http://localhost:3004/salas/${id}`
+          : "http://localhost:3004/salas",
 
-    let novaLista;
+        {
+          method: id ? "PUT" : "POST",
 
-    if (id) {
-      novaLista = dados.map((s) =>
-        s.id === Number(id) ? { ...sala, id: Number(id) } : s
+          headers: {
+            "Content-Type": "application/json",
+            ...authStore.getHeaders(),
+          },
+
+          body: JSON.stringify({
+            nome: sala.nome,
+
+            capacidade: Number(sala.capacidade),
+
+            descricao: sala.descricao,
+          }),
+        },
       );
-    } else {
-      novaLista = [...dados, { ...sala, id: Date.now() }];
+
+      if (!response.ok) throw new Error("Falha ao salvar");
+
+      navigate("/locais-de-armazenamento");
+    } catch (error) {
+      console.error(error);
+
+      setErro("Erro ao salvar sala");
     }
-
-    localStorage.setItem("salas", JSON.stringify(novaLista));
-
-    navigate("/locais-de-armazenamento");
   }
 
   return (
@@ -60,4 +98,4 @@ function CadastroRFB5() {
   );
 }
 
-export default CadastroRFB5;
+export default WithAuthGuard(CadastroRFB5);

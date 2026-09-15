@@ -1,0 +1,53 @@
+.sign-in-form__wrapper {
+  background-color: var(--colors-primary-dark);
+  background-image: url(../../assets/login-bg-vector.svg);
+  background-size: max(120vh, 120vw);
+  background-position: center center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100vw;
+  height: 100dvh;
+  position: absolute;
+
+  &::before {
+    content: " ";
+    width: 52.2%;
+    height: 52.2%;
+    display: block;
+    border-radius: 50%;
+    background-color: var(--colors-primary-lighter);
+    filter: blur(200px);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    opacity: 0.7;
+  }
+
+  .sign-in-form {
+    padding: 32px;
+    display: grid;
+    place-items: center;
+    row-gap: 32px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+    min-width: 25vw;
+    position: relative;
+    z-index: 4;
+
+    .input-field.--full {
+      width: 100%;
+    }
+
+    svg,
+    footer {
+      place-self: center;
+      grid-column: 1 / 3;
+    }
+  }
+}

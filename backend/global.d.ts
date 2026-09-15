@@ -25,3 +25,43 @@ export type PageData<T> = {
 };
 
 export type PaginatedResponse<T> = APIResponse<PageData<T>>;
+
+export type IAuthContext = Readonly<{
+  get user(): { id: string; name: string };
+}>;
+
+declare global {
+  declare namespace Express {
+    export interface Request {
+      auth: IAuthContext;
+    }
+  }
+}
+
+declare module "jsonwebtoken" {
+  export interface JwtPayload {
+    userId: string;
+  }
+}
+
+type Resource =
+  | "measuring_unit"
+  | "allocation_type"
+  | "beneficiary"
+  | "family"
+  | "city"
+  | "donor"
+  | "product"
+  | "sala"
+  | "volunteer"
+  | (string & {});
+
+type ResourceAction =
+  | "list"
+  | "view"
+  | "create"
+  | "delete"
+  | "restore"
+  | "pay"
+  | "reset"
+  | (string & {});

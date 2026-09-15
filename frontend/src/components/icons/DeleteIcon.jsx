@@ -13,7 +13,7 @@ export const DeleteIcon = (props) => {
     >
       <path
         d="M8.5 3H11V4H10V10.5C10 10.7761 9.77615 11 9.5 11H2.5C2.22386 11 2 10.7761 2 10.5V4H1V3H3.5V1.5C3.5 1.22386 3.72386 1 4 1H8C8.27615 1 8.5 1.22386 8.5 1.5V3ZM9 4H3V10H9V4ZM4.5 5.5H5.5V8.5H4.5V5.5ZM6.5 5.5H7.5V8.5H6.5V5.5ZM4.5 2V3H7.5V2H4.5Z"
-        fill="white"
+        fill="currentColor"
       />
     </svg>
   );

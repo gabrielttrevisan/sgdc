@@ -3,7 +3,7 @@ export const CREATE_MEASURING_UNIT_RULES = [
   {
     property: "name",
     validate: (value) => {
-      const message = "Nome de cidade inválido";
+      const message = "Nome da unidade inválido";
 
       if (typeof value !== "string") return message;
 
@@ -25,7 +25,7 @@ export const CREATE_MEASURING_UNIT_RULES = [
       const trimmed = value.trim();
 
       if (trimmed.length === 0 || trimmed.length > 8)
-        return "Descrição não pode ser vazia ou conter mais que 8 caracteres";
+        return "Símbolo/abreviação não pode ser vazio ou conter mais que 8 caracteres";
 
       return true;
     },

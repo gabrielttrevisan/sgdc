@@ -12,15 +12,19 @@ import Toast from "../../components/toast/ToastStorage";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 import MeasuringUnitsService from "../../service/MeasuringTypesService";
 import { MeasuringUnitFormModal } from "./components/measuring-unit-form-modal/MeasuringUnitFormModal";
+import { useNavigate } from "react-router";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 
 import "./MeasuringUnits.css";
 
-export const MeasuringUnits = () => {
+export const MeasuringUnits = WithAuthGuard(() => {
   const dataGridRef = useRef(null);
   /** @type {import("react").RefObject<import("../../components/sensitive-modal/SensitiveModal").SensitiveModalRef>} */
   const modalRef = useRef(null);
   /** @type {import("react").RefObject<import("../../components/form/modal/FormModal").FormModalRef>} */
   const formModalRef = useRef(null);
+
+  const navigate = useNavigate();
 
   /** @type {import("../../components/data-grid/DataGrid").DataGridColumn<import("../../service/MeasuringTypesService").AllocationType>[]} */
   const columns = [
@@ -108,6 +112,9 @@ export const MeasuringUnits = () => {
         pluralName="unidades de medida"
         rowClassName="measuring-unit__row"
         actionsCellClassName="measuring-unit__col --actions"
+        keyProp="id"
+        sortKeyDefault="name"
+        sortTypeDefault="asc"
         actionsConfig={[
           {
             type: "show",
@@ -130,7 +137,7 @@ export const MeasuringUnits = () => {
               </>
             ),
             onAction: async (_, target) => {
-              formModalRef.current?.toggle(target);
+              navigate("/unidades-de-medida/" + target.id);
             },
           },
           {
@@ -160,7 +167,7 @@ export const MeasuringUnits = () => {
       >
         <button
           type="button"
-          onClick={() => formModalRef.current?.toggle()}
+          onClick={() => navigate("/unidades-de-medida/cadastrar")}
           className="button-block --solid --btn-safe"
         >
           <AddLargeIcon />
@@ -170,4 +177,4 @@ export const MeasuringUnits = () => {
       </DataGrid>
     </>
   );
-};
+});

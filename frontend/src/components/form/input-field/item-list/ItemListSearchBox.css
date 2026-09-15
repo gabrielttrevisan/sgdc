@@ -1,0 +1,53 @@
+.checkbox-list-search-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: fit-content;
+}
+
+.checkbox-list-search-box__form {
+    position: relative;
+}
+
+.checkbox-list-search-box__result {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border-radius: 0.34rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+
+    > button {
+        border: 0;
+        width: 100%;
+        background-color: transparent;
+        display: block;
+        text-align: left;
+        text-transform: capitalize;
+        padding: 0.4rem;
+
+        &:nth-child(even) {
+            background-color: var(--colors-background-medium);
+        }
+
+        &:hover {
+            background-color: var(--colors-primary-45);
+        }
+    }
+}
+
+.checkbox-list-search-box__button {
+    padding: 0.5rem;
+    width: min-content;
+    height: min-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+}
+
+.checkbox-list-search-box__input {
+    padding: 0.5rem;
+}

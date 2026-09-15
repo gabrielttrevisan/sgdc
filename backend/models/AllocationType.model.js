@@ -110,7 +110,7 @@ export default class AllocationTypeModel {
     try {
       const created = await sql.exec`
             INSERT INTO ALLOCATION_TYPES (NAME, DESCRIPTION) 
-            VALUES (${name}, ${description})
+            VALUES (${name}, ${description ?? ""})
           `.run();
 
       if (created.affectedRows < 1) return [false, null];

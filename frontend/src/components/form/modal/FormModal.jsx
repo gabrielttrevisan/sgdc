@@ -3,6 +3,9 @@ import { CloseIconLarge } from "../../icons/CloseIconLarge";
 import { Form } from "../Form";
 import "./FormModal.css";
 import { useFormController } from "../context/useFormController";
+import { FormModalSubmitButton } from "./button/FormModalSubmitButton";
+import { FormModalCancelButton } from "./button/FormModalCancelButton";
+import { FormModalContextProvider } from "./context/FormModalContextProvider";
 
 /**
  * @callback OpenFormModalCallback
@@ -49,7 +52,6 @@ export const FormModal = ({
   const dialogRef = useRef();
   const controller = useFormController();
   const [mode, setMode] = useState(defaultMode);
-  const [loading, setLoading] = useState(false);
 
   useImperativeHandle(
     ref,
@@ -63,7 +65,7 @@ export const FormModal = ({
           dialogRef.current.close();
           controller.reset();
         } else {
-          dialogRef.current?.showModal();
+          dialogRef.current?.show();
           if (data) {
             controller.fill(data, show !== undefined);
             setMode(show ? show : "edit");
@@ -88,11 +90,7 @@ export const FormModal = ({
   const submitLabel = mode === "create" ? createLabel : editLabel;
   const handleSubmit = useCallback(
     async (...params) => {
-      setLoading(true);
-
       let result = await onSubmit[mode](...params);
-
-      setLoading(false);
 
       return result;
     },
@@ -100,38 +98,43 @@ export const FormModal = ({
   );
 
   return (
-    <dialog ref={dialogRef} className={`form-modal ${className ?? ""}`}>
-      <Form onSubmit={handleSubmit} className="form-modal__form">
-        <header>
-          <h2>{title}</h2>
-
-          <button type="button" onClick={handleClose} className="button-close">
-            <CloseIconLarge />
-          </button>
-        </header>
-
-        <div className="form-modal__content">{children}</div>
-
-        <footer>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="button-block --outline --primary"
-            disabled={loading}
+    <FormModalContextProvider mode={mode}>
+      <dialog ref={dialogRef} className="form-modal">
+        <div className="form-modal__wrapper">
+          <Form
+            onSubmit={handleSubmit}
+            className={`form-modal__form ${className ?? ""}`}
           >
-            {mode === "show" ? "Fechar" : cancelLabel}
-          </button>
+            <header>
+              <h2>{title}</h2>
 
-          <button
-            type="submit"
-            className={`button-block --solid --primary ${loading ? "--loading" : ""}`}
-            disabled={loading}
-            hidden={mode === "show"}
-          >
-            <span>{submitLabel}</span>
-          </button>
-        </footer>
-      </Form>
-    </dialog>
+              <button
+                type="button"
+                onClick={handleClose}
+                className="button-close"
+              >
+                <CloseIconLarge />
+              </button>
+            </header>
+
+            <div className="form-modal__content">{children}</div>
+
+            <footer>
+              <FormModalCancelButton
+                type="button"
+                onClick={handleClose}
+                className="button-block --outline --primary"
+              >
+                {mode === "show" ? "Fechar" : cancelLabel}
+              </FormModalCancelButton>
+
+              <FormModalSubmitButton hidden={mode === "show"}>
+                <span>{submitLabel}</span>
+              </FormModalSubmitButton>
+            </footer>
+          </Form>
+        </div>
+      </dialog>
+    </FormModalContextProvider>
   );
 };

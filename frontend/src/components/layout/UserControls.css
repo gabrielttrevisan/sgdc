@@ -1,0 +1,85 @@
+.nav-user-info {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-direction: row-reverse;
+  background-color: var(--colors-primary-15);
+  padding: 8px 16px;
+  gap: 16px;
+  border-radius: 0.4rem 0 0 0.4rem;
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 68px;
+  width: fit-content;
+
+  .nav-user-info__data {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .nav-user-info__abbr {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(var(--colors-primary-base) / 30%);
+    border-radius: 4px;
+    color: var(--colors-primary-1);
+    padding: 8px;
+    width: 40px;
+    height: 40px;
+  }
+
+  .nav-user-info__name {
+    color: rgb(var(--colors-primary-dark-base) / 60%);
+    max-width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 1255px) {
+    flex-direction: row;
+    justify-content: flex-start;
+    top: unset;
+    right: unset;
+    bottom: 24px;
+    left: 0;
+    height: fit-content;
+    border-radius: 0px 0.4rem 0.4rem 0px;
+    gap: 8px;
+    padding: 8px 8px 8px 3.2rem;
+    width: calc(min(30vw, 300px) - 1.6rem);
+
+    .nav-user-info__name {
+      text-align: left;
+    }
+  }
+
+  .nav-user-info__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 6px;
+    flex: 1;
+
+    > [class*="nav-user-info__action"] {
+      border: 0;
+      text-decoration: none;
+      background-color: transparent;
+      padding: 2px 0;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nav-user-info__action-sign-out {
+      color: var(--colors-state-error-light);
+    }
+
+    .nav-user-info__action-settings {
+      color: var(--colors-primary-light-pink);
+    }
+  }
+}

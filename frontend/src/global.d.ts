@@ -3,7 +3,12 @@ import { ReactNode } from "react";
 export type APIError = {
   code: number;
   message: string;
-  issues: string[];
+  issues: Issue[];
+};
+
+export type Issue = {
+  code: string;
+  description: string;
 };
 
 export type APIResponse<T> = {

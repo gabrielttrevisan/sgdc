@@ -1,4 +1,4 @@
-import APIClient from "../lib/services/APIClient";
+import APIClient from "../lib/client/APIClient";
 
 /**
  * @typedef {Object} MeasuringUnit
@@ -39,6 +39,20 @@ class MeasuringUnitsService {
 
       return response;
     } catch {
+      return this.#internal("Erro inesperado");
+    }
+  }
+
+  /**
+   * @param {number} id
+   * @returns {Promise<import("../global").APIResponse<MeasuringUnit>>}
+   */
+  async getById(id) {
+    try {
+      const response = await this.#client.get(`measuring-units/${id}`);
+
+      return response;
+    } catch (error) {
       return this.#internal("Erro inesperado");
     }
   }

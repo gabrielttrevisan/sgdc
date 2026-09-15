@@ -4,41 +4,73 @@ import { useNavigate } from "react-router";
 import Cabecalho from "./componentes/Cabecalho";
 import Busca from "./componentes/Busca";
 import Lista from "./componentes/Lista";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
+import { authStore } from "../../store/Auth.store";
 
 import "./css/armaz.css";
+import "./css/cadastro.css";
 
 function Armaz() {
   const navigate = useNavigate();
 
-  const [salas, setSalas] = useState(() => {
-    const dados = localStorage.getItem("salas");
-    try {
-      return dados ? JSON.parse(dados) : [];
-    } catch {
-      return [];
-    }
-  });
-
+  const [salas, setSalas] = useState([]);
   const [busca, setBusca] = useState("");
   const [mensagem, setMensagem] = useState("");
+  const [modalExcluir, setModalExcluir] = useState(false);
+  const [salaParaExcluir, setSalaParaExcluir] = useState(null);
 
-  useEffect(() => {
-    localStorage.setItem("salas", JSON.stringify(salas));
-  }, [salas]);
+  async function carregarSalas() {
+    try {
+      const response = await fetch(`http://localhost:3004/salas?q=${busca}`, {
+        headers: authStore.getHeaders(),
+      });
 
-  function excluirSala(id) {
-    const confirmar = window.confirm("Tem certeza que deseja excluir esta sala?");
-    if (!confirmar) return;
+      const json = await response.json();
 
-    setSalas((prev) => prev.filter((s) => s.id !== id));
+      const ordenadas = json.data.items.sort((a, b) =>
+        a.nome.localeCompare(b.nome, "pt-BR"),
+      );
 
-    setMensagem("Sala excluída com sucesso.");
-    setTimeout(() => setMensagem(""), 2500);
+      setSalas(ordenadas);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
-  const salasFiltradas = salas.filter((s) =>
-    s.nome.toLowerCase().includes(busca.toLowerCase())
-  );
+  useEffect(() => {
+    carregarSalas();
+  }, [busca]);
+
+  function abrirModalExcluir(id) {
+    setSalaParaExcluir(id);
+    setModalExcluir(true);
+  }
+
+  function fecharModalExcluir() {
+    setModalExcluir(false);
+    setSalaParaExcluir(null);
+  }
+
+  async function excluirSala() {
+    try {
+      await fetch(`http://localhost:3004/salas/${salaParaExcluir}`, {
+        method: "DELETE",
+        headers: authStore.getHeaders(),
+      });
+
+      carregarSalas();
+
+      setMensagem("Sala excluída com sucesso.");
+
+      setTimeout(() => {
+        setMensagem("");
+      }, 2500);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      fecharModalExcluir();
+    }
+  }
 
   return (
     <div className="container mt-4">
@@ -52,30 +84,47 @@ function Armaz() {
 
           <button
             className="btn-cadastrar"
-            onClick={() =>
-              navigate("/locais-de-armazenamento/cadastro")
-            }
+            onClick={() => navigate("/locais-de-armazenamento/cadastro")}
           >
-            Cadastrar
+            + Cadastrar
           </button>
         </div>
 
-        {mensagem && (
-          <div className="alert alert-warning mt-3">
-            {mensagem}
-          </div>
-        )}
+        {mensagem && <div className="alert alert-warning mt-3">{mensagem}</div>}
 
         <Lista
-          salas={salasFiltradas}
-          onExcluir={excluirSala}
+          salas={salas}
+          onExcluir={abrirModalExcluir}
           onEditar={(sala) =>
             navigate(`/locais-de-armazenamento/cadastro/${sala.id}`)
           }
         />
       </div>
+
+      {modalExcluir && (
+        <div className="modal-overlay">
+          <div className="cadastro-card modal-card">
+            <h2 className="cadastro-title">Confirmar exclusão</h2>
+
+            <p>Tem certeza que deseja excluir esta sala?</p>
+
+            <div className="modal-botoes">
+              <button
+                className="modal-btn-cancelar"
+                onClick={fecharModalExcluir}
+              >
+                Cancelar
+              </button>
+
+              <button className="modal-btn-excluir" onClick={excluirSala}>
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-export default Armaz;
+export default WithAuthGuard(Armaz);

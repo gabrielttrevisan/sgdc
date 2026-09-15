@@ -5,7 +5,6 @@
  * @prop {string} name
  * @prop {string} phone
  * @prop {"m"|"f"|"o"} gender
- * @prop {string} family
  * @prop {string} street
  * @prop {string} number
  * @prop {string} complement
@@ -22,7 +21,6 @@
  * @prop {string} name
  * @prop {string} phone
  * @prop {Gender} gender
- * @prop {string} family
  * @prop {string} street
  * @prop {string} number
  * @prop {string} complement
@@ -53,9 +51,8 @@
  */
 
 import { unmaskDigits } from "../lib/functions/unmask";
-import APIClient from "../lib/services/APIClient";
+import APIClient from "../lib/client/APIClient";
 
-/** @implements {import("../../global").PaginatableService<Beneficiary>} */
 class BeneficiariesService {
   /**
    * @param {string} [message]
@@ -81,6 +78,23 @@ class BeneficiariesService {
   async list({ query, ...rest } = { page: 1, perPage: 10 }) {
     try {
       const response = await this.#client.get("beneficiaries", {
+        q: query,
+        ...rest,
+      });
+
+      return response;
+    } catch {
+      return this.#internal("Erro inesperado");
+    }
+  }
+
+  /**
+   * @param {import("../global").PaginatedQuery} query
+   * @returns {Promise<import("../global").APIResponse<import("../components/data-grid/DataGrid").PageData<TinyBeneficiary[]>>>}
+   */
+  async listNoFamily({ query, ...rest } = { page: 1, perPage: 10 }) {
+    try {
+      const response = await this.#client.get("beneficiaries/no-family", {
         q: query,
         ...rest,
       });
@@ -135,8 +149,7 @@ class BeneficiariesService {
 
       return response;
     } catch (error) {
-      console.log(error);
-      return this.#internal("Erro inesperado");
+      return this.#internal("Erro inesperado\n" + (error.message ?? ""));
     }
   }
 

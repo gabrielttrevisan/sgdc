@@ -1,6 +1,6 @@
 import { Router } from "express";
 import BeneficiaryController from "../controllers/Beneficiary.controller.js";
-import validator from "../middlewares/validator/validator.js";
+import { validateRequest } from "../middlewares/validator/validator.js";
 import {
   CREATE_BENEFICIARY_RULES,
   EDIT_BENEFICIARY_BODY_RULES,
@@ -8,29 +8,51 @@ import {
 } from "../validators/beneficiary.validator.js";
 import { pagination } from "../middlewares/validator/pagination.js";
 import identifier from "../middlewares/validator/id.js";
+import requiresPermission from "../middlewares/permission.js";
 
 const beneficiariesRouter = Router();
+const canAccessResource = requiresPermission.forResource("beneficiary");
 
 beneficiariesRouter.get(
   "/",
+  canAccessResource.withAction("list"),
   pagination(FILTER_BENEFICIARIES_RULES),
   BeneficiaryController.findAll,
 );
 
-beneficiariesRouter.get("/:id", identifier, BeneficiaryController.findById);
+beneficiariesRouter.get(
+  "/no-family",
+  canAccessResource.withAction("list"),
+  pagination(FILTER_BENEFICIARIES_RULES),
+  BeneficiaryController.findAllWithoutFamily,
+);
 
-beneficiariesRouter.delete("/:id", identifier, BeneficiaryController.delete);
+beneficiariesRouter.get(
+  "/:id",
+  canAccessResource.withAction("view"),
+  identifier,
+  BeneficiaryController.findById,
+);
+
+beneficiariesRouter.delete(
+  "/:id",
+  canAccessResource.withAction("delete"),
+  identifier,
+  BeneficiaryController.delete,
+);
 
 beneficiariesRouter.post(
   "/",
-  validator({ rules: CREATE_BENEFICIARY_RULES, targetKey: "body" }),
+  canAccessResource.withAction("create"),
+  validateRequest.body.withRules(CREATE_BENEFICIARY_RULES).middleware,
   BeneficiaryController.create,
 );
 
 beneficiariesRouter.patch(
   "/:id",
+  canAccessResource.withAction("edit"),
   identifier,
-  validator({ rules: EDIT_BENEFICIARY_BODY_RULES, targetKey: "body" }),
+  validateRequest.body.withRules(EDIT_BENEFICIARY_BODY_RULES).middleware,
   BeneficiaryController.edit,
 );
 

@@ -3,7 +3,7 @@ import { SelectField } from "../../../../components/form/input-field/SelectField
 import CitiesService from "../../../../service/CitiesService";
 import Toast from "../../../../components/toast/ToastStorage";
 
-export function CitiesSelectInput() {
+export function CitiesSelectInput({ readOnly = false }) {
   const [cities, setCities] = useState({
     options: [],
     loading: false,
@@ -51,13 +51,12 @@ export function CitiesSelectInput() {
         id="state"
         required
         label="Estado"
-        disabled
         options={[{ label: "São Paulo", value: "sp" }]}
-        variant="half-right"
+        variant="half-left"
         onChange={(option) => {
           if (option.value !== cities.district) fetchCities(option.value);
         }}
-        disabled={cities.loading}
+        disabled={readOnly || cities.loading}
       />
 
       <SelectField
@@ -65,10 +64,11 @@ export function CitiesSelectInput() {
         id="city"
         required
         label="Cidade"
-        disabled
         options={cities.options}
-        variant="half-left"
-        disabled={cities.loading || cities.options.length === 0}
+        variant="half-right"
+        disabled={
+          readOnly || cities.loading || cities.options.length === 0
+        }
       />
     </>
   );

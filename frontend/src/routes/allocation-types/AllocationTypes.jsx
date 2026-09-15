@@ -12,12 +12,13 @@ import Toast from "../../components/toast/ToastStorage";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 import AllocationTypesService from "../../service/AllocationTypesService";
 import { AllocationTypeFormModal } from "./components/allocation-type-form-modal/AllocationTypeFormModal";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 
 import "./AllocationTypes.css";
 
 const DESCRIPTION_CLAMP_MAX = 36;
 
-export const AllocationTypes = () => {
+export const AllocationTypes = WithAuthGuard(() => {
   const dataGridRef = useRef(null);
   /** @type {import("react").RefObject<import("../../components/sensitive-modal/SensitiveModal").SensitiveModalRef>} */
   const modalRef = useRef(null);
@@ -51,6 +52,8 @@ export const AllocationTypes = () => {
     },
     {
       DataGridCell: ({ description }) => {
+        if (description.length === 0) return <span>--</span>;
+
         const text =
           description.length > DESCRIPTION_CLAMP_MAX
             ? description.slice(0, DESCRIPTION_CLAMP_MAX + 1) + "..."
@@ -117,6 +120,9 @@ export const AllocationTypes = () => {
         pluralName="tipos de alocação"
         rowClassName="allocation-type__row"
         actionsCellClassName="allocation-type__col --actions"
+        keyProp="id"
+        sortKeyDefault="name"
+        sortTypeDefault="asc"
         actionsConfig={[
           {
             type: "show",
@@ -179,4 +185,4 @@ export const AllocationTypes = () => {
       </DataGrid>
     </>
   );
-};
+});

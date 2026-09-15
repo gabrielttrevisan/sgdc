@@ -64,6 +64,36 @@ export default class MeasuringUnitModel {
 
   /**
    * @param {number} id
+   * @returns {Promise<[PersistedMeasuringUnit, null] | [null, Error]>}
+   */
+  static async findById(id) {
+    try {
+      /** @type {[MeasuringUnitRaw]} */
+      const data = await sql.query`
+          SELECT 
+            ID, NAME, SYMBOL
+          FROM MEASURING_UNITS M
+          WHERE M.ID = ${id}`.run();
+
+      if (data.length === 0) return [null, null];
+
+      const [measuringUnit] = data;
+
+      /** @type {PersistedMeasuringUnit} */
+      const parsed = {
+        id: measuringUnit.ID,
+        name: measuringUnit.NAME,
+        symbol: measuringUnit.SYMBOL,
+      };
+
+      return [parsed, null];
+    } catch (error) {
+      return [null, error];
+    }
+  }
+
+  /**
+   * @param {number} id
    * @returns {Promise<BooleanTuple>}
    */
   static async delete(id) {
