@@ -126,6 +126,7 @@ export function VolunteerFields({ readOnly = false }) {
 
       <InputField
         name="phoneSecondary"
+        required={!readOnly}
         id="phoneSecondary"
         label="Telefone Secundário"
         placeholder="(00) 00000-0000"
@@ -140,10 +141,7 @@ export function VolunteerFields({ readOnly = false }) {
           }
 
           if (digits.length <= 7) {
-            return digits.replace(
-              /(\d{2})(\d+)/,
-              "($1) $2",
-            );
+            return digits.replace(/(\d{2})(\d+)/, "($1) $2");
           }
 
           return digits.replace(
