@@ -1,97 +1,162 @@
-import { useState } from "react";
-import { HeaderSearch } from "../../components/HeaderSearch/HeaderSearch";
-import { VolunteersTable } from "../../components/VolunteersTable/VolunteersTable";
-import { VolunteerFormModal } from "./volunteers-form-modal/VolunteersFormModal";
-import { useVolunteersData } from "../../hooks/useVolunteersData";
+import { DataGrid } from "../../components/data-grid/DataGrid";
+import { ShowIcon } from "../../components/icons/ShowIcon";
+import { EditIcon } from "../../components/icons/EditIcon";
+import { DeleteIcon } from "../../components/icons/DeleteIcon";
+import { AtoZIconAsc } from "../../components/icons/AtoZIconAsc";
+import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
+import { DonateIcon } from "../../components/icons/DonateIcon";
+import { useRef } from "react";
+import { useNavigate } from "react-router";
+import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
+import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
+import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
 import Toast from "../../components/toast/ToastStorage";
-import "./Volunteers.css";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
+import VolunteerService from "../../service/VolunteerService";
 
-export const Volunteers = () => {
-  const { 
-    volunteers, 
-    saveVolunteer, 
-    deleteVolunteer, 
-    sortOrder, 
-    toggleSortByName 
-  } = useVolunteersData();
-  
-  const [filter, setFilter] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState('create');
-  const [selectedVolunteer, setSelectedVolunteer] = useState(null);
+export const Volunteers = WithAuthGuard(() => {
+  const navigate = useNavigate();
+  const dataGridRef = useRef(null);
 
-  const handleCreateClick = () => {
-    setSelectedVolunteer(null);
-    setModalMode('create');
-    setIsModalOpen(true);
-  };
+  /** @type {import("react").RefObject<import("../../components/sensitive-modal/SensitiveModal").SensitiveModalRef>} */
+  const modalRef = useRef(null);
 
-  const handleEditClick = (volunteer) => {
-    setSelectedVolunteer(volunteer);
-    setModalMode('edit');
-    setIsModalOpen(true);
-  };
+  /** @type {import("../../components/data-grid/DataGrid").DataGridColumn<import("../../service/VolunteerService").Volunteer>[]} */
+  const columns = [
+  {
+    DataGridCell: ({ name }) => <span>{name}</span>,
+    title: "Nome",
+    id: "name",
+    className: "volunteer__col --name",
+    sortable: true,
+    SortIcon: ({ sortKey, state }) => {
+      const style =
+        sortKey === "name" ? undefined : { opacity: "0.4" };
 
-  const handleViewClick = (volunteer) => {
-    setSelectedVolunteer(volunteer);
-    setModalMode('view');
-    setIsModalOpen(true);
-  };
+      return (
+        <>
+          {!state || state === "asc" ? (
+            <AtoZIconAsc style={style} />
+          ) : (
+            <AtoZIconDesc style={style} />
+          )}
 
-  const handleSaveData = async (volunteerForm) => {
-    try {
-      await saveVolunteer(volunteerForm, modalMode, selectedVolunteer?.id);
-      setIsModalOpen(false);
-    } catch (error) {
-        throw error; 
-    }
-  };
-
-  const filtered = (volunteers || []).filter(v =>
-    v.name.toLowerCase().includes(filter.toLowerCase())
-  );
+          <VisuallyHidden>Ordenar por nome</VisuallyHidden>
+        </>
+      );
+    },
+    sortKey: "name",
+    sortType: ["asc", "desc"],
+  },
+  {
+    DataGridCell: ({ nationalId }) => <>{nationalId}</>,
+    title: "CPF",
+    id: "national-id",
+    className: "volunteer__col --national-id",
+  },
+  {
+    DataGridCell: ({ phone }) => <>{phone}</>,
+    title: "Telefone",
+    id: "phone",
+    className: "volunteer__col --phone",
+  },
+];
 
   return (
-    <div className="volunteers-container">
-      <HeaderSearch
-        title="Voluntários"
-        placeholder="Buscar voluntários..."
-        buttonText="Cadastrar Voluntário"
-        filter={filter}
-        setFilter={setFilter}
-        onAdd={handleCreateClick}
-      />
+    <>
+      <SensitiveModal ref={modalRef} showCloseButton>
+        O voluntário ainda irá existir e poderá ser recuperado. Dados
+        vinculados também serão mantidos.
+      </SensitiveModal>
 
-      <VolunteerFormModal 
-        isOpen={isModalOpen} 
-        mode={modalMode}
-        volunteerData={selectedVolunteer}
-        onClose={() => setIsModalOpen(false)} 
-        onSave={handleSaveData}
-      />
+      <DataGrid
+        ref={dataGridRef}
+        columns={columns}
+        paginatableService={VolunteerService}
+        singularName="voluntário"
+        pluralName="voluntários"
+        rowClassName="volunteer__row"
+        actionsCellClassName="volunteer__col --actions"
+        keyProp="nationalId"
+        sortKeyDefault="name"
+        sortTypeDefault="asc"
+        actionsConfig={[
+          {
+            type: "show",
+            content: (
+              <>
+                <ShowIcon />
+                <VisuallyHidden>Ver Voluntário</VisuallyHidden>
+              </>
+            ),
+            onAction: (_type, target) => {
+              navigate(`/voluntarios/${target.id}/visualizar`);
+            },
+          },
+          {
+            type: "edit",
+            content: (
+              <>
+                <EditIcon />
+                <span>Editar</span>
+              </>
+            ),
+            onAction: (_type, target) => {
+              navigate(`/voluntarios/${target.id}`);
+            },
+          },
+          {
+            type: "donate",
+            content: (
+              <>
+                <DonateIcon />
+                <span>Alocar</span>
+              </>
+            ),
+            onAction: async () => {
+              Toast.warn("Funcionalidade de Alocação (RF_F) em desenvolvimento.");
+            },
+          },
+          {
+            type: "delete",
+            content: (
+              <>
+                <DeleteIcon />
+                <span>Deletar</span>
+              </>
+            ),
+            onAction: async (_type, target) => {
+              const confirmed = await modalRef.current?.open();
 
-      <VolunteersTable 
-        data={filtered} 
-        onEdit={handleEditClick} 
-        onView={handleViewClick}
-        onDelete={deleteVolunteer}
-        onAlocar={() => Toast.warn("Funcionalidade de Alocação (RF_F) em desenvolvimento.")} 
-        sortOrder={sortOrder}
-        onSortByName={toggleSortByName}
-      />
+              if (confirmed) {
+                const { data, error } = await VolunteerService.delete(
+                  target.id,
+                );
 
-      <div className="volunteers-footer">
-        <span>Exibindo {filtered.length} de {volunteers.length} voluntários</span>
-        <div className="pagination">
-            <button className="page-btn active">1</button>
-            <button className="page-btn" disabled>2</button>
-            <button className="page-btn" disabled>3</button>
-            <span className="page-ellipsis">...</span>
-            <button className="page-btn" disabled>15</button>
-            <button className="page-btn" disabled>16</button>
-            <button className="page-btn" disabled>17</button>
-        </div>
-      </div>
-    </div>
+                if (data?.success) {
+                  Toast.success(
+                    "Voluntário deletado com sucesso",
+                  );
+
+                  dataGridRef.current?.update();
+                } else if (error?.message) {
+                  Toast.error(error.message);
+                }
+              }
+            },
+          },
+        ]}
+      >
+        <button
+          type="button"
+          onClick={() => navigate("/voluntarios/cadastrar")}
+          className="button-block --solid --btn-safe"
+        >
+          <AddLargeIcon />
+
+          <span>Cadastrar Voluntário</span>
+        </button>
+      </DataGrid>
+    </>
   );
-};
+});
