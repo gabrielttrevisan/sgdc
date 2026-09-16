@@ -14,7 +14,10 @@ import { AllocationTypes } from "./routes/allocation-types/AllocationTypes.jsx";
 import { MeasuringUnits } from "./routes/measuring-units/MeasuringUnits.jsx";
 import Products from "./routes/RF_B7/Products.jsx";
 import { Families } from "./routes/families/Families.jsx";
+import FamilyForm from "./routes/families/FamilyForm.jsx";
+import FamilyDetails from "./routes/families/FamilyDetails.jsx";
 import MeasuringUnitsForm from "./routes/measuring-units/MeasuringUnitsForm.jsx";
+import MeasuringUnitsDetails from "./routes/measuring-units/MeasuringUnitsDetails.jsx";
 import SignInForm from "./routes/auth/SignIn.jsx";
 import { AuthGuard } from "./components/auth/WithAuthGuard.hoc.jsx";
 import { NotFoundPage } from "./routes/not-found/NotFoundPage.jsx";
@@ -61,6 +64,10 @@ createRoot(document.getElementById("root")).render(
               element={<MeasuringUnitsForm />}
             />
             <Route
+              path="/unidades-de-medida/:id/visualizar"
+              element={<MeasuringUnitsDetails />}
+            />
+            <Route
               path="/unidades-de-medida/:id"
               element={<MeasuringUnitsForm />}
             />
@@ -88,6 +95,12 @@ createRoot(document.getElementById("root")).render(
             />
             <Route path="/beneficiarios/:id" element={<BeneficiaryForm />} />
             <Route path="/familias" element={<Families />} />
+            <Route path="/familias/cadastrar" element={<FamilyForm />} />
+            <Route
+              path="/familias/:id/visualizar"
+              element={<FamilyDetails />}
+            />
+            <Route path="/familias/:id" element={<FamilyForm />} />
             <Route path="/doadores" element={<App />} />
 
             <Route path="/voluntarios" element={<Volunteers />} />

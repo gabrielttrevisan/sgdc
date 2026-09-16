@@ -5,24 +5,21 @@ import { DeleteIcon } from "../../components/icons/DeleteIcon";
 import { AtoZIconAsc } from "../../components/icons/AtoZIconAsc";
 import { useRef } from "react";
 import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
-import { FamilyFormModal } from "./components/family-form-modal/FamilyFormModal";
 import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
-import { FormControllerProvider } from "../../components/form/context/FormControllerProvider";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
 import Toast from "../../components/toast/ToastStorage";
 import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
 import FamiliesService from "../../service/FamiliesService";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
+import { useNavigate } from "react-router";
 
 import "./Families.css";
 
 export const Families = WithAuthGuard(() => {
+  const navigate = useNavigate();
   const dataGridRef = useRef(null);
   /** @type {import("react").RefObject<import("../../components/sensitive-modal/SensitiveModal").SensitiveModalRef>} */
   const modalRef = useRef(null);
-  /** @type {import("react").RefObject<import("../../components/form/modal/FormModal").FormModalRef>} */
-  const formModalRef = useRef(null);
-
   /** @type {import("../../components/data-grid/DataGrid").DataGridColumn<import("../../service/FamiliesService").Family>[]} */
   const columns = [
     {
@@ -87,50 +84,6 @@ export const Families = WithAuthGuard(() => {
         também serão mantidos.
       </SensitiveModal>
 
-      <FormControllerProvider>
-        <FamilyFormModal
-          ref={formModalRef}
-          onSubmit={{
-            create: async (data) => {
-              const response = await FamiliesService.create(data);
-
-              if (response.data?.success) {
-                dataGridRef.current?.update();
-                formModalRef.current?.close();
-                Toast.success("Família cadastrada com sucesso");
-
-                return true;
-              } else if (response.error) {
-                Toast.error(
-                  <>
-                    <strong>Falha ao cadastrar beneficiário</strong>
-                    <br />
-                    <span>{response.error.issues?.[0]?.description}</span>
-                  </>,
-                );
-              }
-
-              return false;
-            },
-            edit: async (data) => {
-              const reponse = await FamiliesService.edit(data);
-
-              if (reponse.data?.success) {
-                dataGridRef.current?.update();
-                formModalRef.current?.close();
-                Toast.success("Família editada com sucesso");
-
-                return true;
-              } else if (reponse.error) {
-                Toast.error("Falha ao editar família");
-              }
-
-              return false;
-            },
-          }}
-        />
-      </FormControllerProvider>
-
       <DataGrid
         ref={dataGridRef}
         columns={columns}
@@ -153,7 +106,7 @@ export const Families = WithAuthGuard(() => {
             ),
             onAction: async (_type, target) => {
               if (target) {
-                formModalRef.current?.toggle(target, "show");
+                navigate(`/familias/${target.id}/visualizar`);
               } else {
                 Toast.error("Erro inesperado");
               }
@@ -169,7 +122,7 @@ export const Families = WithAuthGuard(() => {
             ),
             onAction: async (_type, target) => {
               if (target) {
-                formModalRef.current?.toggle(target);
+                navigate(`/familias/${target.id}`);
               } else {
                 Toast.error("Erro inesperado");
               }
@@ -200,7 +153,7 @@ export const Families = WithAuthGuard(() => {
       >
         <button
           type="button"
-          onClick={() => formModalRef.current?.toggle()}
+          onClick={() => navigate("/familias/cadastrar")}
           className="button-block --solid --btn-safe"
         >
           <AddLargeIcon />
