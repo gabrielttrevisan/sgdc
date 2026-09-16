@@ -35,6 +35,18 @@ class FamiliesService {
   }
 
   /**
+   * @param {number|string} id
+   * @returns {Promise<import("../global").APIResponse<Family>>}
+   */
+  async getById(id) {
+    try {
+      return await this.#client.get(`families/${id}`);
+    } catch {
+      return this.#internal("Não foi possível carregar família");
+    }
+  }
+
+  /**
    *
    * @param {string} id
    * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}

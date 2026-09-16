@@ -125,7 +125,7 @@ export const MeasuringUnits = WithAuthGuard(() => {
               </>
             ),
             onAction: async (_, target) => {
-              formModalRef.current?.toggle(target, "show");
+              navigate(`/unidades-de-medida/${target.id}/visualizar`);
             },
           },
           {

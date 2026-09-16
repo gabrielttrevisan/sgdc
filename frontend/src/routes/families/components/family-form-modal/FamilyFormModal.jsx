@@ -1,14 +1,10 @@
 import { FormModal } from "../../../../components/form/modal/FormModal";
 import { InputField } from "../../../../components/form/input-field/InputField";
 import { InputHidden } from "../../../../components/form/input-field/InputHidden";
+import { useRef } from "react";
+import { FamilyParticipantsField } from "./FamilyParticipantsField";
 
 import "./FamilyFormModal.css";
-import { ItemListField } from "../../../../components/form/input-field/item-list/ItemListField";
-import { CloseIconLarge } from "../../../../components/icons/CloseIconLarge";
-import { VisuallyHidden } from "../../../../components/accessibility/visually-hidden/VisuallyHidden";
-import { useRef } from "react";
-import NoFamilyBeneficiariesService from "../../../../service/NoFamilyBeneficiariesService";
-import { FamilyParticipantsField } from "./FamilyParticipantsField";
 
 /**
  * @typedef {Object} FamilyFormModalProps

@@ -19,6 +19,13 @@ familyRouter.get(
   FamilyController.findAll,
 );
 
+familyRouter.get(
+  "/:id",
+  canAccessResource.withAction("view"),
+  identifier,
+  FamilyController.findById,
+);
+
 familyRouter.post(
   "/",
   canAccessResource.withAction("create"),
