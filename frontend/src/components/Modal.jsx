@@ -204,17 +204,16 @@ export default function DonorModal({
             </div>
 
             <div className="form-group">
-              <label>Email *</label>
+              <label>Data de Nascimento *</label>
 
               <input
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                placeholder="exemplo@provedor.com"
+                type="date"
+                value={form.birthDate}
+                onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
                 disabled={readOnly}
               />
 
-              {errors.email && <p className="error">{errors.email}</p>}
+              {errors.birthDate && <p className="error">{errors.birthDate}</p>}
             </div>
           </div>
 
@@ -239,18 +238,6 @@ export default function DonorModal({
             </div>
 
             <div className="form-group">
-              <label>Idade *</label>
-
-              <input
-                type="number"
-                min="1"
-                value={form.age}
-                onChange={(e) => setForm({ ...form, age: e.target.value })}
-                placeholder="Ex: 30"
-                disabled={readOnly}
-              />
-
-              {errors.age && <p className="error">{errors.age}</p>}
             </div>
           </div>
 
