@@ -79,17 +79,16 @@ const App = WithAuthGuard(function App() {
   }, [deleteMessage]);
 
   const sortedDonors = [...donors].sort((a, b) =>
-    a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" }),
+    a.NAME.localeCompare(b.NAME, "pt-BR", { sensitivity: "base" }),
   );
   if (!sortAscending) sortedDonors.reverse();
 
   const filteredDonors = sortedDonors.filter((donor) => {
     const term = searchTerm.toLowerCase().trim();
     return (
-      donor.name.toLowerCase().includes(term) ||
-      donor.cpf.toLowerCase().includes(term) ||
-      (donor.email || "").toLowerCase().includes(term) ||
-      String(donor.age || "").includes(term)
+      donor.NAME.toLowerCase().includes(term) ||
+      donor.CPF.toLowerCase().includes(term) ||
+      new Date(donor.BIRTH_DATE).toLocaleDateString("pt-br").includes(term)
     );
   });
 

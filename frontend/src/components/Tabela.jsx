@@ -13,8 +13,7 @@ export default function DonorTable({ donors, onView, onEdit, onDelete, sortAscen
             </button>
           </th>
           <th>CPF</th>
-          <th>Email</th>
-          <th>Idade</th>
+          <th>Data de Nascimento</th>
           <th>Telefone</th>
           <th>Ações</th>
         </tr>
@@ -30,11 +29,10 @@ export default function DonorTable({ donors, onView, onEdit, onDelete, sortAscen
         ) : (
           donors.map((donor) => (
             <tr key={donor.id}>
-              <td>{donor.name}</td>
-              <td>{maskCPFWithLastDigits(donor.cpf)}</td>
-              <td>{donor.email || "-"}</td>
-              <td>{donor.age || "-"}</td>
-              <td>{donor.phone}</td>
+              <td>{donor.NAME}</td>
+              <td>{maskCPFWithLastDigits(donor.CPF)}</td>
+              <td>{new Date(donor.BIRTH_DATE).toLocaleDateString("pt-br")}</td>
+              <td>{donor.PHONE || "-"}</td>
               <td className="actions">
                 <button className="view" onClick={() => onView(donor.id)}>
                   👁 
