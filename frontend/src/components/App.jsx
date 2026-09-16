@@ -52,8 +52,7 @@ const App = WithAuthGuard(function App() {
           ...donor,
           cpf: maskCPF(donor.cpf || donor.CPF || ""),
           gender: donor.gender || donor.GENDER || "",
-          email: donor.email || donor.EMAIL || "",
-          age: donor.age ?? donor.AGE ?? "",
+          birthDate: donor.birthDate || donor.BIRTH_DATE || "",
         })),
       );
     } catch (error) {
