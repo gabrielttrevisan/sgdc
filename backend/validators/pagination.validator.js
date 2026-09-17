@@ -24,7 +24,7 @@ export const PAGINATION_FILTER_RULES = [
     validate: (value) => {
       const message = "Quantidade paginada inadequada";
       const min = 10;
-      const max = 40;
+      const max = 500;
 
       if (typeof value === "string") {
         if (value.trim().length === 0) return message;
