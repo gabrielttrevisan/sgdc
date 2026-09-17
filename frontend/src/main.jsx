@@ -12,7 +12,9 @@ import App from "./components/App.jsx";
 import { MatchMediaProvider } from "./components/media-query/MatchMediaProvider.jsx";
 import { AllocationTypes } from "./routes/allocation-types/AllocationTypes.jsx";
 import { MeasuringUnits } from "./routes/measuring-units/MeasuringUnits.jsx";
-import Products from "./routes/RF_B7/Products.jsx";
+import Products from "./routes/products/Products.jsx";
+import ProductForm from "./routes/products/ProductForm.jsx";
+import ProductDetails from "./routes/products/ProductDetails.jsx";
 import { Families } from "./routes/families/Families.jsx";
 import FamilyForm from "./routes/families/FamilyForm.jsx";
 import FamilyDetails from "./routes/families/FamilyDetails.jsx";
@@ -56,6 +58,12 @@ createRoot(document.getElementById("root")).render(
             />
 
             <Route path="/produtos" element={<Products />} />
+            <Route path="/produtos/cadastrar" element={<ProductForm />} />
+            <Route
+              path="/produtos/:id/visualizar"
+              element={<ProductDetails />}
+            />
+            <Route path="/produtos/:id" element={<ProductForm />} />
             <Route path="/metas" element={<AuthGuard />} />
 
             <Route path="/unidades-de-medida" element={<MeasuringUnits />} />
