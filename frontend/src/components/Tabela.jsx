@@ -1,4 +1,6 @@
 import { maskCPFWithLastDigits } from "../lib/functions/unmask.js";
+import { EditIcon } from "./icons/EditIcon";
+import { DeleteIcon } from "./icons/DeleteIcon";
 
 export default function DonorTable({ donors, onView, onEdit, onDelete, sortAscending, onSort }) {
 
@@ -38,11 +40,25 @@ export default function DonorTable({ donors, onView, onEdit, onDelete, sortAscen
                   👁 
                 </button>
 
-                <button className="edit" onClick={() => onEdit(donor.id)}>
+                <button
+                  className="edit"
+                  onClick={() => onEdit(donor.id)}
+                  type="button"
+                  title="Editar doador"
+                  aria-label="Editar doador"
+                >
+                  <EditIcon />
                   Editar
                 </button>
 
-                <button className="delete" onClick={() => onDelete(donor.id)}>
+                <button
+                  className="delete"
+                  onClick={() => onDelete(donor.id)}
+                  type="button"
+                  title="Excluir doador"
+                  aria-label="Excluir doador"
+                >
+                  <DeleteIcon />
                   Excluir
                 </button>
               </td>
