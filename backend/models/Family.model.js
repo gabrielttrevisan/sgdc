@@ -104,6 +104,45 @@ export default class FamilyModel {
 
   /**
    * @param {number} id
+   * @returns {Promise<FindFamilyByIdTuple>}
+   */
+  static async findById(id) {
+    try {
+      const participantsRaw = await sql.query`
+        SELECT
+          F.ID,
+          F.NAME,
+          FP.BEN_ID,
+          FP.IS_RESPOSIBLE,
+          B.FULL_NAME AS BEN_NAME
+        FROM FAMILIES F
+          INNER JOIN FAMILY_PARTICIPANTS FP ON FP.FAM_ID = F.ID
+          INNER JOIN BENEFICIARIES B ON B.ID = FP.BEN_ID
+        WHERE F.ID = ${id} AND F.DELETED_AT IS NULL
+      `.run();
+
+      if (participantsRaw.length === 0) return [null, null];
+
+      const [first] = participantsRaw;
+      return [
+        {
+          id: first.ID,
+          name: first.NAME,
+          participants: participantsRaw.map((participant) => ({
+            id: participant.BEN_ID,
+            isResponsible: Boolean(participant.IS_RESPOSIBLE),
+            name: participant.BEN_NAME,
+          })),
+        },
+        null,
+      ];
+    } catch (error) {
+      return [null, error];
+    }
+  }
+
+  /**
+   * @param {number} id
    * @returns {Promise<BooleanTuple>}
    */
   static async delete(id) {

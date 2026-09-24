@@ -35,6 +35,20 @@ export class FamilyController {
    * @param {import("express").Request} req
    * @param {import("express").Response} res
    */
+  static async findById(req, res) {
+    const response = APIResponse.from(res);
+    const [family, error] = await FamilyModel.findById(parseInt(req.params.id));
+
+    if (error) return response.internalError(error.message);
+    if (!family) return response.notFound("Família não encontrada");
+
+    return response.success(family);
+  }
+
+  /**
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
   static async create(req, res) {
     const response = APIResponse.from(res);
 

@@ -87,6 +87,10 @@ th.--has-request {
   }
 }
 
+.user__role-badge {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
 .data-grid__item-prop.users__col:is(.--is-active, .--role) > div:last-child {
   margin-top: 8px;
 }

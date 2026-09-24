@@ -1,12 +1,9 @@
 import { VisuallyHidden } from "../../../../components/accessibility/visually-hidden/VisuallyHidden";
 import { ItemListField } from "../../../../components/form/input-field/item-list/ItemListField";
-import { useFormModal } from "../../../../components/form/modal/context/FormModalContext";
 import { CloseIconLarge } from "../../../../components/icons/CloseIconLarge";
 import NoFamilyBeneficiariesService from "../../../../service/NoFamilyBeneficiariesService";
 
-export function FamilyParticipantsField({ ref }) {
-  const { mode } = useFormModal();
-
+export function FamilyParticipantsField({ ref, readOnly = false }) {
   return (
     <ItemListField
       name="participants"
@@ -15,7 +12,7 @@ export function FamilyParticipantsField({ ref }) {
       searchService={NoFamilyBeneficiariesService}
       propKey="nationalId"
       ref={ref}
-      showSearch={mode !== "show"}
+          showSearch={!readOnly}
       parse={(item) => ({
         key: item.nationalId ?? item.id,
         name: item.name,
@@ -49,7 +46,7 @@ export function FamilyParticipantsField({ ref }) {
               <span>É Responsável</span>
             </label>
 
-            {!disabled && (
+            {!disabled && !readOnly && (
               <button type="button" onClick={onRemove}>
                 <CloseIconLarge size={16} />
                 <VisuallyHidden>Remover {name} da Família</VisuallyHidden>

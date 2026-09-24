@@ -1,7 +1,6 @@
 import express, { Router } from "express";
 import cors from "cors";
 import { env } from "./config/env.js";
-import { initializeDatabase } from "./config/database.js";
 import notFoundHandler from "./routes/404.route.js";
 import beneficiariesRouter from "./routes/beneficiaries.route.js";
 import citiesRouter from "./routes/cities.route.js";
@@ -42,8 +41,6 @@ protectedRoutes.use("/roles", rolesRouter);
 
 app.use("/", protectedRoutes);
 app.use(notFoundHandler);
-
-await initializeDatabase();
 
 app.listen(env.PORT, () => {
   console.log(`🔥 APi rodando na porta ${env.PORT}...`);
