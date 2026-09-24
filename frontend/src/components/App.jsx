@@ -50,6 +50,7 @@ const App = WithAuthGuard(function App() {
       setDonors(
         data.map((donor) => ({
           ...donor,
+          id: donor.id ?? donor.ID,
           cpf: maskCPF(donor.cpf || donor.CPF || ""),
           gender: donor.gender || donor.GENDER || "",
           birthDate: donor.birthDate || donor.BIRTH_DATE || "",
@@ -115,7 +116,8 @@ const App = WithAuthGuard(function App() {
 
         setDeleteMessage("Doador atualizado com sucesso!");
         setEditingId(null);
-        fetchDonors();
+        await fetchDonors();
+        return true;
       } else {
         // Criar novo doador
         const response = await fetch(API_URL, {
@@ -130,11 +132,13 @@ const App = WithAuthGuard(function App() {
         }
 
         setDeleteMessage("Doador cadastrado com sucesso!");
-        fetchDonors();
+        await fetchDonors();
+        return true;
       }
     } catch (error) {
       console.error("Erro ao salvar doador:", error);
-      setDeleteMessage("Erro ao salvar doador.");
+      setDeleteMessage(error.message || "Erro ao salvar doador.");
+      return false;
     }
   }
 
@@ -152,8 +156,8 @@ const App = WithAuthGuard(function App() {
 
   async function deleteDonor(id) {
     const donorToDelete = donors.find((d) => d.id === id);
-    const confirmDelete = window.confirm(
-      `Tem certeza que deseja excluir o doador ${donorToDelete.name}?`,
+      const confirmDelete = window.confirm(
+        `Tem certeza que deseja excluir o doador ${donorToDelete.name || donorToDelete.NAME}?`,
     );
 
     if (!confirmDelete) {
@@ -169,7 +173,7 @@ const App = WithAuthGuard(function App() {
 
       if (!response.ok) throw new Error("Erro ao deletar");
 
-      setDeleteMessage(`Doador "${donorToDelete.name}" excluído com sucesso.`);
+      setDeleteMessage(`Doador "${donorToDelete.name || donorToDelete.NAME}" excluído com sucesso.`);
       fetchDonors();
     } catch (error) {
       console.error("Erro ao deletar doador:", error);

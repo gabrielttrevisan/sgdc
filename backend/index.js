@@ -46,5 +46,5 @@ app.use(notFoundHandler);
 await initializeDatabase();
 
 app.listen(env.PORT, () => {
-  console.log(`🔥 Listening on PORT ${env.PORT}...`);
+  console.log(`🔥 APi rodando na porta ${env.PORT}...`);
 });

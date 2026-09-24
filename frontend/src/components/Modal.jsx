@@ -6,8 +6,7 @@ const initialFormState = {
   cpf: "",
   phone: "",
   gender: "",
-  email: "",
-  age: ""
+  birthDate: ""
 }
 
 const maskCPF = (value) => {
@@ -23,10 +22,11 @@ const formatDonor = (donor) => {
   return {
     ...initialFormState,
     ...donor,
-    cpf: maskCPF(donor.cpf || donor.CPF || ""),
+      name: donor.name || donor.NAME || "",
+      cpf: maskCPF(donor.cpf || donor.CPF || ""),
     phone: maskPhone(donor.phone || donor.PHONE || ""),
-    email: donor.email || donor.EMAIL || "",
-    age: donor.age ?? donor.AGE ?? ""
+      gender: donor.gender || donor.GENDER || "",
+    birthDate: (donor.birthDate || donor.BIRTH_DATE || "").slice(0, 10)
   }
 }
 
@@ -78,9 +78,13 @@ export default function DonorModal({
       newErrors.cpf = "CPF inválido"
     }
 
+    if (!form.gender) {
+      newErrors.gender = "Sexo obrigatório"
+    }
+
     const cpfRepeated = existingDonors.some((donor) => {
       if (!form.cpf) return false
-      const sameCpf = cleanCPF(donor.cpf) === cleanCPF(form.cpf)
+        const sameCpf = cleanCPF(donor.cpf || donor.CPF || "") === cleanCPF(form.cpf)
       const isSameRecord = editingDonor ? donor.id === editingDonor.id : false
       return sameCpf && !isSameRecord
     })
@@ -89,16 +93,13 @@ export default function DonorModal({
       newErrors.cpf = "CPF já cadastrado"
     }
 
-    if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      newErrors.email = "E-mail inválido"
+    if (!form.birthDate) {
+      newErrors.birthDate = "Data de nascimento obrigatória"
+    } else if (new Date(`${form.birthDate}T00:00:00`) > new Date()) {
+      newErrors.birthDate = "Data de nascimento inválida"
     }
 
-    const ageNumber = Number(form.age)
-    if (!form.age || !Number.isInteger(ageNumber) || ageNumber <= 0) {
-      newErrors.age = "Idade inválida"
-    }
-
-    if (form.phone.length < 15) {
+    if (form.phone.length < 14) {
       newErrors.phone = "Telefone inválido"
     }
 
@@ -107,23 +108,17 @@ export default function DonorModal({
     return Object.keys(newErrors).length === 0
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
 
     if (viewMode) return
 
     if (!validate()) return
 
-    onSave(form)
+    const saved = await onSave(form)
+    if (!saved) return
 
-    setForm({
-      name: "",
-      cpf: "",
-      phone: "",
-      gender: "",
-      email: "",
-      age: ""
-    })
+    setForm(initialFormState)
 
     onClose()
   }
@@ -181,6 +176,8 @@ export default function DonorModal({
                 <option>Feminino</option>
                 <option>Outro</option>
               </select>
+
+              {errors.gender && <p className="error">{errors.gender}</p>}
             </div>
 
             <div className="form-group">

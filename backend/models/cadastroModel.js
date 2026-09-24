@@ -30,18 +30,18 @@ class CadastroModel {
     return rows[0]
   }
 
-  static async create(name, cpf, phone, gender, email, age) {
-    const [result] = await db.query(
-      "INSERT INTO donors (name, cpf, phone, gender, email, age) VALUES (?, ?, ?, ?, ?, ?)",
-      [name, cpf, phone, gender, email, age]
+  static async create(name, cpf, phone, gender, birthDate) {
+      const [result] = await db.query(
+        "INSERT INTO donors (name, cpf, phone, gender, birth_date) VALUES (?, ?, ?, ?, ?)",
+        [name, cpf, phone, gender, birthDate]
     )
     return result
   }
 
-  static async update(id, name, cpf, phone, gender, email, age) {
-    const [result] = await db.query(
-      "UPDATE donors SET name=?, cpf=?, phone=?, gender=?, email=?, age=? WHERE id= ?",
-      [name, cpf, phone, gender, email, age, id]
+  static async update(id, name, cpf, phone, gender, birthDate) {
+      const [result] = await db.query(
+        "UPDATE donors SET name=?, cpf=?, phone=?, gender=?, birth_date=? WHERE id= ?",
+        [name, cpf, phone, gender, birthDate, id]
     )
     return result
   }
