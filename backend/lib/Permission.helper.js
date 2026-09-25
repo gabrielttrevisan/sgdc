@@ -24,6 +24,7 @@ export class PermissionHelper {
   arrayBuilder() {
     const array = [];
     const permissions = this;
+    
     const builder = {
       pushUnsafe(...value) {
         array.push(...value);
