@@ -12,6 +12,8 @@ import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal"
 import Toast from "../../components/toast/ToastStorage";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import ProductsService from "../../service/ProductsService";
+import { SnowIcon } from "../../components/icons/SnowIcon.jsx";
+import { ProductBadge } from "./components/ProductBadge.jsx";
 
 import "./css/products.css";
 
@@ -31,37 +33,46 @@ export default WithAuthGuard(function Products() {
       SortIcon: ({ sortKey, state }) => (
         <>
           {state === "desc" ? (
-            <AtoZIconDesc style={sortKey === "name" ? undefined : { opacity: "0.4" }} />
+            <AtoZIconDesc
+              style={sortKey === "name" ? undefined : { opacity: "0.4" }}
+            />
           ) : (
-            <AtoZIconAsc style={sortKey === "name" ? undefined : { opacity: "0.4" }} />
+            <AtoZIconAsc
+              style={sortKey === "name" ? undefined : { opacity: "0.4" }}
+            />
           )}
           <VisuallyHidden>Ordenar por nome</VisuallyHidden>
         </>
       ),
     },
     {
-      DataGridCell: ({ measuringUnitName, measuringUnitSymbol }) => (
-        <span>{measuringUnitName} ({measuringUnitSymbol})</span>
+      DataGridCell: ({
+        needRefrigeration,
+        isPerishable,
+        measuringUnitSymbol,
+      }) => (
+        <div className="product-badges">
+          {measuringUnitSymbol && (
+            <ProductBadge className="--unit">
+              POR <em>{measuringUnitSymbol}</em>
+            </ProductBadge>
+          )}
+          {needRefrigeration && (
+            <ProductBadge
+              className="--ice"
+              tooltipLabel="Precisa de Armanezamento Refrigerado"
+            >
+              <SnowIcon />
+            </ProductBadge>
+          )}
+
+          {isPerishable && (
+            <ProductBadge className="--perishable">Perecível</ProductBadge>
+          )}
+        </div>
       ),
-      title: "Unidade",
-      id: "measuring-unit",
-    },
-    {
-      DataGridCell: ({ isPerishable }) => <span>{isPerishable ? "Sim" : "Não"}</span>,
-      title: "Perecível",
-      id: "perishable",
-    },
-    {
-      DataGridCell: ({ needRefrigeration }) => (
-        <span>{needRefrigeration ? "Sim" : "Não"}</span>
-      ),
-      title: "Refrigeração",
+      title: "Características",
       id: "refrigeration",
-    },
-    {
-      DataGridCell: ({ description }) => <span>{description || ""}</span>,
-      title: "Descrição",
-      id: "description",
     },
   ];
 
@@ -118,7 +129,8 @@ export default WithAuthGuard(function Products() {
               if (response.data?.success) {
                 Toast.success("Produto deletado com sucesso");
                 dataGridRef.current?.update();
-              } else if (response.error?.message) Toast.error(response.error.message);
+              } else if (response.error?.message)
+                Toast.error(response.error.message);
             },
           },
         ]}

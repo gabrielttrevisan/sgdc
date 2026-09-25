@@ -2,6 +2,53 @@
   padding: 40px;
 }
 
+.product-badges {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.product-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: #d9d9d9;
+  font-size: 14px;
+  text-transform: uppercase;
+  width: fit-content;
+  anchor-name: --product-badge;
+  anchor-scope: --product-badge;
+  position: relative;
+
+  &.--ice {
+    background-color: aliceblue;
+    color: var(--colors-text-dark);
+  }
+
+  .product-badge__tooltip {
+    display: none;
+    position-anchor: --product-badge;
+    top: anchor(bottom);
+    left: anchor(right);
+    position: fixed;
+    width: fit-content;
+    min-width: fit-content;
+    transform: translate(-50%);
+    background-color: rgb(91 70 102 / 90%);
+    color: var(--colors-text-white);
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-transform: none;
+  }
+
+  &:hover .product-badge__tooltip {
+    display: block;
+  }
+}
+
 .products-container button {
   background: #6b4ba3;
   color: white;
