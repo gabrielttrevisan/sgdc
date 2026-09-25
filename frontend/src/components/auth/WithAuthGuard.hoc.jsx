@@ -3,8 +3,8 @@ import { useAuth } from "../../store/Auth.store";
 import { Fragment } from "react";
 
 /**
- * 
- * @param {import("react").ComponentType} Component 
+ *
+ * @param {import("react").ComponentType} Component
  * @returns {import("react").ComponentType}
  */
 export function WithAuthGuard(Component) {
@@ -26,7 +26,11 @@ export const AuthGuard = WithAuthGuard(Fragment);
 export function RoleAuthGuard({ roleId, children, matchId }) {
   const auth = useAuth();
 
-  if (!auth || auth.roleId !== roleId || (matchId && auth.id !== Number(matchId)))
+  if (
+    !auth ||
+    (roleId && auth.roleId !== roleId) ||
+    (matchId && auth.id !== Number(matchId))
+  )
     return <></>;
 
   return <>{children}</>;
