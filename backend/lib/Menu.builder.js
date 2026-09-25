@@ -199,6 +199,10 @@ export class MenuBuilder {
         "bill",
       );
 
-    return new MenuBuilder(menuStructure.getArray());
+    return new MenuBuilder(
+      menuStructure
+        .getArray()
+        .filter((menu) => !menu.subItems || menu.subItems.length > 0),
+    );
   }
 }
