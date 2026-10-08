@@ -169,35 +169,39 @@ export class MenuBuilder {
           },
         ],
       })
-      .pushByCategories(
-        {
-          id: new RandID(),
-          title: "Institucional",
-          icon: "house",
-          subItems: [
+      .pushUnsafe({
+        id: new RandID(),
+        title: "Institucional",
+        icon: "house",
+        subItems: helper
+          .arrayBuilder()
+          .pushByCategory(
             { id: new RandID(), title: "Usuários", path: "/usuarios" },
+            "user",
+          )
+          .pushByCategory(
             {
               id: new RandID(),
               title: "Níveis de Acesso",
               path: "/niveis-de-acesso",
             },
-            {
-              id: new RandID(),
-              title: "Você",
-              path: `/usuarios/${userId}`,
-            },
+            "role",
+          )
+          .pushUnsafe({
+            id: new RandID(),
+            title: "Você",
+            path: `/usuarios/${userId}`,
+          })
+          .pushByCategory(
             {
               id: new RandID(),
               title: "Contas a Pagar",
               path: "/contas-a-pagar",
             },
-            { id: new RandID(), title: "Contas Pagas", path: "/contas-pagas" },
-          ],
-        },
-        "user",
-        "role",
-        "bill",
-      );
+            "bill",
+          )
+          .getArray(),
+      });
 
     return new MenuBuilder(
       menuStructure

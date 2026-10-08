@@ -81,7 +81,7 @@ export default class APIResponse {
     this.error("NOT_FOUND", message).send(404);
   }
 
-  badRequest() {
+  badRequest(message = "Falha de Requisição") {
     /** @type {Issue[]} */
     const issues = [];
 
@@ -102,7 +102,7 @@ export default class APIResponse {
           data: null,
           error: {
             code: "BAD_REQUEST",
-            message: "Falha de Requisição",
+            message,
             issues,
           },
         });
