@@ -3,7 +3,7 @@ import { VisuallyHidden } from "../accessibility/visually-hidden/VisuallyHidden"
 import useMatchMedia from "../media-query/useMatchMedia";
 import NavContextProvider from "./context/Provider";
 import { MenuIcon } from "../icons/MenuIcon";
-import { CloseIconLarge } from "../icons/CloseIconLarge";
+import { LargeCloseIcon } from "../icons/LargeCloseIcon";
 
 /**
  * @typedef {Object} NavProps
@@ -41,7 +41,7 @@ export const Nav = ({ children }) => {
           className="main-menu-button"
           id="main-nav-button"
         >
-          {isOpen ? <CloseIconLarge size={20} /> : <MenuIcon size={20} />}
+          {isOpen ? <LargeCloseIcon size={20} /> : <MenuIcon size={20} />}
 
           <VisuallyHidden>
             {isOpen ? "Fechar Menu Principal" : "Abrir Menu Principal"}

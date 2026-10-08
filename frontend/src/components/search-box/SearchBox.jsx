@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { SearchIcon } from "../icons/SearchIcon";
-import { CloseIconLarge } from "../icons/CloseIconLarge";
+import { LargeCloseIcon } from "../icons/LargeCloseIcon.jsx";
 import { VisuallyHidden } from "../accessibility/visually-hidden/VisuallyHidden";
 import Toast from "../toast/ToastStorage.js";
 import "./SearchBox.css";
@@ -58,7 +58,7 @@ export const SearchBox = ({
               onReset();
           }}
         >
-          <CloseIconLarge size={10} />
+          <LargeCloseIcon size={10} />
           <VisuallyHidden>Limpar Busca</VisuallyHidden>
         </button>
       </div>

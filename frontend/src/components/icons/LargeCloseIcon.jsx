@@ -1,5 +1,5 @@
 /** @type {import("react").FC<import("../../global").IconProps>} */
-export const CloseIconLarge = (props) => {
+export const LargeCloseIcon = (props) => {
   const width = props.size ?? props.width ?? 16;
   const height = props.size ?? props.height ?? 16;
 

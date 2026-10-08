@@ -1,5 +1,5 @@
 import { useCallback, useImperativeHandle, useRef, useState } from "react";
-import { CloseIconLarge } from "../../icons/CloseIconLarge";
+import { LargeCloseIcon } from "../../icons/LargeCloseIcon";
 import { Form } from "../Form";
 import "./FormModal.css";
 import { useFormController } from "../context/useFormController";
@@ -113,7 +113,7 @@ export const FormModal = ({
                 onClick={handleClose}
                 className="button-close"
               >
-                <CloseIconLarge />
+                <LargeCloseIcon />
               </button>
             </header>
 

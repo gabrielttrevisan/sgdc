@@ -36,11 +36,17 @@ import { ErrorBoundary } from "./components/error-boundary/ErrorBoundary.jsx";
 import CreateVolunteerForm from "./routes/Volunteers/VolunteerForm.jsx";
 import EditVolunteerForm from "./routes/Volunteers/VolunteerForm.jsx";
 import VolunteerDetailsForm from "./routes/Volunteers/VolunteersDetails.jsx";
+import { Bills } from "./routes/bills/Bills.jsx";
+import CreateBillForm from "./routes/bills/CreateBillForm.jsx";
+import ExtendBillForm from "./routes/bills/ExtendBillForm.jsx";
+import CancelBillForm from "./routes/bills/CancelBillForm.jsx";
+import CancelAndCopyBillForm from "./routes/bills/CancelAndCopyBillForm.jsx";
+import ShowBillForm from "./routes/bills/ShowBillForm.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <MatchMediaProvider>
-      <BrowserRouter >
+      <BrowserRouter>
         <Routes>
           <Route path="/sign-in" element={<SignInForm />} />
           <Route ErrorBoundary={ErrorBoundary} />
@@ -82,15 +88,31 @@ createRoot(document.getElementById("root")).render(
 
             <Route path="/tipos-de-alocacao" element={<AllocationTypes />} />
             <Route path="/niveis-de-acesso" element={<Roles />} />
-            <Route
-              path="/niveis-de-acesso/cadastrar"
-              element={<RolesForm />}
-            />
+            <Route path="/niveis-de-acesso/cadastrar" element={<RolesForm />} />
             <Route
               path="/niveis-de-acesso/:id/visualizar"
               element={<RoleDetailsForm />}
             />
             <Route path="/niveis-de-acesso/:id" element={<RolesForm />} />
+
+            <Route path="/contas-a-pagar" element={<Bills />} />
+            <Route path="/contas-a-pagar/lancar" element={<CreateBillForm />} />
+            <Route
+              path="/contas-a-pagar/:id/adiar"
+              element={<ExtendBillForm />}
+            />
+            <Route
+              path="/contas-a-pagar/:id/cancelar"
+              element={<CancelBillForm />}
+            />
+            <Route
+              path="/contas-a-pagar/:id/cancelar-e-copiar"
+              element={<CancelAndCopyBillForm />}
+            />
+            <Route
+              path="/contas-a-pagar/:id/visualizar"
+              element={<ShowBillForm />}
+            />
 
             <Route path="/beneficiarios" element={<Beneficiaries />} />
             <Route
@@ -112,13 +134,22 @@ createRoot(document.getElementById("root")).render(
             <Route path="/doadores" element={<App />} />
 
             <Route path="/voluntarios" element={<Volunteers />} />
-            <Route path="/voluntarios/cadastrar" element={<CreateVolunteerForm/>} />
-            <Route path="/voluntarios/:id/visualizar" element={<VolunteerDetailsForm/>} />
-            <Route path="/voluntarios/:id" element={<EditVolunteerForm/>} />
+            <Route
+              path="/voluntarios/cadastrar"
+              element={<CreateVolunteerForm />}
+            />
+            <Route
+              path="/voluntarios/:id/visualizar"
+              element={<VolunteerDetailsForm />}
+            />
+            <Route path="/voluntarios/:id" element={<EditVolunteerForm />} />
 
             <Route path="/usuarios" element={<Users />} />
             <Route path="/usuarios/cadastrar" element={<CreateUsersForm />} />
-            <Route path="/usuarios/:id/visualizar" element={<UserDetailsForm />} />
+            <Route
+              path="/usuarios/:id/visualizar"
+              element={<UserDetailsForm />}
+            />
             <Route path="/usuarios/:id" element={<EditUserForm />} />
 
             <Route path="*" element={<NotFoundPage />} />
