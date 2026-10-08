@@ -11,7 +11,7 @@ import { useNavigate } from "react-router";
 import { useRef } from "react";
 import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
 import Toast from "../../components/toast/ToastStorage";
-import { CloseIconLarge } from "../../components/icons/CloseIconLarge.jsx";
+import { LargeCloseIcon } from "../../components/icons/LargeCloseIcon.jsx";
 import { CheckIcon } from "../../components/icons/CheckIcon.jsx";
 
 const DESCRIPTION_CLAMP_MAX = 36;
@@ -132,7 +132,7 @@ export const Roles = WithAuthGuard(() => {
             type: "deactivate",
             content: (
               <>
-                <CloseIconLarge size="12px" />
+                <LargeCloseIcon size="12px" />
                 <span>Desativar</span>
               </>
             ),

@@ -69,3 +69,14 @@ export type ToastOptions = {
 };
 
 export type FetchOptions = Omit<RequestInit, "method" | "body">;
+
+export type User = {
+  id: number;
+  name: string;
+};
+
+export type UserTimestamp = {
+  at: Date;
+  byUser: User;
+};
+

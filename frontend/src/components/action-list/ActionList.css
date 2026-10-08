@@ -4,7 +4,7 @@
 
 .button-block.--action.--solid {
   --bb-base-color: var(--colors-background-light);
-  --bb-base-bg: var(--colors-primary-3);
+  --bb-base-bg: rgb(var(--colors-primary-base) / 60%);
 
   padding: 0.5rem 1rem;
   border: 0;
@@ -15,16 +15,19 @@
   border-radius: 0.3333rem;
   word-break: keep-all;
   white-space: nowrap;
+  anchor-name: --action;
+  anchor-scope: --action;
 
   > * {
     display: block;
   }
 
   &:hover {
-    --bb-base-bg: var(--colors-primary-2);
+    --bb-base-bg: rgb(var(--colors-primary-base) / 80%);
   }
 
-  &.--deactivate {
+  &.--deactivate,
+  &.--cancel {
     --bb-base-bg: rgb(var(--colors-status-warning-secondary) / 90%);
     --bb-base-color: var(--colors-text-dark);
 
@@ -54,7 +57,8 @@
   }
 
   &.--donate,
-  &.--restore {
+  &.--restore,
+  &.--pay {
     --bb-base-bg: rgba(61, 174, 118, 0.85);
 
     &:hover {
@@ -86,15 +90,34 @@
     }
   }
 
-  @media (min-width: 1255px) {
+  &.--xl {
     border-radius: 0;
 
-    &:first-child {
-      border-radius: 0.3333rem 0 0 0.3333rem;
+    &:first-of-type {
+      border-top-left-radius: 0.3333rem;
+      border-bottom-left-radius: 0.3333rem;
     }
 
-    &:last-child {
-      border-radius: 0 0.3333rem 0.3333rem 0;
+    &:last-of-type {
+      border-top-right-radius: 0.3333rem;
+      border-bottom-right-radius: 0.3333rem;
     }
   }
+}
+
+.action-tooltip {
+  background-color: rgb(var(--colors-primary-dark-base) / 90%);
+  border: 0;
+  border-radius: 4px;
+  text-transform: none;
+  padding: 8px 16px;
+  box-shadow:
+    0 4px 20px rgb(0 0 0 / 15%),
+    0 4px 6px rgb(0 0 0 / 15%);
+  backdrop-filter: blur(1px);
+  color: var(--colors-text-white);
+  font-size: 14px;
+  margin: 0;
+  inset: 0;
+  transform: translate(-50%);
 }

@@ -19,7 +19,7 @@
     }
 
     .input-field__required {
-        color: var(--colors-state-error);
+        color: rgb(var(--colors-state-error));
         font-weight: bold;
     }
 
@@ -34,13 +34,13 @@
         box-sizing: border-box;
 
         &[aria-invalid="true"] {
-            border-color: var(--colors-state-error);
+            border-color: rgb(var(--colors-state-error));
         }
     }
 
     .field-error-message {
         font-size: 0.8rem;
-        color: var(--colors-state-error);
+        color: rgb(var(--colors-state-error));
     }
 }
 

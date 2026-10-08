@@ -25,6 +25,16 @@ export default class InputFieldController {
   }
 
   fill(mask, value) {
+    if (this.#input.type === "date") {
+      if (value) {
+        const d = new Date(value);
+
+        this.#input.value = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, "0")}-${d.getDate().toString().padStart(2, "0")}`;
+      }
+
+      return;
+    }
+
     if (!mask) {
       if (value) this.#input.value = value;
 

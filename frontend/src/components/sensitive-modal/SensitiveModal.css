@@ -1,66 +1,102 @@
 .sensitive-modal {
-    border-color: var(--colors-state-error);
-    border-radius: 0.4rem;
-    border-width: 1px;
-    padding: 0;
-    width: max-content;
-    box-sizing: border-box;
-    max-width: 50vw;
-    position: relative;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
+  --sm-color-dark: rgb(var(--colors-state-error));
+  --sm-color-surface: rgb(var(--colors-state-error) / 5%);
+  --sm-color-surface-highlight: rgb(var(--colors-state-error) / 15%);
+  --sm-color-text: rgb(var(--colors-state-error) / 60%);
 
-.sensitive-modal__actions {
-    width: 100%;
-    padding: 1rem;
-    background-color: var(--colors-state-error-05);
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    box-sizing: border-box;
-    gap: 0.5rem;
-}
+  &.sensitive-modal--warn {
+    --sm-color-dark: rgb(var(--colors-status-warning-secondary));
+    --sm-color-surface: rgb(
+      var(--colors-status-warning-secondary-vibrant) / 5%
+    );
+    --sm-color-text: rgb(var(--colors-status-warning-dark));
+    --sm-color-surface-highlight: rgb(
+      var(--colors-status-warning-secondary-vibrant)/15%
+    );
 
-.sensitive-modal__content {
-    padding: 2rem;
-
-    header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 2rem;
-        color: var(--colors-state-error);
-
-        .button-close {
-            --button-close-color: var(--colors-state-error);
-            --button-close-bg-hover: var(--colors-state-error-05);
-        }
+    .sensitive-modal__action.--delete,
+    .sensitive-modal__action.--delete-text,
+    .sensitive-modal__action.--cancel {
+      color: var(--sm-color-text);
     }
+  }
 
-    p {
-        margin-bottom: 0;
-        font-size: 0.9rem;
-        color: var(--colors-state-error-60);
-    }
-}
+  border-color: var(--sm-color-dark);
+  border-radius: 0.4rem;
+  border-width: 1px;
+  padding: 0;
+  width: max-content;
+  box-sizing: border-box;
+  max-width: 50vw;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 
-.sensitive-modal__action {
+  .sensitive-modal__action {
     padding: 0.34rem 0.6rem;
     border: 0;
     border-radius: 0.2rem;
     font-weight: 500;
 
     &.--cancel {
-        background-color: var(--colors-state-error);
-        color: var(--colors-background-light);
-        border: 1px solid var(--colors-state-error);
+      background-color: var(--sm-color-dark);
+      color: var(--colors-background-light);
+      border: 1px solid var(--sm-color-dark);
     }
 
     &.--delete {
-        background-color: transparent;
-        color: var(--colors-state-error);
-        border: 1px solid var(--colors-state-error);
+      background-color: transparent;
+      color: var(--sm-color-dark);
+      border: 1px solid var(--sm-color-dark);
+
+      &:hover {
+        background-color: var(--sm-color-surface-highlight);
+      }
     }
+
+    &.--delete-text {
+      background-color: transparent;
+      color: var(--sm-color-dark);
+      border: 1px solid transparent;
+
+      &:hover {
+        background-color: var(--sm-color-surface-highlight);
+      }
+    }
+  }
+}
+
+.sensitive-modal__actions {
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--sm-color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  box-sizing: border-box;
+  gap: 0.5rem;
+}
+
+.sensitive-modal__content {
+  padding: 2rem;
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    color: var(--sm-color-dark);
+
+    .button-close {
+      --button-close-color: var(--sm-color-dark);
+      --button-close-bg-hover: var(--sm-color-surface);
+    }
+  }
+
+  p {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+    color: var(--sm-color-text);
+  }
 }

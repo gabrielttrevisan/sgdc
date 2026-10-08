@@ -44,7 +44,7 @@
     animation-composition: add;
 
     &.--error {
-      --ttt-bg: var(--colors-state-error-60);
+      --ttt-bg: rgb(var(--colors-state-error) / 60%);
       --ttt-color: var(--colors-background-light);
     }
 
@@ -54,7 +54,7 @@
     }
 
     &.--warn {
-      --ttt-bg: var(--colors-status-warning-75);
+      --ttt-bg: rgb(var(--colors-status-warning) / 75%);
       --ttt-color: var(--colors-text-dark);
     }
   }

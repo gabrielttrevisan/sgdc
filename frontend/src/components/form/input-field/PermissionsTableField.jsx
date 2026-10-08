@@ -6,7 +6,7 @@ import { VisuallyHidden } from "../../accessibility/visually-hidden/VisuallyHidd
 
 import "./PermissionsTableField.css";
 import { AddLargeIcon } from "../../icons/AddLargeIcon";
-import { CloseIconLarge } from "../../icons/CloseIconLarge";
+import { LargeCloseIcon } from "../../icons/LargeCloseIcon";
 import { useFormController } from "../context/useFormController";
 
 /**
@@ -33,6 +33,7 @@ const PermissionGroupAction = {
   RESET: { value: "reset", label: "Redefinir" },
   RESTORE: { value: "restore", label: "Restaurar" },
   PAY: { value: "pay", label: "Pagar" },
+  EXTEND: { value: "extend", label: "Adiar" },
 };
 
 /** @type {PermissionGroupAction[]} */
@@ -117,6 +118,8 @@ const PERMISSION_GROUPS = [
       PermissionGroupAction.VIEW,
       PermissionGroupAction.LIST,
       PermissionGroupAction.PAY,
+      PermissionGroupAction.EXTEND,
+      PermissionGroupAction.DELETE,
     ],
   },
   {
@@ -437,7 +440,7 @@ export function PermissionsTableField({
                           <VisuallyHidden>
                             Remover ação da permissão
                           </VisuallyHidden>
-                          <CloseIconLarge size="10px" />
+                          <LargeCloseIcon size="10px" />
                         </button>
                       )}
                     </div>
@@ -465,7 +468,7 @@ export function PermissionsTableField({
                       onClick={() => handleRemovePermissionFrom(resource)}
                     >
                       <VisuallyHidden>Remover permissão</VisuallyHidden>
-                      <CloseIconLarge size="14px" />
+                      <LargeCloseIcon size="14px" />
                     </button>
                   </div>
                 )}

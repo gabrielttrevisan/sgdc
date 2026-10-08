@@ -18,6 +18,7 @@ import { DataGridHeader } from "./grid/DataGridHeader";
 import { DataGridHeaderActions } from "./grid/DataGridHeaderActions";
 
 import "./DataGrid.css";
+import { DataGridWrapper } from "./grid/DataGridWrapper";
 
 /**
  * @typedef {"none"|"asc"|"desc"} SortState
@@ -71,6 +72,8 @@ import "./DataGrid.css";
  * @prop {keyof T|(item: T) => string} keyProp
  * @prop {keyof T} [sortKeyDefault]
  * @prop {string} [sortTypeDefault]
+ * @prop {string} [breakpoint]
+ * @prop {string} [matchMedia]
  */
 
 /**
@@ -93,6 +96,8 @@ export function DataGrid({
   keyProp,
   sortKeyDefault,
   sortTypeDefault,
+  breakpoint,
+  matchMedia,
 }) {
   /** @type {[import("../../global").AsyncPageData<T>, import("react").Dispatch<import("react").SetStateAction<import("../../global").AsyncPageData<T>>>]} */
   const [page, setPage] = useState({
@@ -172,7 +177,7 @@ export function DataGrid({
   );
 
   return (
-    <IsDataGridMobileProvider>
+    <IsDataGridMobileProvider breakpoint={breakpoint} matchMedia={matchMedia}>
       <section className="data-grid">
         <DataGridHeader>
           <h2 className="data-grid__title" id={`data-grid-title-${pluralName}`}>
@@ -197,16 +202,7 @@ export function DataGrid({
           </DataGridHeaderActions>
         </DataGridHeader>
 
-        <div
-          className="data-grid__table-wrapper data-grid__has-overlay"
-          aria-busy={page.loading}
-        >
-          {page.loading && (
-            <div className="data-grid__loading-overlay">
-              <p>Carregando</p>
-            </div>
-          )}
-
+        <DataGridWrapper>
           <DataGridContent
             className="data-grid__table --beneficiaries"
             role="grid"
@@ -309,15 +305,17 @@ export function DataGrid({
                   ))}
 
                   {actionsConfig && (
-                    <DataGridItemActions className={actionsCellClassName}>
-                      <ActionList target={item} actions={actionsConfig} />
-                    </DataGridItemActions>
+                    <DataGridItemActions
+                      className={actionsCellClassName}
+                      target={item}
+                      actions={actionsConfig}
+                    />
                   )}
                 </DataGridItem>
               ))}
             </DataGridItemList>
           </DataGridContent>
-        </div>
+        </DataGridWrapper>
 
         <div className="data-grid__pagination">
           <PaginationInfo
