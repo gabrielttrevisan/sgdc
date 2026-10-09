@@ -1,7 +1,7 @@
 import { NavLink, Outlet } from "react-router";
 import { useState } from "react";
 import { NavSection } from "../nav/section/NavSection.jsx";
-import { Nav } from "../Nav/Nav.jsx";
+import { Nav } from "../nav/Nav.jsx";
 import sgdcLogo from "../../assets/sgdc-logo.png";
 import { ToastTray } from "../toast/ToastTray.jsx";
 import { BoxIcon } from "./icon/BoxIcon.jsx";
