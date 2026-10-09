@@ -1,5 +1,5 @@
 import APIResponse from "../lib/APIResponse.js";
-import SalaModel from "../models/Sala.model.js";
+import SalaModel from "../models/sala.model.js";
 
 export default class SalaController {
 
