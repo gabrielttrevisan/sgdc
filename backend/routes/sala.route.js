@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import SalaController
-from "../controllers/Sala.controller.js";
+from "../controllers/sala.controller.js";
 
 import validator
 from "../middlewares/validator/validator.js";
