@@ -7,14 +7,16 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "node server.js"
   },
   "dependencies": {
     "lucide-react": "^1.16.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-hook-form": "^7.75.0",
-    "react-router": "^7.15.0"
+    "react-router": "^7.15.0",
+    "express": "^5.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
