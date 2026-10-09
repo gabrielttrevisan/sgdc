@@ -1,5 +1,4 @@
 import * as v from "valibot";
-import { config } from "dotenv";
 
 const DEFAULT_EXPIRES_IN = 43200000;
 
@@ -22,7 +21,7 @@ const EnvironmentSchema = v.object({
   ),
 });
 
-export const env = v.parse(EnvironmentSchema, config().parsed, {
+export const env = v.parse(EnvironmentSchema, process.env, {
   message(issue) {
     if (!issue.path?.[0].key) return issue.message;
 
