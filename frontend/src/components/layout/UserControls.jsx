@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router";
-import { authStore, useAuth } from "../../store/Auth.store";
+import { authStore, useAuth } from "../../store/Auth.store.js";
+
 import "./UserControls.css";
 
 export function UserControls() {
