@@ -36,6 +36,7 @@ import { ErrorBoundary } from "./components/error-boundary/ErrorBoundary.jsx";
 import CreateVolunteerForm from "./routes/Volunteers/VolunteerForm.jsx";
 import EditVolunteerForm from "./routes/Volunteers/VolunteerForm.jsx";
 import VolunteerDetailsForm from "./routes/Volunteers/VolunteersDetails.jsx";
+import { Arrecadacoes } from "./routes/arrecadacoes/Arrecadacoes.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -47,7 +48,7 @@ createRoot(document.getElementById("root")).render(
 
           <Route element={<Layout />}>
             <Route path="/donativos" element={<AuthGuard />} />
-            <Route path="/arrecadacoes" element={<AuthGuard />} />
+            <Route path="/arrecadacoes" element={<Arrecadacoes />} />
             <Route path="/doacoes" element={<AuthGuard />} />
 
             <Route path="/" element={<AuthGuard />} />

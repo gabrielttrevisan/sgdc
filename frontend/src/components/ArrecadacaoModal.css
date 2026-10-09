@@ -1,0 +1,233 @@
+.arrecadacao-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 11000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+  padding: 24px;
+  background: rgba(30, 24, 40, 0.58);
+  backdrop-filter: blur(3px);
+}
+
+.arrecadacao-dialog {
+  width: min(100%, 520px);
+  margin: auto;
+}
+
+.arrecadacao-content {
+  overflow: hidden;
+  border: 1px solid rgba(95, 75, 139, 0.15);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(24, 18, 36, 0.28);
+}
+
+.arrecadacao-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 26px 20px;
+  border-bottom: 1px solid #eeeaf4;
+}
+
+.arrecadacao-header h2 {
+  margin: 0;
+  color: #392e4d;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.arrecadacao-header p {
+  margin: 7px 0 0;
+  color: #77717f;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.arrecadacao-close {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: #f3f0f7;
+  color: #625675;
+  font-size: 25px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.arrecadacao-close:hover:not(:disabled) {
+  background: #e8e2f0;
+}
+
+.arrecadacao-body {
+  padding: 24px 26px;
+}
+
+.arrecadacao-field {
+  margin-bottom: 19px;
+}
+
+.arrecadacao-field label {
+  display: block;
+  margin-bottom: 8px;
+  color: #40394a;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.arrecadacao-field input,
+.arrecadacao-field select,
+.arrecadacao-field textarea {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #d9d3e2;
+  border-radius: 8px;
+  background: #fff;
+  color: #28242e;
+  font: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.arrecadacao-field textarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+.arrecadacao-field input:focus,
+.arrecadacao-field select:focus,
+.arrecadacao-field textarea:focus {
+  border-color: #8065a8;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(128, 101, 168, 0.15);
+}
+
+.arrecadacao-field input:disabled,
+.arrecadacao-field select:disabled,
+.arrecadacao-field textarea:disabled {
+  background: #f7f6f8;
+  cursor: not-allowed;
+}
+
+.arrecadacao-help,
+.arrecadacao-required {
+  margin-top: 7px;
+  color: #77717f;
+  font-size: 12px;
+}
+
+.arrecadacao-required {
+  margin: 0;
+}
+
+.arrecadacao-error {
+  margin-bottom: 18px;
+  padding: 11px 13px;
+  border: 1px solid #f1c5c5;
+  border-radius: 8px;
+  background: #fff1f1;
+  color: #962f36;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.arrecadacao-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 17px 26px 22px;
+  border-top: 1px solid #eeeaf4;
+}
+
+.arrecadacao-footer button {
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.arrecadacao-footer button:disabled,
+.arrecadacao-close:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.arrecadacao-cancel {
+  border: 1px solid #d8d2df;
+  background: #fff;
+  color: #51485e;
+}
+
+.arrecadacao-cancel:hover:not(:disabled) {
+  background: #f6f4f8;
+}
+
+.arrecadacao-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #239b56;
+  background: #27ae60;
+  color: #fff;
+}
+
+.arrecadacao-submit:hover:not(:disabled) {
+  border-color: #1f8f4f;
+  background: #1f8f4f;
+}
+
+.arrecadacao-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: arrecadacao-spin 0.7s linear infinite;
+}
+
+@keyframes arrecadacao-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 520px) {
+  .arrecadacao-backdrop {
+    align-items: flex-end;
+    padding: 12px;
+  }
+
+  .arrecadacao-content {
+    border-radius: 16px 16px 12px 12px;
+  }
+
+  .arrecadacao-header,
+  .arrecadacao-body {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  .arrecadacao-footer {
+    flex-direction: column-reverse;
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  .arrecadacao-footer button {
+    width: 100%;
+  }
+}

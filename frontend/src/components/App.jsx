@@ -5,8 +5,10 @@ import DonorModal from "./Modal";
 import Pagination from "./Paginação";
 import "../styles/global.css";
 import "./App.css";
+
 import { authStore } from "../store/Auth.store";
 import { WithAuthGuard } from "./auth/WithAuthGuard.hoc";
+import ArrecadacaoModal from "./ArrecadacaoModal.jsx";
 
 const API_URL = "http://localhost:3004/donors";
 
@@ -23,6 +25,9 @@ const App = WithAuthGuard(function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [deleteMessage, setDeleteMessage] = useState("");
+
+  // Novo estado para o modal de arrecadação
+  const [arrecadacaoModalOpen, setArrecadacaoModalOpen] = useState(false);
 
   const itemsPerPage = 5;
 
@@ -156,8 +161,8 @@ const App = WithAuthGuard(function App() {
 
   async function deleteDonor(id) {
     const donorToDelete = donors.find((d) => d.id === id);
-      const confirmDelete = window.confirm(
-        `Tem certeza que deseja excluir o doador ${donorToDelete.name || donorToDelete.NAME}?`,
+    const confirmDelete = window.confirm(
+      `Tem certeza que deseja excluir o doador ${donorToDelete.name || donorToDelete.NAME}?`,
     );
 
     if (!confirmDelete) {
@@ -206,11 +211,14 @@ const App = WithAuthGuard(function App() {
                 className="green-btn"
                 onClick={() => {
                   setEditingId(null);
+                  setViewingDonor(null);
                   setIsModalOpen(true);
                 }}
               >
                 + Cadastrar Doador
               </button>
+
+              
             </div>
           </div>
 
@@ -272,6 +280,15 @@ const App = WithAuthGuard(function App() {
         }
         existingDonors={donors}
         viewMode={Boolean(viewingDonor)}
+      />
+      <ArrecadacaoModal
+        isOpen={arrecadacaoModalOpen}
+        onClose={() => setArrecadacaoModalOpen(false)}
+        onSuccess={(mensagem) => {
+          setDeleteMessage(
+            mensagem || "Arrecadação lançada com sucesso!"
+          );
+        }}
       />
     </div>
   );
