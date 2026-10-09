@@ -1,18 +1,18 @@
 import { NavLink, Outlet } from "react-router";
+import { useState } from "react";
 import { NavSection } from "../nav/section/NavSection";
 import { Nav } from "../Nav/Nav";
 import sgdcLogo from "../../assets/sgdc-logo.png";
 import { ToastTray } from "../toast/ToastTray";
 import { BoxIcon } from "./icon/BoxIcon";
 import { PeopleIcon } from "./icon/PeopleIcon";
-
-import "./Layout.css";
-import { useState } from "react";
 import { authStore } from "../../store/Auth.store";
 import { GraphIcon } from "./icon/GraphIcon";
 import { FilePlotIcon } from "./icon/FilePlotIcon";
 import { HouseIcon } from "./icon/HouseIcon";
 import { UserControls } from "./UserControls";
+
+import "./Layout.css";
 
 /**
  * @typedef {Object} LayoutProps

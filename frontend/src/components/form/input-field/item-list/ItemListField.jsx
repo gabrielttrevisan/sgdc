@@ -52,7 +52,7 @@ export function ItemListField({
     onInput(callback) {
       onInputRef.current = callback;
     },
-    setValidity(value) {},
+    setValidity(_value) {},
     get value() {
       return Array.from(state.items.values());
     },

@@ -52,7 +52,7 @@ class MeasuringUnitsService {
       const response = await this.#client.get(`measuring-units/${id}`);
 
       return response;
-    } catch (error) {
+    } catch {
       return this.#internal("Erro inesperado");
     }
   }

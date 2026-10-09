@@ -6,7 +6,7 @@ import { authStore } from "../../store/Auth.store";
 
 import "./css/cadastro.css";
 
-function CadastroRFB5() {
+const CadastroRFB5 = WithAuthGuard(function CadastroRFB5() {
   const navigate = useNavigate();
 
   const { id } = useParams();
@@ -20,9 +20,12 @@ function CadastroRFB5() {
 
     async function carregarSala() {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/salas/${id}`, {
-          headers: authStore.getHeaders(),
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/salas/${id}`,
+          {
+            headers: authStore.getHeaders(),
+          },
+        );
 
         const json = await response.json();
 
@@ -96,6 +99,6 @@ function CadastroRFB5() {
       </div>
     </div>
   );
-}
+});
 
-export default WithAuthGuard(CadastroRFB5);
+export default CadastroRFB5;

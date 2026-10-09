@@ -1,6 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useImperativeHandle, useState } from "react";
-import { ActionList } from "../action-list/ActionList";
 import { PaginationInfo } from "../pagination-info/PaginationInfo";
 import { PaginationLinks } from "../pagination-links/PaginationLinks";
 import { SearchBox } from "../search-box/SearchBox";

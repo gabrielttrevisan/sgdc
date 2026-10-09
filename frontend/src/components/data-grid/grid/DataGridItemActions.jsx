@@ -3,7 +3,7 @@ import useIsDataGridMobile from "../context/useIsDataGridMobile";
 
 /** @type {import("react").FC<import("react").HTMLProps<"tr"> & import("../../action-list/ActionList").ActionListProps>} */
 export const DataGridItemActions = ({
-  children,
+  children: _,
   className = "",
   target,
   actions,

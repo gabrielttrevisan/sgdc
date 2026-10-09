@@ -23,8 +23,6 @@ const STATUS_LABELS = {
   EXTENDED: "ADIADO",
 };
 
-const emptyAction = () => undefined;
-
 function formatDueDate(dueDate) {
   return new Date(dueDate).toLocaleDateString("pt-BR");
 }

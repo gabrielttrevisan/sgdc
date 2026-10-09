@@ -10,7 +10,7 @@ import { authStore } from "../../store/Auth.store";
 import "./css/armaz.css";
 import "./css/cadastro.css";
 
-function Armaz() {
+const Armaz = WithAuthGuard(function Armaz() {
   const navigate = useNavigate();
 
   const [salas, setSalas] = useState([]);
@@ -21,9 +21,12 @@ function Armaz() {
 
   async function carregarSalas() {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}salas?q=${busca}`, {
-        headers: authStore.getHeaders(),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}salas?q=${busca}`,
+        {
+          headers: authStore.getHeaders(),
+        },
+      );
 
       const json = await response.json();
 
@@ -125,6 +128,6 @@ function Armaz() {
       )}
     </div>
   );
-}
+});
 
-export default WithAuthGuard(Armaz);
+export default Armaz;

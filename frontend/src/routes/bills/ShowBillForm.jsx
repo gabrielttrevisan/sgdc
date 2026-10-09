@@ -1,10 +1,8 @@
 import { useNavigate } from "react-router";
 import { InputField } from "../../components/form/input-field/InputField.jsx";
 import { TextAreaField } from "../../components/form/input-field/TextAreaField.jsx";
-import Toast from "../../components/toast/ToastStorage.js";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import BillsService from "../../service/BillsService.js";
-import { Fragment } from "react";
 import { ReadOnlyResourceForm } from "../../components/resource-form/ReadOnlyResourceForm.jsx";
 import { BillTimeline } from "./components/BillTimeline.jsx";
 
