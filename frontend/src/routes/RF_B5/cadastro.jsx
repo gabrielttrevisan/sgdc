@@ -20,7 +20,7 @@ function CadastroRFB5() {
 
     async function carregarSala() {
       try {
-        const response = await fetch(`http://localhost:3004/salas/${id}`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/salas/${id}`, {
           headers: authStore.getHeaders(),
         });
 
@@ -47,8 +47,8 @@ function CadastroRFB5() {
     try {
       const response = await fetch(
         id
-          ? `http://localhost:3004/salas/${id}`
-          : "http://localhost:3004/salas",
+          ? `${import.meta.env.VITE_API_URL}salas/${id}`
+          : "${import.meta.env.VITE_API_URL}salas",
 
         {
           method: id ? "PUT" : "POST",

@@ -21,7 +21,7 @@ function Armaz() {
 
   async function carregarSalas() {
     try {
-      const response = await fetch(`http://localhost:3004/salas?q=${busca}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}salas?q=${busca}`, {
         headers: authStore.getHeaders(),
       });
 
@@ -53,7 +53,7 @@ function Armaz() {
 
   async function excluirSala() {
     try {
-      await fetch(`http://localhost:3004/salas/${salaParaExcluir}`, {
+      await fetch(`${import.meta.env.VITE_API_URL}salas/${salaParaExcluir}`, {
         method: "DELETE",
         headers: authStore.getHeaders(),
       });

@@ -3,7 +3,7 @@ import { authStore } from "../../store/Auth.store";
 export default class APIClient {
   #url;
 
-  constructor(url = "http://localhost:3004/", noCredentials = false) {
+  constructor(url = import.meta.env.VITE_API_URL) {
     this.#url = url;
   }
 
