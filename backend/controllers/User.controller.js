@@ -26,7 +26,7 @@ export default class UserController {
     const [users, error] = await UserModel.findAll(filter);
 
     if (error) {
-      return response.internalError();
+      return response.internalError(error.message);
     } else {
       if (users.length === 0)
         return response.notFound("Nenhum usuário encontrado");

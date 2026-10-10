@@ -79,7 +79,6 @@ export default class UserModel {
         null,
       ];
     } catch (error) {
-      console.error(error);
       return [null, error];
     }
   }
@@ -151,7 +150,6 @@ export default class UserModel {
 
       return [parsed, null];
     } catch (error) {
-      console.error(error);
       return [null, error];
     }
   }
@@ -180,8 +178,6 @@ export default class UserModel {
 
       return [true, null];
     } catch (error) {
-      console.error(error);
-
       if (error instanceof Error && "code" in error) {
         if (error.code === "ER_DUP_ENTRY") {
           if (/CPF/i.test(error.message))
@@ -266,8 +262,6 @@ export default class UserModel {
 
       return [true, null];
     } catch (error) {
-      console.error(error);
-
       if (error instanceof Error && "code" in error) {
         if (error.code === "ER_DUP_ENTRY") {
           if (/CPF/i.test(error.message))
@@ -317,9 +311,7 @@ export default class UserModel {
         return [false, new Error("Usuário inexistente")];
 
       return [true, null];
-    } catch (error) {
-      console.error(error);
-
+    } catch (e) {
       return [false, e];
     }
   }
@@ -337,9 +329,7 @@ export default class UserModel {
         return [false, new Error("Usuário inexistente")];
 
       return [true, null];
-    } catch (error) {
-      console.error(error);
-
+    } catch (e) {
       return [false, e];
     }
   }
