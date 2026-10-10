@@ -32,25 +32,25 @@ export class AuthSingleton {
    * @param {number} roleId
    * @param {string} key
    * @param {string} action
-   * @returns {Promise<[boolean, Error | null]>}
+   * @returns {Promise<boolean>}
    */
   async can(roleId, key, action) {
     if (this.#roles.size === 0) {
       const [roles, error] = await RoleModel.findAllWithPermissions();
 
-      if (error) return [false, error];
+      if (error) return false;
 
       roles.forEach((role) => this.setRole(role.id, role.permissions));
     }
 
     const rolePermissions = this.#roles.get(roleId);
 
-    if (!rolePermissions) return [false, new Error("Role ID not found")];
+    if (!rolePermissions) return false;
 
     const permission = rolePermissions.get(key);
 
-    if (!permission) return [false, new Error("Permission not found")];
+    if (!permission) return false;
 
-    return [permission.has(action), null];
+    return permission.has(action);
   }
 }

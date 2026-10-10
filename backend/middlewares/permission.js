@@ -47,21 +47,14 @@ const requiresPermission = Object.freeze({
               .error("UNAUTHORIZED", "Credenciais inválidas")
               .send(401);
 
-          const [canAcess, error] = await AuthSingleton.instance.can(
-            req.auth.user.roleId,
-            resource,
-            action,
-          );
-
-          if (error)
-            return response
-              .error(
-                "FORBIDDEN",
-                "Usuário sem nível de acesso esperado: " + error.message,
-              )
-              .send(403);
-
-          if (canAcess) return next();
+          if (
+            await AuthSingleton.instance.can(
+              req.auth.user.roleId,
+              resource,
+              action,
+            )
+          )
+            return next();
 
           return response
             .error("FORBIDDEN", "Usuário sem nível de acesso esperado")
