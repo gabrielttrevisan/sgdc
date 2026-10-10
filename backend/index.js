@@ -53,5 +53,5 @@ app.use("/", protectedRoutes);
 app.use(notFoundHandler);
 
 app.listen(env.PORT, () => {
-  console.log(`🔥 APi rodando na porta ${env.PORT}...`);
+  console.log(`APi rodando na porta ${env.PORT}...`);
 });

@@ -19,7 +19,6 @@ const App = WithAuthGuard(function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [editingId, setEditingId] = useState(null);
-  const [viewingDonor, setViewingDonor] = useState(null);
   const [sortAscending, setSortAscending] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -148,42 +147,8 @@ const App = WithAuthGuard(function App() {
   }
 
   function editDonor(id) {
-    setViewingDonor(null);
     setEditingId(id);
     setIsModalOpen(true);
-  }
-
-  function viewDonor(id) {
-    setEditingId(null);
-    setViewingDonor(donors.find((d) => d.id === id) || null);
-    setIsModalOpen(true);
-  }
-
-  async function deleteDonor(id) {
-    const donorToDelete = donors.find((d) => d.id === id);
-    const confirmDelete = window.confirm(
-      `Tem certeza que deseja excluir o doador ${donorToDelete.name || donorToDelete.NAME}?`,
-    );
-
-    if (!confirmDelete) {
-      setDeleteMessage("Exclusão cancelada.");
-      return;
-    }
-
-    try {
-      const response = await fetch(`${API_URL}/${id}`, {
-        method: "DELETE",
-        headers: authStore.getHeaders(),
-      });
-
-      if (!response.ok) throw new Error("Erro ao deletar");
-
-      setDeleteMessage(`Doador "${donorToDelete.name || donorToDelete.NAME}" excluído com sucesso.`);
-      fetchDonors();
-    } catch (error) {
-      console.error("Erro ao deletar doador:", error);
-      setDeleteMessage("Erro ao excluir doador.");
-    }
   }
 
   return (
@@ -211,7 +176,6 @@ const App = WithAuthGuard(function App() {
                 className="green-btn"
                 onClick={() => {
                   setEditingId(null);
-                  setViewingDonor(null);
                   setIsModalOpen(true);
                 }}
               >
@@ -233,9 +197,7 @@ const App = WithAuthGuard(function App() {
           <div className="table-wrapper">
             <DonorTable
               donors={currentDonors}
-              onView={viewDonor}
               onEdit={editDonor}
-              onDelete={deleteDonor}
               sortAscending={sortAscending}
               onSort={() => setSortAscending((prev) => !prev)}
             />
@@ -257,29 +219,19 @@ const App = WithAuthGuard(function App() {
       </main>
 
       <DonorModal
-        key={
-          viewingDonor
-            ? `view-${viewingDonor.id}`
-            : editingId !== null
-              ? editingId
-              : "new"
-        }
+        key={editingId !== null ? editingId : "new"}
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
           setEditingId(null);
-          setViewingDonor(null);
         }}
         onSave={saveDonor}
         editingDonor={
-          viewingDonor
-            ? viewingDonor
-            : editingId !== null
-              ? donors.find((d) => d.id === editingId)
-              : null
+          editingId !== null
+            ? donors.find((d) => d.id === editingId)
+            : null
         }
         existingDonors={donors}
-        viewMode={Boolean(viewingDonor)}
       />
       <ArrecadacaoModal
         isOpen={arrecadacaoModalOpen}

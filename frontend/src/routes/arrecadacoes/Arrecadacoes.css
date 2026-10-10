@@ -146,12 +146,17 @@
   background: #5b4ad1;
 }
 
-.arrecadacoes-page__delete {
-  background: #e25757;
+.arrecadacoes-page__show {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 32px;
+  background: #2d9cdb;
 }
 
-.arrecadacoes-page__delete:hover:not(:disabled) {
-  background: #c74444;
+.arrecadacoes-page__show:hover {
+  background: #1f75c7;
 }
 
 .arrecadacoes-page__actions button:disabled {

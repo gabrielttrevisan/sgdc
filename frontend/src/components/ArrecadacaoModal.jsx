@@ -23,11 +23,12 @@ export default function ArrecadacaoModal({
     onClose,
     onSuccess,
     editingArrecadacao = null,
+    viewMode = false,
 }) {
     const [form, setForm] = useState(formularioInicial);
     const [erro, setErro] = useState("");
     const [enviando, setEnviando] = useState(false);
-    const isEditing = editingArrecadacao !== null;
+    const isEditing = editingArrecadacao !== null && !viewMode;
 
     useEffect(() => {
         if (!isOpen) return;
@@ -62,6 +63,7 @@ export default function ArrecadacaoModal({
 
     async function handleSubmit(event) {
         event.preventDefault();
+        if (viewMode) return;
         setErro("");
 
         const valorNumerico = Number(form.valor);
@@ -176,12 +178,18 @@ export default function ArrecadacaoModal({
                     <div className="arrecadacao-header">
                         <div>
                             <h2 id="titulo-arrecadacao">
-                                {isEditing ? "Editar Arrecadação" : "Lançar Arrecadação"}
+                                {viewMode
+                                    ? "Visualizar Arrecadação"
+                                    : isEditing
+                                        ? "Editar Arrecadação"
+                                        : "Lançar Arrecadação"}
                             </h2>
                             <p>
-                                {isEditing
-                                    ? "Altere os dados da arrecadação."
-                                    : "Preencha os dados para registrar a arrecadação."}
+                                {viewMode
+                                    ? "Confira os dados da arrecadação."
+                                    : isEditing
+                                        ? "Altere os dados da arrecadação."
+                                        : "Preencha os dados para registrar a arrecadação."}
                             </p>
                         </div>
 
@@ -219,7 +227,7 @@ export default function ArrecadacaoModal({
                                     value={form.valor}
                                     onChange={handleChange}
                                     required
-                                    disabled={enviando}
+                                    disabled={enviando || viewMode}
                                 />
                             </div>
 
@@ -235,7 +243,7 @@ export default function ArrecadacaoModal({
                                     value={form.dataArrecadacao}
                                     onChange={handleChange}
                                     required
-                                    disabled={enviando}
+                                    disabled={enviando || viewMode}
                                 />
                             </div>
 
@@ -249,7 +257,7 @@ export default function ArrecadacaoModal({
                                     value={form.tipoArrecadacao}
                                     onChange={handleChange}
                                     required
-                                    disabled={enviando}
+                                    disabled={enviando || viewMode}
                                 >
                                     <option value="" disabled>
                                         Selecione o tipo
@@ -275,7 +283,7 @@ export default function ArrecadacaoModal({
                                     placeholder="Informe a origem ou o motivo da arrecadação"
                                     value={form.descricao}
                                     onChange={handleChange}
-                                    disabled={enviando}
+                                    disabled={enviando || viewMode}
                                 />
 
                                 <div className="arrecadacao-help">
@@ -283,9 +291,11 @@ export default function ArrecadacaoModal({
                                 </div>
                             </div>
 
-                            <p className="arrecadacao-required">
-                                * Campos obrigatórios.
-                            </p>
+                            {!viewMode && (
+                                <p className="arrecadacao-required">
+                                    * Campos obrigatórios.
+                                </p>
+                            )}
                         </div>
 
                         <div className="arrecadacao-footer">
@@ -295,26 +305,28 @@ export default function ArrecadacaoModal({
                                 onClick={handleClose}
                                 disabled={enviando}
                             >
-                                Cancelar
+                                {viewMode ? "Fechar" : "Cancelar"}
                             </button>
 
-                            <button
-                                type="submit"
-                                className="arrecadacao-submit"
-                                disabled={enviando}
-                            >
-                                {enviando ? (
-                                    <>
-                                        <span
-                                            className="arrecadacao-spinner"
-                                            aria-hidden="true"
-                                        />
-                                        Salvando...
-                                    </>
-                                ) : (
-                                    isEditing ? "Salvar alterações" : "Lançar Arrecadação"
-                                )}
-                            </button>
+                            {!viewMode && (
+                                <button
+                                    type="submit"
+                                    className="arrecadacao-submit"
+                                    disabled={enviando}
+                                >
+                                    {enviando ? (
+                                        <>
+                                            <span
+                                                className="arrecadacao-spinner"
+                                                aria-hidden="true"
+                                            />
+                                            Salvando...
+                                        </>
+                                    ) : (
+                                        isEditing ? "Salvar alterações" : "Lançar Arrecadação"
+                                    )}
+                                </button>
+                            )}
                         </div>
                     </form>
                 </div>

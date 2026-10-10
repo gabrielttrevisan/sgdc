@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { authStore } from "../../store/Auth.store";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import ArrecadacaoModal from "../../components/ArrecadacaoModal.jsx";
-import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
+import { ShowIcon } from "../../components/icons/ShowIcon";
 
 import "./Arrecadacoes.css";
 
@@ -29,8 +29,7 @@ export const Arrecadacoes = WithAuthGuard(function ArrecadacoesPage() {
   const [mensagemErro, setMensagemErro] = useState("");
   const [modalAberto, setModalAberto] = useState(false);
   const [arrecadacaoEmEdicao, setArrecadacaoEmEdicao] = useState(null);
-  const [excluindoId, setExcluindoId] = useState(null);
-  const deleteModalRef = useRef(null);
+  const [arrecadacaoEmVisualizacao, setArrecadacaoEmVisualizacao] = useState(null);
 
   async function carregarArrecadacoes() {
     setCarregando(true);
@@ -65,33 +64,6 @@ export const Arrecadacoes = WithAuthGuard(function ArrecadacoesPage() {
     carregarArrecadacoes();
   }, []);
 
-  async function excluirArrecadacao(arrecadacao) {
-    const confirmada = await deleteModalRef.current?.open();
-    if (!confirmada) return;
-
-    setExcluindoId(arrecadacao.id);
-    try {
-      const response = await fetch(`${API_URL}/${arrecadacao.id}`, {
-        method: "DELETE",
-        headers: authStore.getHeaders(),
-      });
-      const result = await response.json().catch(() => null);
-
-      if (!response.ok) {
-        throw new Error(result?.message || "Não foi possível excluir a arrecadação.");
-      }
-
-      setMensagem(result?.message || "Arrecadação excluída com sucesso.");
-      setMensagemErro("");
-      await carregarArrecadacoes();
-    } catch (error) {
-      console.error("Erro ao excluir arrecadação:", error);
-      setMensagemErro(error.message || "Não foi possível excluir a arrecadação.");
-    } finally {
-      setExcluindoId(null);
-    }
-  }
-
   const totalArrecadado = arrecadacoes.reduce(
     (total, arrecadacao) => total + Number(arrecadacao.valor || 0),
     0,
@@ -99,15 +71,6 @@ export const Arrecadacoes = WithAuthGuard(function ArrecadacoesPage() {
 
   return (
     <section className="arrecadacoes-page">
-      <SensitiveModal
-        ref={deleteModalRef}
-        title="Excluir arrecadação?"
-        confirmLabel="Excluir"
-        showCloseButton
-      >
-        Esta ação removerá permanentemente a arrecadação selecionada.
-      </SensitiveModal>
-
       <header className="arrecadacoes-page__header">
         <div>
           <h1>Arrecadações</h1>
@@ -118,6 +81,7 @@ export const Arrecadacoes = WithAuthGuard(function ArrecadacoesPage() {
           type="button"
           onClick={() => {
             setArrecadacaoEmEdicao(null);
+            setArrecadacaoEmVisualizacao(null);
             setModalAberto(true);
           }}
         >
@@ -195,19 +159,24 @@ export const Arrecadacoes = WithAuthGuard(function ArrecadacoesPage() {
                       className="arrecadacoes-page__edit"
                       onClick={() => {
                         setArrecadacaoEmEdicao(arrecadacao);
+                        setArrecadacaoEmVisualizacao(null);
                         setModalAberto(true);
                       }}
-                      disabled={excluindoId === arrecadacao.id}
                     >
                       Editar
                     </button>
                     <button
                       type="button"
-                      className="arrecadacoes-page__delete"
-                      onClick={() => excluirArrecadacao(arrecadacao)}
-                      disabled={excluindoId === arrecadacao.id}
+                      className="arrecadacoes-page__show"
+                      onClick={() => {
+                        setArrecadacaoEmEdicao(null);
+                        setArrecadacaoEmVisualizacao(arrecadacao);
+                        setModalAberto(true);
+                      }}
+                      title="Visualizar arrecadação"
+                      aria-label="Visualizar arrecadação"
                     >
-                      {excluindoId === arrecadacao.id ? "Excluindo..." : "Excluir"}
+                      <ShowIcon />
                     </button>
                   </td>
                 </tr>
@@ -219,10 +188,12 @@ export const Arrecadacoes = WithAuthGuard(function ArrecadacoesPage() {
 
       <ArrecadacaoModal
         isOpen={modalAberto}
-        editingArrecadacao={arrecadacaoEmEdicao}
+        editingArrecadacao={arrecadacaoEmEdicao || arrecadacaoEmVisualizacao}
+        viewMode={Boolean(arrecadacaoEmVisualizacao)}
         onClose={() => {
           setModalAberto(false);
           setArrecadacaoEmEdicao(null);
+          setArrecadacaoEmVisualizacao(null);
         }}
         onSuccess={(novaMensagem) => {
           setMensagem(novaMensagem);
