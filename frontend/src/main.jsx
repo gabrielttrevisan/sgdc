@@ -36,16 +36,13 @@ import { ErrorBoundary } from "./components/error-boundary/ErrorBoundary.jsx";
 import CreateVolunteerForm from "./routes/Volunteers/VolunteerForm.jsx";
 import EditVolunteerForm from "./routes/Volunteers/VolunteerForm.jsx";
 import VolunteerDetailsForm from "./routes/Volunteers/VolunteersDetails.jsx";
-<<<<<<< HEAD
 import { Arrecadacoes } from "./routes/arrecadacoes/Arrecadacoes.jsx";
-=======
 import { Bills } from "./routes/bills/Bills.jsx";
 import CreateBillForm from "./routes/bills/CreateBillForm.jsx";
 import ExtendBillForm from "./routes/bills/ExtendBillForm.jsx";
 import CancelBillForm from "./routes/bills/CancelBillForm.jsx";
 import CancelAndCopyBillForm from "./routes/bills/CancelAndCopyBillForm.jsx";
 import ShowBillForm from "./routes/bills/ShowBillForm.jsx";
->>>>>>> 9b9ff50da10fe68a8c2e97ea37b024d1be92b759
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

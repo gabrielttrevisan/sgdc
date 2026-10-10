@@ -1,5 +1,3 @@
-import { useLocation, useNavigate } from "react-router";
-import { useNavContext } from "../context/useNavContext";
 import "./NavSection.css";
 
 /**
@@ -10,7 +8,6 @@ import "./NavSection.css";
  * @prop {import("react").ReactNode} icon
  */
 
-import { useCallback, useEffect, useState } from "react";
 import { NavSectionContent } from "./NavSectionContent";
 
 /** @type {import("react").FC<NavSectionProps>} */

@@ -64,7 +64,7 @@ export const useVolunteersData = () => {
         await VolunteerService.delete(id);
         Toast.success("Voluntário removido com sucesso!");
         await loadVolunteers();
-      } catch (error) {
+      } catch (_error) {
         Toast.error("Erro ao tentar remover o voluntário.");
       }
     }

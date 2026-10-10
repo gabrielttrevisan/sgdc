@@ -50,7 +50,6 @@
  * @prop {"sim"|"não"} hasOpenRequest
  */
 
-import { unmaskDigits } from "../lib/functions/unmask";
 import APIClient from "../lib/client/APIClient";
 
 class NoFamilyBeneficiariesService {
