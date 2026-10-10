@@ -33,7 +33,7 @@ npm run start
 
 ```
 PORT=0000                           # Porta que o Back-end vai rodar. Use 3004
-FRONTEND_URL=http://frontend.url    # URL do front-end. Utilizado para configurar CORs. URL padrão do Vite é: http://localhost:5173
+FRONTEND_URL=http://frontend.url    # Origin(s) do front-end para CORS; use URLs exatas (sem caminho), separadas por vírgula. Padrão do Vite: http://localhost:5173
 
 # O banco usado deve ser o MySQL na versão 8.0
 DB_HOST=XXXX                        # host do banco de dados

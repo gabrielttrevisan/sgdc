@@ -52,7 +52,7 @@ SET permissions = JSON_SET(
 	'$.role', JSON_ARRAY('create', 'edit', 'view', 'list'),
 	'$.bill', JSON_ARRAY('create', 'edit', 'view', 'list', 'pay')
 )
-WHERE id = 5;
+WHERE id = 1;
 
 UPDATE roles
 SET permissions = JSON_SET(
@@ -66,4 +66,4 @@ SET permissions = JSON_SET(
 	'$.user',
 	JSON_ARRAY_APPEND(permissions->'$.user', '$', 'restore')
 )
-WHERE id = 5;
+WHERE id = 1;

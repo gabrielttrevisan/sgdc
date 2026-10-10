@@ -14,7 +14,6 @@ import productsRouter from "./routes/products.route.js";
 import userRouter from "./routes/user.route.js";
 import auth from "./middlewares/auth.js";
 import authRouter from "./routes/auth.route.js";
-import cookieParser from "cookie-parser";
 import rolesRouter from "./routes/roles.route.js";
 
 import arrecadacaoRouter from "./routes/arrecadacao.route.js";
@@ -23,9 +22,35 @@ import billsRouter from "./routes/bill.route.js";
 
 const app = express();
 
-app.use(cookieParser());
+const corsOptions = {
+  origin: env.FRONTEND_URL,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    res.header(
+      "Access-Control-Allow-Origin",
+      env.FRONTEND_URL[0].replace(/\/$/, ""),
+    );
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header(
+      "Access-Control-Allow-Methods",
+      "GET,POST,PUT,DELETE,PATCH,OPTIONS",
+    );
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+    return res.sendStatus(204);
+  }
+
+  next();
+});
+
 app.use(express.json());
-app.use(cors({ origin: env.FRONTEND_URL, credentials: true }));
 app.use("/auth", authRouter);
 
 const protectedRoutes = Router();

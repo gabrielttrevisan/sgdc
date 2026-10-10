@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import NavContext from "./NavContext";
+import NavContext from "./NavContext.js";
 
 /**
  * @typedef {Object} NavContextProviderProps

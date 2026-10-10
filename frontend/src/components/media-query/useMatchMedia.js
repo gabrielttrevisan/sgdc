@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import useMatchMediaContext from "./useMatchMediaContext";
+import useMatchMediaContext from "./useMatchMediaContext.js";
 import { useResolvedPath } from "react-router";
 
 /**
