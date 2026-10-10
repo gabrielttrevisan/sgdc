@@ -1,0 +1,93 @@
+@media (min-width: 1200px) {
+  table.data-grid__table:has(.bill__row) {
+    width: 100%;
+    max-width: 100%;
+    table-layout: fixed;
+
+    th:last-child,
+    .data-grid__item-actions {
+      width: max-content !important;
+      white-space: nowrap;
+    }
+
+    th.--description,
+    .bill__col.--description {
+      box-sizing: border-box;
+      width: 30px !important;
+      max-width: 30px;
+      overflow: hidden;
+    }
+
+    .bill__col.--description span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    th.--due-date,
+    .bill__col.--due-date {
+      box-sizing: border-box;
+      width: 25px !important;
+      max-width: 25px;
+      overflow: hidden;
+    }
+
+    .bill__col.--due-date span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    th.--due-date {
+      padding: 0 12px;
+
+      > div {
+        justify-content: center;
+      }
+    }
+
+    th.--status,
+    .bill__col.--status {
+      box-sizing: border-box;
+      width: 40px !important;
+      max-width: 40px;
+      overflow: hidden;
+    }
+
+    .bill__col.--status .bill__status-badge {
+      box-sizing: border-box;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+.bill__status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.bill__status-badge.--paid {
+  background-color: var(--colors-status-good);
+  color: var(--colors-status-safe);
+}
+
+.bill__status-badge.--unpaid,
+.bill__status-badge.--extended {
+  background-color: rgb(var(--colors-status-warning) / 30%);
+  color: var(--colors-text-darker);
+}
+
+.bill__status-badge.--canceled {
+  background-color: rgb(var(--colors-state-error) / 15%);
+  color: rgb(var(--colors-state-error));
+}

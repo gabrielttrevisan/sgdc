@@ -134,8 +134,8 @@ class SqlFragment {
 
       const [shouldCommit, error] = await callback(sqlFunctor);
 
-      if (shouldCommit) await connection.commit();
-      else await connection.rollback();
+      if (!shouldCommit || error) await connection.rollback();
+      else await connection.commit();
 
       return [shouldCommit, error ?? null];
     } catch (e) {

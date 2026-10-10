@@ -16,7 +16,11 @@ import auth from "./middlewares/auth.js";
 import authRouter from "./routes/auth.route.js";
 import cookieParser from "cookie-parser";
 import rolesRouter from "./routes/roles.route.js";
+<<<<<<< HEAD
 import arrecadacaoRouter from "./routes/arrecadacao.route.js";
+=======
+import billsRouter from "./routes/bill.route.js";
+>>>>>>> 9b9ff50da10fe68a8c2e97ea37b024d1be92b759
 
 const app = express();
 
@@ -39,8 +43,12 @@ protectedRoutes.use("/donors", router);
 protectedRoutes.use("/products", productsRouter);
 protectedRoutes.use("/users", userRouter);
 protectedRoutes.use("/roles", rolesRouter);
+<<<<<<< HEAD
 protectedRoutes.use("/arrecadacoes", arrecadacaoRouter);
 
+=======
+protectedRoutes.use("/bills", billsRouter);
+>>>>>>> 9b9ff50da10fe68a8c2e97ea37b024d1be92b759
 
 app.use("/", protectedRoutes);
 app.use(notFoundHandler);

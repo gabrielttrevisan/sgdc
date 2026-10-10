@@ -1,6 +1,6 @@
 import { VisuallyHidden } from "../../../../components/accessibility/visually-hidden/VisuallyHidden";
 import { ItemListField } from "../../../../components/form/input-field/item-list/ItemListField";
-import { CloseIconLarge } from "../../../../components/icons/CloseIconLarge";
+import { LargeCloseIcon } from "../../../../components/icons/LargeCloseIcon";
 import NoFamilyBeneficiariesService from "../../../../service/NoFamilyBeneficiariesService";
 
 export function FamilyParticipantsField({ ref, readOnly = false }) {
@@ -48,7 +48,7 @@ export function FamilyParticipantsField({ ref, readOnly = false }) {
 
             {!disabled && !readOnly && (
               <button type="button" onClick={onRemove}>
-                <CloseIconLarge size={16} />
+                <LargeCloseIcon size={16} />
                 <VisuallyHidden>Remover {name} da Família</VisuallyHidden>
               </button>
             )}

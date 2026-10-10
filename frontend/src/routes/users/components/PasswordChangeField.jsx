@@ -6,7 +6,7 @@ export function PasswordChangeField() {
   const { id } = useResourceFormContext();
 
   return (
-    <RoleAuthGuard roleId={5} matchId={id} key={id}>
+    <RoleAuthGuard matchId={id} key={id}>
       <InputField
         name="password"
         id="password"
@@ -25,12 +25,10 @@ export function PasswordChangeField() {
         type="password"
         label="Nova Senha"
         validate={(value, state) => {
-
           if (!state.password && !state.newPassword) return true;
 
           if (value === state.password)
             return "A nova senha não pode ser igual a senha atual";
-
 
           if (typeof value !== "string" || value.trim().length === 0)
             return true;

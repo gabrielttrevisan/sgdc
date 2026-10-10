@@ -65,3 +65,13 @@ type ResourceAction =
   | "pay"
   | "reset"
   | (string & {});
+
+type User = {
+  id: number;
+  name: string;
+};
+
+type UserTimestamp = {
+  at: Date;
+  byUser: User;
+};

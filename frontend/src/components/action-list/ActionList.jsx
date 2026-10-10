@@ -26,6 +26,7 @@ import { ActionListButton } from "./button/ActionListButton";
  * @prop {string} [className]
  * @prop {Partial<import("react").HTMLProps<"button">>} [buttonProps]
  * @prop {ConditionCallback} [shouldRender]
+ * @prop {ReactNode} [tooltip]
  */
 
 /**
@@ -33,13 +34,14 @@ import { ActionListButton } from "./button/ActionListButton";
  * @typedef {Object} ActionListProps
  * @prop {ActionConfig<T>[]} actions
  * @prop {T} target
+ * @prop {boolean} [isXL]
  */
 
 /**
  * @template T
  * @param {ActionListProps<T>} props
  */
-export function ActionList({ actions, target }) {
+export function ActionList({ actions, target, isXL = false }) {
   const renderableActions = actions.filter(
     (action) => !action.shouldRender || action.shouldRender(target),
   );
@@ -55,6 +57,8 @@ export function ActionList({ actions, target }) {
             target={target}
             type={action.type}
             key={action.type}
+            isXL={isXL}
+            tooltip={action.tooltip}
           >
             {action.content}
           </ActionListButton>

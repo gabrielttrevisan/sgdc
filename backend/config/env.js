@@ -5,7 +5,11 @@ const DEFAULT_EXPIRES_IN = 43200000;
 
 const EnvironmentSchema = v.object({
   PORT: v.pipe(v.optional(v.string(), 3004), v.toNumber()),
-  FRONTEND_URL: v.pipe(v.string()),
+  FRONTEND_URL: v.pipe(
+    v.string(),
+    v.transform((raw) => raw.split(/,/)),
+    v.array(v.string()),
+  ),
   DB_HOST: v.pipe(v.string()),
   DB_PORT: v.pipe(v.optional(v.string(), 3306), v.toNumber()),
   DB_NAME: v.pipe(v.string()),

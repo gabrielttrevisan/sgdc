@@ -1,6 +1,6 @@
 import { useImperativeHandle, useRef } from "react";
 import "./SensitiveModal.css";
-import { CloseIconLarge } from "../icons/CloseIconLarge";
+import { LargeCloseIcon } from "../icons/LargeCloseIcon";
 
 /**
  * @callback OpenSensitiveModal
@@ -9,7 +9,8 @@ import { CloseIconLarge } from "../icons/CloseIconLarge";
 
 /**
  * @typedef {Object} SensitiveModalRef
- * @prop {OpenSensitiveModal} open
+ * @prop {OpenSensitiveModal} openAsync
+ * @prop {() => Promise<string>} openWithActions
  * @prop {HTMLDialogElement} dialog
  */
 
@@ -21,6 +22,8 @@ import { CloseIconLarge } from "../icons/CloseIconLarge";
  * @prop {SensitiveModalRef} [ref]
  * @prop {import("react")} [children]
  * @prop {string} [showCloseButton]
+ * @prop {import("react").ReactNode} [customActions]
+ * @prop {"danger"|"warn"} [variant]
  */
 
 /** @type {import("react").FC<SensitiveModalProps>} */
@@ -31,6 +34,8 @@ export const SensitiveModal = ({
   confirmLabel = "Deletar",
   children,
   showCloseButton,
+  customActions,
+  variant = "danger",
 }) => {
   /** @type {import("react").RefObject<HTMLDialogElement>} */
   const dialogRef = useRef(null);
@@ -40,6 +45,8 @@ export const SensitiveModal = ({
   const cancelRef = useRef(null);
   /** @type {import("react").RefObject<HTMLButtonElement>} */
   const closeRef = useRef(null);
+  /** @type {import("react").RefObject<HTMLDivElement>} */
+  const actionsRef = useRef(null);
 
   useImperativeHandle(
     ref,
@@ -47,7 +54,7 @@ export const SensitiveModal = ({
      * @returns {SensitiveModalRef}
      */
     () => ({
-      open() {
+      openAsync() {
         if (dialogRef.current && deleteRef.current && cancelRef.current) {
           if (showCloseButton && !closeRef.current)
             return Promise.reject(new Error("DOM elements unavailable"));
@@ -86,6 +93,45 @@ export const SensitiveModal = ({
           return Promise.reject(new Error("DOM elements unavailable"));
         }
       },
+      openWithActions() {
+        if (dialogRef.current && actionsRef.current) {
+          if (showCloseButton && !closeRef.current)
+            return Promise.reject(new Error("DOM elements unavailable"));
+
+          /** @type {NodeListOf<HTMLElement>} */
+          const actions = actionsRef.current.querySelectorAll(
+            "[data-modal-action]",
+          );
+
+          dialogRef.current.showModal();
+
+          return new Promise((resolve) => {
+            actions.forEach((action) => {
+              if (!action.dataset.modalAction) return;
+
+              action.addEventListener(
+                "click",
+                () => {
+                  dialogRef.current.close();
+                  resolve(action.dataset.modalAction);
+                },
+                { once: true },
+              );
+            });
+
+            closeRef.current.addEventListener(
+              "click",
+              () => {
+                dialogRef.current.close();
+                resolve("CLOSE");
+              },
+              { once: true },
+            );
+          });
+        } else {
+          return Promise.reject(new Error("DOM elements unavailable"));
+        }
+      },
       get dialog() {
         return dialogRef.current;
       },
@@ -94,14 +140,17 @@ export const SensitiveModal = ({
   );
 
   return (
-    <dialog ref={dialogRef} className="sensitive-modal">
+    <dialog
+      ref={dialogRef}
+      className={`sensitive-modal sensitive-modal--${variant}`}
+    >
       <div className="sensitive-modal__content">
         <header>
           <span>{title}</span>
 
           {showCloseButton && (
             <button type="button" ref={closeRef} className="button-close">
-              <CloseIconLarge />
+              <LargeCloseIcon />
             </button>
           )}
         </header>
@@ -109,22 +158,30 @@ export const SensitiveModal = ({
         {children && <p>{children}</p>}
       </div>
 
-      <div className="sensitive-modal__actions">
-        <button
-          type="button"
-          ref={deleteRef}
-          className="sensitive-modal__action --delete"
-        >
-          {confirmLabel}
-        </button>
+      <div className="sensitive-modal__actions" ref={actionsRef}>
+        {customActions ? (
+          <>{customActions}</>
+        ) : (
+          <>
+            <button
+              type="button"
+              ref={deleteRef}
+              className="sensitive-modal__action --delete"
+              data-modal-action="CONFIRM"
+            >
+              {confirmLabel}
+            </button>
 
-        <button
-          type="button"
-          ref={cancelRef}
-          className="sensitive-modal__action --cancel"
-        >
-          {cancelLabel}
-        </button>
+            <button
+              type="button"
+              ref={cancelRef}
+              className="sensitive-modal__action --cancel"
+              data-modal-action="CANCEL"
+            >
+              {cancelLabel}
+            </button>
+          </>
+        )}
       </div>
     </dialog>
   );

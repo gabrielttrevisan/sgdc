@@ -60,7 +60,7 @@ dialog.form-modal {
 
             footer {
                 padding: var(--form-modal-padding);
-                background-color: var(--colors-state-error-05);
+                background-color: rgb(var(--colors-state-error) / 5%);
                 display: flex;
                 align-items: center;
                 justify-content: flex-end;
