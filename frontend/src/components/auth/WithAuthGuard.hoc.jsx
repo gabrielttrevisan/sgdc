@@ -9,7 +9,7 @@ import { useAuth } from "../../store/Auth.store";
  */
 export function WithAuthGuard(Component) {
   /** @type {import("react").FC} */
-  return (props) => {
+  function AuthGuardedComponent(props) {
     const auth = useAuth();
     const location = useLocation();
 
@@ -17,7 +17,10 @@ export function WithAuthGuard(Component) {
       return <Navigate to="/sign-in" state={{ from: location }} replace />;
 
     return <Component {...props} />;
-  };
+  }
+
+  AuthGuardedComponent.displayName = `WithAuthGuard(${Component.displayName || Component.name || "Component"})`;
+  return AuthGuardedComponent;
 }
 
 export function RoleAuthGuard({ roleId, children, matchId }) {

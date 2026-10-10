@@ -449,3 +449,24 @@ input, select {
   background: #5f4b8b;
   color: white;
 }
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.header-actions .green-btn {
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .header-actions {
+    width: 100%;
+  }
+
+  .header-actions .green-btn {
+    flex: 1;
+  }
+}
