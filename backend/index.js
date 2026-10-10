@@ -29,13 +29,9 @@ const corsOptions = {
   allowedHeaders: ["Content-Type", "Authorization"],
 };
 
-app.use(cookieParser());
-app.use(express.json());
 app.use(cors(corsOptions));
+app.use(express.json());
 app.use("/auth", authRouter);
-app.use("/*splat", (_, res) => {
-  res.setHeader("access-control-allow-origin", env.FRONTEND_URL[0]);
-});
 
 const protectedRoutes = Router();
 
