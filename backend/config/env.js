@@ -6,7 +6,12 @@ const EnvironmentSchema = v.object({
   PORT: v.pipe(v.optional(v.string(), 3004), v.toNumber()),
   FRONTEND_URL: v.pipe(
     v.string(),
-    v.transform((raw) => raw.split(/,/)),
+    v.transform((raw) =>
+      raw
+        .split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean),
+    ),
     v.array(v.string()),
   ),
   DB_HOST: v.pipe(v.string()),

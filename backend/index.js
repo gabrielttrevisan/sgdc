@@ -20,9 +20,17 @@ import billsRouter from "./routes/bill.route.js";
 
 const app = express();
 
+const corsOptions = {
+  origin: env.FRONTEND_URL,
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
 app.use(cookieParser());
 app.use(express.json());
-app.use(cors({ origin: env.FRONTEND_URL, credentials: true }));
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use("/auth", authRouter);
 
 const protectedRoutes = Router();
