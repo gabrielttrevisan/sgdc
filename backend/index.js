@@ -20,6 +20,8 @@ import billsRouter from "./routes/bill.route.js";
 
 const app = express();
 
+console.log("Allowed Frontend Origin:", env.FRONTEND_URL);
+
 const corsOptions = {
   origin: env.FRONTEND_URL,
   credentials: true,
@@ -30,7 +32,6 @@ const corsOptions = {
 app.use(cookieParser());
 app.use(express.json());
 app.use(cors(corsOptions));
-app.options("/*splat", cors(corsOptions));
 app.use("/auth", authRouter);
 
 const protectedRoutes = Router();
