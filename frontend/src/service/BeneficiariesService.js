@@ -1,3 +1,114 @@
+import { unmaskDigits } from "../lib/functions/unmask";
+import CachedAPIClient from "../lib/client/CachedAPIClient";
+import { Service } from "./Service";
+
+class BeneficiariesService extends Service {
+  #client = new CachedAPIClient();
+
+  /**
+   * @param {import("../global").PaginatedQuery} query
+   * @returns {Promise<import("../global").APIResponse<import("../components/data-grid/DataGrid").PageData<TinyBeneficiary[]>>>}
+   */
+  async list({ query, ...rest } = { page: 1, perPage: 10 }) {
+    try {
+      const response = await this.#client.get("beneficiaries", {
+        q: query,
+        ...rest,
+      });
+
+      return response;
+    } catch {
+      return this.internal("Erro inesperado");
+    }
+  }
+
+  /**
+   * @param {import("../global").PaginatedQuery} query
+   * @returns {Promise<import("../global").APIResponse<import("../components/data-grid/DataGrid").PageData<TinyBeneficiary[]>>>}
+   */
+  async listNoFamily({ query, ...rest } = { page: 1, perPage: 10 }) {
+    try {
+      const response = await this.#client.get("beneficiaries/no-family", {
+        q: query,
+        ...rest,
+      });
+
+      return response;
+    } catch {
+      return this.internal("Erro inesperado");
+    }
+  }
+
+  /**
+   *
+   * @param {string} id
+   * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
+   */
+  async delete(id) {
+    try {
+      const response = await this.#client.delete(`beneficiaries/${id}`);
+
+      return response;
+    } catch {
+      return this.internal("Erro inesperado");
+    }
+  }
+
+  /**
+   * @param {Beneficiary} beneficiary
+   * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
+   */
+  async create({ id: _, phone, nationalId, complement, ...beneficiary }) {
+    try {
+      const response = await this.#client.post("beneficiaries", {
+        ...beneficiary,
+        phone: unmaskDigits(phone),
+        nationalId: unmaskDigits(nationalId),
+        ...(complement === "" ? {} : { complement }),
+      });
+
+      return response;
+    } catch {
+      return this.internal("Erro inesperado");
+    }
+  }
+
+  /**
+   * @param {number} id
+   * @returns {Promise<import("../global").APIResponse<APIBeneficiary>>}
+   */
+  async getById(id) {
+    try {
+      const response = await this.#client.get(`beneficiaries/${id}`);
+
+      return response;
+    } catch (error) {
+      return this.internal("Erro inesperado\n" + (error.message ?? ""));
+    }
+  }
+
+  /**
+   * @param {Beneficiary} beneficiary
+   * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
+   */
+  async edit({ id, phone, nationalId, complement, ...beneficiary }) {
+    try {
+      const response = await this.#client.patch(`beneficiaries/${id}`, {
+        ...beneficiary,
+        phone: unmaskDigits(phone),
+        nationalId: unmaskDigits(nationalId),
+        ...(complement === "" ? {} : { complement }),
+      });
+
+      return response;
+    } catch {
+      return this.internal("Erro inesperado");
+    }
+  }
+}
+
+export default new BeneficiariesService();
+
 /**
  * @typedef {Object} Beneficiary
  * @prop {number} id
@@ -49,128 +160,3 @@
  * @prop {string} nationalId
  * @prop {"sim"|"não"} hasOpenRequest
  */
-
-import { unmaskDigits } from "../lib/functions/unmask";
-import APIClient from "../lib/client/APIClient";
-
-class BeneficiariesService {
-  /**
-   * @param {string} [message]
-   * @returns {APIResponse<import("../components/data-grid/DataGrid").PageData<Beneficiary[]>>}
-   */
-  #internal(message = "Erro inesperado") {
-    return {
-      data: null,
-      error: {
-        code: 500,
-        message,
-        issues: [],
-      },
-    };
-  }
-
-  #client = new APIClient();
-
-  /**
-   * @param {import("../global").PaginatedQuery} query
-   * @returns {Promise<import("../global").APIResponse<import("../components/data-grid/DataGrid").PageData<TinyBeneficiary[]>>>}
-   */
-  async list({ query, ...rest } = { page: 1, perPage: 10 }) {
-    try {
-      const response = await this.#client.get("beneficiaries", {
-        q: query,
-        ...rest,
-      });
-
-      return response;
-    } catch {
-      return this.#internal("Erro inesperado");
-    }
-  }
-
-  /**
-   * @param {import("../global").PaginatedQuery} query
-   * @returns {Promise<import("../global").APIResponse<import("../components/data-grid/DataGrid").PageData<TinyBeneficiary[]>>>}
-   */
-  async listNoFamily({ query, ...rest } = { page: 1, perPage: 10 }) {
-    try {
-      const response = await this.#client.get("beneficiaries/no-family", {
-        q: query,
-        ...rest,
-      });
-
-      return response;
-    } catch {
-      return this.#internal("Erro inesperado");
-    }
-  }
-
-  /**
-   *
-   * @param {string} id
-   * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
-   */
-  async delete(id) {
-    try {
-      const response = await this.#client.delete(`beneficiaries/${id}`);
-
-      return response;
-    } catch {
-      return this.#internal("Erro inesperado");
-    }
-  }
-
-  /**
-   * @param {Beneficiary} beneficiary
-   * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
-   */
-  async create({ id: _, phone, nationalId, complement, ...beneficiary }) {
-    try {
-      const response = await this.#client.post("beneficiaries", {
-        ...beneficiary,
-        phone: unmaskDigits(phone),
-        nationalId: unmaskDigits(nationalId),
-        ...(complement === "" ? {} : { complement }),
-      });
-
-      return response;
-    } catch {
-      return this.#internal("Erro inesperado");
-    }
-  }
-
-  /**
-   * @param {number} id
-   * @returns {Promise<import("../global").APIResponse<APIBeneficiary>>}
-   */
-  async getById(id) {
-    try {
-      const response = await this.#client.get(`beneficiaries/${id}`);
-
-      return response;
-    } catch (error) {
-      return this.#internal("Erro inesperado\n" + (error.message ?? ""));
-    }
-  }
-
-  /**
-   * @param {Beneficiary} beneficiary
-   * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
-   */
-  async edit({ id, phone, nationalId, complement, ...beneficiary }) {
-    try {
-      const response = await this.#client.patch(`beneficiaries/${id}`, {
-        ...beneficiary,
-        phone: unmaskDigits(phone),
-        nationalId: unmaskDigits(nationalId),
-        ...(complement === "" ? {} : { complement }),
-      });
-
-      return response;
-    } catch {
-      return this.#internal("Erro inesperado");
-    }
-  }
-}
-
-export default new BeneficiariesService();

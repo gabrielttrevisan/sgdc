@@ -1,39 +1,24 @@
-import APIClient from "../lib/client/APIClient";
+import CachedAPIClient from "../lib/client/CachedAPIClient";
+import { Service } from "./Service";
 
-/**
- * @typedef {Object} Product
- * @prop {number} id
- * @prop {string} name
- * @prop {string} description
- * @prop {number} measuringUnitId
- * @prop {string} measuringUnitName
- * @prop {string} measuringUnitSymbol
- * @prop {boolean} needRefrigeration
- * @prop {boolean} isPerishable
- */
-
-class ProductsService {
-  #client = new APIClient();
-
-  #internal(message = "Erro inesperado") {
-    return {
-      data: null,
-      error: { code: 500, message, issues: [] },
-    };
-  }
+class ProductsService extends Service {
+  #client = new CachedAPIClient();
 
   /** @param {import("../global").PaginatedQuery} query */
   async list({ query, ...rest } = { page: 1, perPage: 10 }) {
     try {
-      const response = await this.#client.get("products", { q: query, ...rest });
+      const response = await this.#client.get("products", {
+        q: query,
+        ...rest,
+      });
 
       if (response.data) {
-        response.data.items = response.data.items.map(mapFromBackend);
+        response.data.items = response.data.items.map(this.#mapFromBackend);
       }
 
       return response;
     } catch {
-      return this.#internal("Erro ao carregar produtos");
+      return this.internal("Erro ao carregar produtos");
     }
   }
 
@@ -41,10 +26,10 @@ class ProductsService {
     try {
       const response = await this.#client.get(`products/${id}`);
       return response.data
-        ? { ...response, data: mapFromBackend(response.data) }
+        ? { ...response, data: this.#mapFromBackend(response.data) }
         : response;
     } catch {
-      return this.#internal("Erro ao carregar produto");
+      return this.internal("Erro ao carregar produto");
     }
   }
 
@@ -64,7 +49,7 @@ class ProductsService {
         isPerishable: Boolean(isPerishable),
       });
     } catch {
-      return this.#internal("Erro ao cadastrar produto");
+      return this.internal("Erro ao cadastrar produto");
     }
   }
 
@@ -85,7 +70,7 @@ class ProductsService {
         isPerishable: Boolean(isPerishable),
       });
     } catch {
-      return this.#internal("Erro ao atualizar produto");
+      return this.internal("Erro ao atualizar produto");
     }
   }
 
@@ -93,18 +78,30 @@ class ProductsService {
     try {
       return await this.#client.delete(`products/${id}`);
     } catch {
-      return this.#internal("Erro ao remover produto");
+      return this.internal("Erro ao remover produto");
     }
+  }
+
+  #mapFromBackend(product) {
+    return {
+      ...product,
+      measuringUnitId: product.measuringUnit?.id,
+      measuringUnitName: product.measuringUnit?.name,
+      measuringUnitSymbol: product.measuringUnit?.symbol,
+    };
   }
 }
 
-function mapFromBackend(product) {
-  return {
-    ...product,
-    measuringUnitId: product.measuringUnit?.id,
-    measuringUnitName: product.measuringUnit?.name,
-    measuringUnitSymbol: product.measuringUnit?.symbol,
-  };
-}
+/**
+ * @typedef {Object} Product
+ * @prop {number} id
+ * @prop {string} name
+ * @prop {string} description
+ * @prop {number} measuringUnitId
+ * @prop {string} measuringUnitName
+ * @prop {string} measuringUnitSymbol
+ * @prop {boolean} needRefrigeration
+ * @prop {boolean} isPerishable
+ */
 
 export default new ProductsService();

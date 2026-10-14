@@ -1,52 +1,9 @@
-import APIClient from "../lib/client/APIClient";
-
-/**
- * @typedef {Object} Bill
- * @prop {number} id
- * @prop {string} dueDate
- * @prop {string} description
- * @prop {number} value
- * @prop {"PAID"|"UNPAID"|"CANCELED"|"EXTENDED"} status
- */
-
-/**
- * @typedef {Object} BillToCreate
- * @prop {Date} dueDate
- * @prop {string} description
- * @prop {number} value
- */
-
-/**
- * @typedef {Object} BillToCancelAndCopy
- * @prop {Date} dueDate
- * @prop {string} description
- * @prop {number} value
- * @prop {number} id
- * @prop {string} cancelationDetails
- */
-
-/**
- * @typedef {Object} BillToExtend
- * @prop {Date} newDueDate
- * @prop {string} details
- * @prop {number} id
- */
-
-/**
- * @typedef {Object} BillToCancel
- * @prop {string} details
- * @prop {number} id
- */
-
-/**
- * @typedef {Object} BillToPay
- * @prop {string} details
- * @prop {number} id
- */
+import CachedAPIClient from "../lib/client/CachedAPIClient.js";
+import { Service } from "./Service.js";
 
 /** @implements {import("../global").PaginatableService<Bill>} */
-class BillsService {
-  #client = new APIClient();
+class BillsService extends Service {
+  #client = new CachedAPIClient();
 
   /**
    * @param {import("../global").PaginatedQuery} query
@@ -211,4 +168,48 @@ export default new BillsService();
  * @prop {import("../global.js").UserTimestamp|null} paid
  * @prop {BillCancelation|null} canceled
  * @prop {BillExtension|null} extended
+ */
+
+/**
+ * @typedef {Object} Bill
+ * @prop {number} id
+ * @prop {string} dueDate
+ * @prop {string} description
+ * @prop {number} value
+ * @prop {"PAID"|"UNPAID"|"CANCELED"|"EXTENDED"} status
+ */
+
+/**
+ * @typedef {Object} BillToCreate
+ * @prop {Date} dueDate
+ * @prop {string} description
+ * @prop {number} value
+ */
+
+/**
+ * @typedef {Object} BillToCancelAndCopy
+ * @prop {Date} dueDate
+ * @prop {string} description
+ * @prop {number} value
+ * @prop {number} id
+ * @prop {string} cancelationDetails
+ */
+
+/**
+ * @typedef {Object} BillToExtend
+ * @prop {Date} newDueDate
+ * @prop {string} details
+ * @prop {number} id
+ */
+
+/**
+ * @typedef {Object} BillToCancel
+ * @prop {string} details
+ * @prop {number} id
+ */
+
+/**
+ * @typedef {Object} BillToPay
+ * @prop {string} details
+ * @prop {number} id
  */

@@ -1,4 +1,4 @@
-import APIClient from "../lib/client/APIClient";
+import CachedAPIClient from "../lib/client/CachedAPIClient";
 import { Service } from "./Service";
 
 /**
@@ -9,7 +9,7 @@ import { Service } from "./Service";
  */
 
 class RolesService extends Service {
-  #client = new APIClient();
+  #client = new CachedAPIClient();
 
   /**
    * @param {{filter?: "inactive", query?: string, page?: number, perPage?: number}} [query]

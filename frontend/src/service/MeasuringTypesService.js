@@ -1,30 +1,9 @@
-import APIClient from "../lib/client/APIClient";
-
-/**
- * @typedef {Object} MeasuringUnit
- * @prop {number} id
- * @prop {string} name
- * @prop {string} symbol
- */
+import CachedAPIClient from "../lib/client/CachedAPIClient";
+import { Service } from "./Service";
 
 /** @implements {import("../global").PaginatableService<MeasuringUnit>} */
-class MeasuringUnitsService {
-  /**
-   * @param {string} [message]
-   * @returns {APIResponse<import("../components/data-grid/DataGrid").PageData<MeasuringUnit[]>>}
-   */
-  #internal(message = "Erro inesperado") {
-    return {
-      data: null,
-      error: {
-        code: 500,
-        message,
-        issues: [],
-      },
-    };
-  }
-
-  #client = new APIClient();
+class MeasuringUnitsService extends Service {
+  #client = new CachedAPIClient();
 
   /**
    * @param {import("../global").PaginatedQuery} query
@@ -39,7 +18,7 @@ class MeasuringUnitsService {
 
       return response;
     } catch {
-      return this.#internal("Erro inesperado");
+      return this.internal("Erro inesperado");
     }
   }
 
@@ -53,7 +32,7 @@ class MeasuringUnitsService {
 
       return response;
     } catch {
-      return this.#internal("Erro inesperado");
+      return this.internal("Erro inesperado");
     }
   }
 
@@ -68,7 +47,7 @@ class MeasuringUnitsService {
 
       return response;
     } catch {
-      return this.#internal("Erro inesperado");
+      return this.internal("Erro inesperado");
     }
   }
 
@@ -85,7 +64,7 @@ class MeasuringUnitsService {
 
       return response;
     } catch {
-      return this.#internal("Erro inesperado");
+      return this.internal("Erro inesperado");
     }
   }
 
@@ -102,9 +81,16 @@ class MeasuringUnitsService {
 
       return response;
     } catch {
-      return this.#internal("Erro inesperado");
+      return this.internal("Erro inesperado");
     }
   }
 }
 
 export default new MeasuringUnitsService();
+
+/**
+ * @typedef {Object} MeasuringUnit
+ * @prop {number} id
+ * @prop {string} name
+ * @prop {string} symbol
+ */

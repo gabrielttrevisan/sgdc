@@ -1,3 +1,29 @@
+import CachedAPIClient from "../lib/client/CachedAPIClient";
+import { Service } from "./Service";
+
+class NoFamilyBeneficiariesService extends Service {
+  #client = new CachedAPIClient();
+
+  /**
+   * @param {import("../global").PaginatedQuery} query
+   * @returns {Promise<import("../global").APIResponse<import("../components/data-grid/DataGrid").PageData<TinyBeneficiary[]>>>}
+   */
+  async list({ query, ...rest } = { page: 1, perPage: 10 }) {
+    try {
+      const response = await this.#client.get("beneficiaries/no-family", {
+        q: query,
+        ...rest,
+      });
+
+      return response;
+    } catch {
+      return this.internal("Erro inesperado");
+    }
+  }
+}
+
+export default new NoFamilyBeneficiariesService();
+
 /**
  * @typedef {Object} Beneficiary
  * @prop {number} id
@@ -49,43 +75,3 @@
  * @prop {string} nationalId
  * @prop {"sim"|"não"} hasOpenRequest
  */
-
-import APIClient from "../lib/client/APIClient";
-
-class NoFamilyBeneficiariesService {
-  /**
-   * @param {string} [message]
-   * @returns {APIResponse<import("../components/data-grid/DataGrid").PageData<Beneficiary[]>>}
-   */
-  #internal(message = "Erro inesperado") {
-    return {
-      data: null,
-      error: {
-        code: 500,
-        message,
-        issues: [],
-      },
-    };
-  }
-
-  #client = new APIClient();
-
-  /**
-   * @param {import("../global").PaginatedQuery} query
-   * @returns {Promise<import("../global").APIResponse<import("../components/data-grid/DataGrid").PageData<TinyBeneficiary[]>>>}
-   */
-  async list({ query, ...rest } = { page: 1, perPage: 10 }) {
-    try {
-      const response = await this.#client.get("beneficiaries/no-family", {
-        q: query,
-        ...rest,
-      });
-
-      return response;
-    } catch {
-      return this.#internal("Erro inesperado");
-    }
-  }
-}
-
-export default new NoFamilyBeneficiariesService();
