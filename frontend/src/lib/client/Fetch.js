@@ -113,7 +113,10 @@ export class DefaultFetcher {
    * @returns {Record<string, unknown>}
    */
   async call(url, init) {
-    return await fetch(url, init);
+    const raw = await fetch(url, init);
+    const json = await raw.json();
+
+    return json;
   }
 
   invalidate() {}
