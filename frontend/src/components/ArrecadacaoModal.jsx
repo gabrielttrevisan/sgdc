@@ -24,11 +24,16 @@ export default function ArrecadacaoModal({
     onSuccess,
     editingArrecadacao = null,
     viewMode = false,
+    categoriasArrecadacao = [],
 }) {
     const [form, setForm] = useState(formularioInicial);
     const [erro, setErro] = useState("");
     const [enviando, setEnviando] = useState(false);
     const isEditing = editingArrecadacao !== null && !viewMode;
+    const exigeValor = /dinheiro|pix/i.test(form.tipoArrecadacao);
+    const tiposDisponiveis = [
+        ...new Set([...tiposArrecadacao, ...categoriasArrecadacao]),
+    ];
 
     useEffect(() => {
         if (!isOpen) return;
@@ -66,10 +71,10 @@ export default function ArrecadacaoModal({
         if (viewMode) return;
         setErro("");
 
-        const valorNumerico = Number(form.valor);
+        const valorNumerico = exigeValor ? Number(form.valor) : 0;
 
-        if (!form.valor || !Number.isFinite(valorNumerico) ||
-            valorNumerico <= 0) {
+        if (exigeValor && (!form.valor || !Number.isFinite(valorNumerico) ||
+            valorNumerico <= 0)) {
             setErro("Informe um valor maior que zero.");
             return;
         }
@@ -213,25 +218,6 @@ export default function ArrecadacaoModal({
                             )}
 
                             <div className="arrecadacao-field">
-                                <label htmlFor="valor">
-                                    Valor arrecadado (R$) *
-                                </label>
-
-                                <input
-                                    id="valor"
-                                    name="valor"
-                                    type="number"
-                                    placeholder="Ex.: 250,00"
-                                    min="0.01"
-                                    step="0.01"
-                                    value={form.valor}
-                                    onChange={handleChange}
-                                    required
-                                    disabled={enviando || viewMode}
-                                />
-                            </div>
-
-                            <div className="arrecadacao-field">
                                 <label htmlFor="dataArrecadacao">
                                     Data da arrecadação *
                                 </label>
@@ -262,7 +248,7 @@ export default function ArrecadacaoModal({
                                     <option value="" disabled>
                                         Selecione o tipo
                                     </option>
-                                    {tiposArrecadacao.map((tipo) => (
+                                    {tiposDisponiveis.map((tipo) => (
                                         <option key={tipo} value={tipo}>
                                             {tipo}
                                         </option>
@@ -290,6 +276,27 @@ export default function ArrecadacaoModal({
                                     Campo opcional.
                                 </div>
                             </div>
+
+                            {exigeValor && (
+                                <div className="arrecadacao-field">
+                                    <label htmlFor="valor">
+                                        Valor arrecadado (R$) *
+                                    </label>
+
+                                    <input
+                                        id="valor"
+                                        name="valor"
+                                        type="number"
+                                        placeholder="Ex.: 250,00"
+                                        min="0.01"
+                                        step="0.01"
+                                        value={form.valor}
+                                        onChange={handleChange}
+                                        required
+                                        disabled={enviando || viewMode}
+                                    />
+                                </div>
+                            )}
 
                             {!viewMode && (
                                 <p className="arrecadacao-required">

@@ -190,6 +190,9 @@ export const Arrecadacoes = WithAuthGuard(function ArrecadacoesPage() {
         isOpen={modalAberto}
         editingArrecadacao={arrecadacaoEmEdicao || arrecadacaoEmVisualizacao}
         viewMode={Boolean(arrecadacaoEmVisualizacao)}
+        categoriasArrecadacao={arrecadacoes
+          .map((arrecadacao) => arrecadacao.tipoArrecadacao)
+          .filter(Boolean)}
         onClose={() => {
           setModalAberto(false);
           setArrecadacaoEmEdicao(null);

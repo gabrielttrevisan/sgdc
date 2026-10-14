@@ -5,26 +5,32 @@ import {
   listarArrecadacoes,
 } from "../models/arrecadacao.model.js";
 
-const TIPOS_ARRECADACAO = [
-  "Doação em dinheiro",
-  "Pix",
-  "Doação de alimentos",
-  "Produtos de higiene",
-  "Roupas",
-  "Calçados",
-];
-
 function validateArrecadacao(data) {
-  if (!Number.isFinite(Number(data.valor)) || Number(data.valor) <= 0) {
+  const tipoArrecadacao = data.tipoArrecadacao;
+  if (
+    typeof tipoArrecadacao !== "string" ||
+    !tipoArrecadacao.trim() ||
+    tipoArrecadacao.length > 80
+  ) {
+    return "Informe uma categoria válida para a arrecadação.";
+  }
+
+  const exigeValor = /dinheiro|pix/i.test(tipoArrecadacao);
+  const valor = Number(data.valor);
+
+  if (
+    data.valor === null ||
+    data.valor === undefined ||
+    data.valor === "" ||
+    !Number.isFinite(valor) ||
+    valor < 0 ||
+    (exigeValor && valor <= 0)
+  ) {
     return "Informe um valor maior que zero.";
   }
 
   if (!data.dataArrecadacao || Number.isNaN(Date.parse(data.dataArrecadacao))) {
     return "Informe uma data válida para a arrecadação.";
-  }
-
-  if (!TIPOS_ARRECADACAO.includes(data.tipoArrecadacao)) {
-    return "O tipo de arrecadação informado é inválido.";
   }
 
   if (data.descricao != null && String(data.descricao).length > 255) {
