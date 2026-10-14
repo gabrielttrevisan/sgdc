@@ -74,7 +74,7 @@ export class AuthSingleton {
       this.#setRole(role.id, role.permissions);
     }
 
-    this.#updating = true;
+    this.#updating = false;
 
     return true;
   }
