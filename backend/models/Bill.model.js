@@ -131,7 +131,7 @@ export default class BillModel {
         extended:
           bill.EXTENDED_AT &&
           bill.EXTENDED_BY &&
-          bill.CANCELED_BY_NAME &&
+          bill.EXTENDED_BY_NAME &&
           bill.EXTENDED_DETAILS &&
           bill.EXTENDED_FROM
             ? {
@@ -146,6 +146,7 @@ export default class BillModel {
             ? {
                 at: bill.PAID_AT.toISOString(),
                 byUser: { id: bill.PAID_BY, name: bill.PAID_BY_NAME },
+                details: bill.PAYMENT_DETAILS,
               }
             : null,
       };
@@ -227,7 +228,8 @@ export default class BillModel {
             UPDATE BILLS
             SET
               PAID_AT = CURRENT_TIMESTAMP,
-              PAID_BY = ${user.id}
+              PAID_BY = ${user.id},
+              PAYMENT_DETAILS = ${bill.details}
             WHERE 
               ID = ${bill.id} AND
               PAID_AT IS NULL AND
@@ -457,6 +459,7 @@ export default class BillModel {
 /**
  * @typedef {Object} PayBill
  * @prop {number} id
+ * @prop {string} details
  */
 
 /**

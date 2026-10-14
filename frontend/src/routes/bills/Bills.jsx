@@ -3,16 +3,15 @@ import { ShowIcon } from "../../components/icons/ShowIcon";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import BillsService from "../../service/BillsService";
-
-import "./Bills.css";
 import { AddLargeIcon } from "../../components/icons/AddLargeIcon.jsx";
 import { useNavigate } from "react-router";
 import { HandMoneyIcon } from "../../components/icons/HandMoneyIcon.jsx";
-import Toast from "../../components/toast/ToastStorage.js";
 import { useRef } from "react";
 import { ScheduleCalendarIcon } from "../../components/icons/ScheduleCalendarIcon.jsx";
 import { LargeCloseIcon } from "../../components/icons/LargeCloseIcon.jsx";
 import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal.jsx";
+
+import "./Bills.css";
 
 const DESCRIPTION_MAX_LENGTH = 30;
 
@@ -114,33 +113,14 @@ export const Bills = WithAuthGuard(function Bills() {
             content: (
               <>
                 <HandMoneyIcon />
-                <span>Pagar</span>
+                <span>Dar Baixa</span>
               </>
             ),
             shouldRender: (target) => {
               return !["PAID", "CANCELED"].includes(target.status);
             },
             onAction: async (_, target) => {
-              const [response, error] = await BillsService.pay(target.id);
-
-              if (response) {
-                Toast.success("Conta paga com sucesso!");
-                dataGridRef.current?.update();
-                return;
-              }
-
-              Toast.error(
-                <>
-                  Erro inesperado{" "}
-                  {error.issues.length ||
-                    (error.description && (
-                      <>
-                        <br />
-                        {error.issues[0].description}
-                      </>
-                    ))}
-                </>,
-              );
+              navigate("/contas-a-pagar/" + target.id + "/baixa");
             },
           },
           {

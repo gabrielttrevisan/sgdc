@@ -2,6 +2,7 @@ import { useResourceFormContext } from "../../../components/resource-form/contex
 import { BillTimelineCard } from "./BillTimelineCard";
 
 import "./BillTimeline.css";
+import formatDate from "../../../lib/format/date";
 
 export function BillTimeline() {
   /** @type {{resource:import("../../../service/BillsService").FullBill|null;}} */
@@ -15,7 +16,7 @@ export function BillTimeline() {
         <BillTimelineCard
           {...resource.created}
           title="Registro Inicial"
-          userPreffix="Registrada por"
+          preffix="Registrada"
         />
       )}
 
@@ -23,24 +24,48 @@ export function BillTimeline() {
         <BillTimelineCard
           {...resource.extended}
           title="Adiamento"
-          userPreffix="Adiada por"
-        />
+          preffix="Adiada"
+        >
+          {resource.extended.from && (
+            <p>
+              Adiado de {formatDate(resource.extended.from)} para{" "}
+              {formatDate(resource.dueDate)}
+            </p>
+          )}
+
+          {resource.extended.details && (
+            <p className="bill-timeline-card__details">
+              <strong>Motivo: </strong>
+              {resource.extended.details}
+            </p>
+          )}
+        </BillTimelineCard>
       )}
 
       {resource.canceled && (
         <BillTimelineCard
           {...resource.canceled}
           title="Cancelamento"
-          userPreffix="Cancelada por"
-        />
+          preffix="Cancelada"
+        >
+          {resource.canceled.details && (
+            <p className="bill-timeline-card__details">
+              <strong>Motivo: </strong>
+              {resource.canceled.details}
+            </p>
+          )}
+        </BillTimelineCard>
       )}
 
       {resource.paid && (
-        <BillTimelineCard
-          {...resource.paid}
-          title="Pagamento"
-          userPreffix="Paga por"
-        />
+        <BillTimelineCard {...resource.paid} title="Pagamento" preffix="Paga">
+          {resource.paid.details && (
+            <p className="bill-timeline-card__details">
+              <strong>Detalhes do Pagamento: </strong>
+              {resource.paid.details}
+            </p>
+          )}
+        </BillTimelineCard>
       )}
     </div>
   );

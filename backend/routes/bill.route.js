@@ -9,6 +9,7 @@ import {
   EXTEND_BILL_RULES,
   CANCEL_BILL_RULES,
   CANCEL_AND_COPY_BILL_RULES,
+  PAY_BILL_RULES,
 } from "../validators/bill.validator.js";
 import BillController from "../controllers/Bill.controller.js";
 
@@ -37,9 +38,10 @@ billsRouter.post(
 );
 
 billsRouter.patch(
-  "/:id",
+  "/:id/pay",
   canManageResource.withAction("pay"),
   identifier,
+  validateRequest.body.withRules(PAY_BILL_RULES).middleware,
   BillController.pay,
 );
 

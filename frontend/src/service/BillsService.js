@@ -38,6 +38,12 @@ import APIClient from "../lib/client/APIClient";
  * @prop {number} id
  */
 
+/**
+ * @typedef {Object} BillToPay
+ * @prop {string} details
+ * @prop {number} id
+ */
+
 /** @implements {import("../global").PaginatableService<Bill>} */
 class BillsService {
   #client = new APIClient();
@@ -111,12 +117,14 @@ class BillsService {
   }
 
   /**
-   * @param {string} billId
+   * @param {BillToPay} bill
    * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
    */
-  async pay(billId) {
+  async pay(bill) {
     try {
-      const response = await this.#client.patch("bills/" + billId);
+      const response = await this.#client.patch("bills/" + bill.id + "/pay", {
+        details: bill.details,
+      });
 
       return [response, null];
     } catch {
@@ -124,7 +132,7 @@ class BillsService {
     }
   }
 
-   /**
+  /**
    * @param {number} id
    * @returns {Promise<import("../global").APIResponse<FullBill>>}
    */

@@ -43,6 +43,7 @@ import CancelAndCopyBillForm from "./routes/bills/CancelAndCopyBillForm.jsx";
 import ShowBillForm from "./routes/bills/ShowBillForm.jsx";
 
 import "./index.css";
+import PayBillForm from "./routes/bills/PayBillForm.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -101,6 +102,10 @@ createRoot(document.getElementById("root")).render(
             <Route
               path="/contas-a-pagar/:id/adiar"
               element={<ExtendBillForm />}
+            />
+            <Route
+              path="/contas-a-pagar/:id/baixa"
+              element={<PayBillForm />}
             />
             <Route
               path="/contas-a-pagar/:id/cancelar"
