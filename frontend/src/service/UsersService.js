@@ -1,17 +1,10 @@
-import APIClient from "../lib/client/APIClient";
+import CachedAPIClient from "../lib/client/CachedAPIClient";
 import { unmaskDigits } from "../lib/functions/unmask";
 import { authStore } from "../store/Auth.store";
 import { Service } from "./Service";
 
-/**
- * @typedef {Object} City
- * @prop {int} id
- * @prop {string} name
- * @prop {string} state
- */
-
 class UsersService extends Service {
-  #client = new APIClient();
+  #client = new CachedAPIClient();
 
   /**
    * @param {import("../global").PaginatedQuery} query
@@ -177,4 +170,11 @@ export default new UsersService();
  * @prop {string} userName
  * @prop {string} date
  * @prop {"create"|"update"|"delete"} type
+ */
+
+/**
+ * @typedef {Object} City
+ * @prop {int} id
+ * @prop {string} name
+ * @prop {string} state
  */

@@ -1,4 +1,5 @@
-import APIClient from "../lib/client/APIClient";
+import CachedAPIClient from "../lib/client/CachedAPIClient";
+import { Service } from "./Service";
 
 /**
  * @typedef {Object} City
@@ -7,8 +8,11 @@ import APIClient from "../lib/client/APIClient";
  * @prop {string} state
  */
 
-class CitiesService {
-  #client = new APIClient();
+class CitiesService extends Service {
+  #client = new CachedAPIClient({
+    // CRUD isn't implemented for this resource, so it does not need to be updated
+    staleTime: CachedAPIClient.STALE_TIME_ONE_WEEK,
+  });
 
   /**
    * @param {string|null} state
