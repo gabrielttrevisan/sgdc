@@ -14,6 +14,7 @@ export class AuthSingleton {
 
   /** @type {Map<number, Map<string, Set<string>>>} */
   #roles = new Map();
+  #updating = false;
 
   /**
    * @param {number} roleId
@@ -35,12 +36,12 @@ export class AuthSingleton {
    * @returns {Promise<boolean>}
    */
   async can(roleId, key, action) {
+    if (this.#updating) return false;
+
     if (this.#roles.size === 0) {
-      const [roles, error] = await RoleModel.findAllWithPermissions();
+      const updated = await this.#update();
 
-      if (error) return false;
-
-      roles.forEach((role) => this.setRole(role.id, role.permissions));
+      if (!updated) return false;
     }
 
     const rolePermissions = this.#roles.get(roleId);
@@ -52,5 +53,29 @@ export class AuthSingleton {
     if (!permission) return false;
 
     return permission.has(action);
+  }
+
+  async rolesUpdated() {
+    this.#roles = new Map();
+    await this.#update();
+  }
+
+  async #update() {
+    this.#updating = true;
+
+    const [roles, error] = await RoleModel.findAllWithPermissions();
+
+    if (error) {
+      this.#updating = false;
+      return false;
+    }
+
+    for (const role of roles) {
+      this.setRole(role.id, role.permissions);
+    }
+
+    this.#updating = false;
+
+    return true;
   }
 }

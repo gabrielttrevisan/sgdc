@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import { AuthChangeEvent } from "./auth/AuthChangeEvent";
+import { AuthChangeEvent } from "./auth/AuthChangeEvent.js";
 
 /**
  * @typedef {Object} User

@@ -10,7 +10,7 @@ import { authStore } from "../store/Auth.store";
 import { WithAuthGuard } from "./auth/WithAuthGuard.hoc";
 import ArrecadacaoModal from "./ArrecadacaoModal.jsx";
 
-const API_URL = "http://localhost:3004/donors";
+const API_URL = import.meta.env.VITE_API_URL + "donors";
 
 const App = WithAuthGuard(function App() {
   const [donors, setDonors] = useState([]);

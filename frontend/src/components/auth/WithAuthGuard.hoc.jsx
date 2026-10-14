@@ -1,6 +1,6 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { Navigate, useLocation } from "react-router";
 import { useAuth } from "../../store/Auth.store";
-import { Fragment } from "react";
 
 /**
  *
@@ -22,9 +22,6 @@ export function WithAuthGuard(Component) {
   AuthGuardedComponent.displayName = `WithAuthGuard(${Component.displayName || Component.name || "Component"})`;
   return AuthGuardedComponent;
 }
-
-/** @type {import("react").ComponentType} */
-export const AuthGuard = WithAuthGuard(Fragment);
 
 export function RoleAuthGuard({ roleId, children, matchId }) {
   const auth = useAuth();

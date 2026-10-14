@@ -12,7 +12,7 @@ class AuthService extends Service {
       const client = new APIClient();
       /** @type {import("../global").APIResponse<AuthToken>} */
       const response = await client.post("auth/sign-in", { user, pass });
-
+      
       if (typeof response.data?.token === "string") {
         authStore.signIn(
           response.data.token,

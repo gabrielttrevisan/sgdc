@@ -1,5 +1,4 @@
 import * as v from "valibot";
-import { config } from "dotenv";
 
 const DEFAULT_EXPIRES_IN = 43200000;
 
@@ -7,7 +6,12 @@ const EnvironmentSchema = v.object({
   PORT: v.pipe(v.optional(v.string(), 3004), v.toNumber()),
   FRONTEND_URL: v.pipe(
     v.string(),
-    v.transform((raw) => raw.split(/,/)),
+    v.transform((raw) =>
+      raw
+        .split(",")
+        .map((origin) => origin.trim())
+        .filter(Boolean),
+    ),
     v.array(v.string()),
   ),
   DB_HOST: v.pipe(v.string()),
@@ -22,7 +26,7 @@ const EnvironmentSchema = v.object({
   ),
 });
 
-export const env = v.parse(EnvironmentSchema, config().parsed, {
+export const env = v.parse(EnvironmentSchema, process.env, {
   message(issue) {
     if (!issue.path?.[0].key) return issue.message;
 

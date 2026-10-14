@@ -101,6 +101,23 @@ export const EXTEND_BILL_RULES = [
 ];
 
 /** @type {import("../middlewares/validator/validator.js").ValidationRule[]} */
+export const PAY_BILL_RULES = [
+  {
+    property: "details",
+    validate: (value) => {
+      if (typeof value !== "string") return "Motivo inválida";
+
+      const trimmed = value.trim();
+
+      if (trimmed.length === 0 || trimmed.length > 256)
+        return "Motivo não pode ser vazio ou conter mais que 256 caracteres";
+
+      return true;
+    },
+  },
+];
+
+/** @type {import("../middlewares/validator/validator.js").ValidationRule[]} */
 export const CANCEL_BILL_RULES = [
   {
     property: "details",

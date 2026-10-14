@@ -14,7 +14,6 @@ import productsRouter from "./routes/products.route.js";
 import userRouter from "./routes/user.route.js";
 import auth from "./middlewares/auth.js";
 import authRouter from "./routes/auth.route.js";
-import cookieParser from "cookie-parser";
 import rolesRouter from "./routes/roles.route.js";
 
 import arrecadacaoRouter from "./routes/arrecadacao.route.js";
@@ -23,9 +22,16 @@ import billsRouter from "./routes/bill.route.js";
 
 const app = express();
 
-app.use(cookieParser());
+app.use(
+  cors({
+    origin: env.FRONTEND_URL,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
+
 app.use(express.json());
-app.use(cors({ origin: env.FRONTEND_URL, credentials: true }));
 app.use("/auth", authRouter);
 
 const protectedRoutes = Router();
@@ -45,13 +51,12 @@ protectedRoutes.use("/roles", rolesRouter);
 
 protectedRoutes.use("/arrecadacoes", arrecadacaoRouter);
 
-
 protectedRoutes.use("/bills", billsRouter);
-
 
 app.use("/", protectedRoutes);
 app.use(notFoundHandler);
 
 app.listen(env.PORT, () => {
+  console.log("Allowed origins: ", env.FRONTEND_URL);
   console.log(`APi rodando na porta ${env.PORT}...`);
 });

@@ -1,21 +1,8 @@
-import APIClient from "../lib/client/APIClient";
+import CachedAPIClient from "../lib/client/CachedAPIClient";
+import { Service } from "./Service";
 
-/**
- * @typedef {Object} FamilyParticipant
- * @prop {int} id
- * @prop {string} name
- * @prop {boolean} isResponsible
- */
-
-/**
- * @typedef {Object} Family
- * @prop {int} id
- * @prop {string} name
- * @prop {FamilyParticipant[]} participants
- */
-
-class FamiliesService {
-  #client = new APIClient();
+class FamiliesService extends Service {
+  #client = new CachedAPIClient();
 
   /**
    * @param {import("../global").PaginatedQuery} query
@@ -30,7 +17,7 @@ class FamiliesService {
 
       return response;
     } catch {
-      return this.#internal("Erro inesperado");
+      return this.internal("Erro inesperado");
     }
   }
 
@@ -42,7 +29,7 @@ class FamiliesService {
     try {
       return await this.#client.get(`families/${id}`);
     } catch {
-      return this.#internal("Não foi possível carregar família");
+      return this.internal("Não foi possível carregar família");
     }
   }
 
@@ -57,7 +44,7 @@ class FamiliesService {
 
       return response;
     } catch {
-      return this.#internal("Erro inesperado");
+      return this.internal("Erro inesperado");
     }
   }
 
@@ -78,7 +65,7 @@ class FamiliesService {
 
       return response;
     } catch {
-      return this.#internal("Erro inesperado");
+      return this.internal("Erro inesperado");
     }
   }
 
@@ -99,24 +86,23 @@ class FamiliesService {
 
       return response;
     } catch {
-      return this.#internal("Erro inesperado");
+      return this.internal("Erro inesperado");
     }
-  }
-
-  /**
-   * @param {string} [message]
-   * @returns {APIResponse<import("../components/data-grid/DataGrid").PageData<Family[]>>}
-   */
-  #internal(message = "Erro inesperado") {
-    return {
-      data: null,
-      error: {
-        code: "INTERNAL_SERVER_ERROR",
-        message,
-        issues: [],
-      },
-    };
   }
 }
 
 export default new FamiliesService();
+
+/**
+ * @typedef {Object} FamilyParticipant
+ * @prop {int} id
+ * @prop {string} name
+ * @prop {boolean} isResponsible
+ */
+
+/**
+ * @typedef {Object} Family
+ * @prop {int} id
+ * @prop {string} name
+ * @prop {FamilyParticipant[]} participants
+ */

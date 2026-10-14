@@ -1,10 +1,27 @@
 import { authStore } from "../../store/Auth.store";
+import { DefaultFetcher } from "./Fetch";
+
+/**
+ * @typedef {Object} APIClientInit
+ * @prop {string} [apiUrl]
+ * @prop {IFetch} [fetcher]
+ */
 
 export default class APIClient {
   #url;
+  /** @type {import("./Fetch").IFetcher} */
+  #fetcher;
 
-  constructor(url = "http://localhost:3004/") {
+  /**
+   *
+   * @param {APIClientInit} [init]
+   */
+  constructor({
+    url = import.meta.env.VITE_API_URL,
+    fetcher = new DefaultFetcher(),
+  } = {}) {
     this.#url = url;
+    this.#fetcher = fetcher;
   }
 
   /**
@@ -20,12 +37,11 @@ export default class APIClient {
       ? `${this.#url}${path}?${search.toString()}`
       : `${this.#url}${path}`;
 
-    const rawResponse = await fetch(url, {
+    const response = await this.#fetcher.call(url, {
       ...init,
       headers: this.#getHeaders({ init }),
       method: "GET",
     });
-    const response = await rawResponse.json();
 
     return response;
   }
@@ -43,13 +59,14 @@ export default class APIClient {
       headers: { "Content-Type": "application/json" },
     });
 
-    const rawResponse = await fetch(`${this.#url}${path}`, {
+    const response = await this.#fetcher.call(`${this.#url}${path}`, {
       ...init,
       method: "POST",
       headers,
       body: JSON.stringify(body),
     });
-    const response = await rawResponse.json();
+
+    this.#invalidate(response);
 
     return response;
   }
@@ -61,7 +78,7 @@ export default class APIClient {
    * @returns {Promise<import("../../global").APIResponse<any>>}
    */
   async patch(path, body = {}, init = {}) {
-    const rawResponse = await fetch(`${this.#url}${path}`, {
+    const response = await this.#fetcher.call(`${this.#url}${path}`, {
       ...init,
       method: "PATCH",
       headers: this.#getHeaders({
@@ -70,7 +87,8 @@ export default class APIClient {
       }),
       body: JSON.stringify(body),
     });
-    const response = await rawResponse.json();
+
+    this.#invalidate(response);
 
     return response;
   }
@@ -82,7 +100,7 @@ export default class APIClient {
    * @returns {Promise<import("../../global").APIResponse<any>>}
    */
   async put(path, body = {}, init = {}) {
-    const rawResponse = await fetch(`${this.#url}${path}`, {
+    const response = await this.#fetcher.call(`${this.#url}${path}`, {
       ...init,
       method: "PUT",
       headers: this.#getHeaders({
@@ -91,7 +109,8 @@ export default class APIClient {
       }),
       body: JSON.stringify(body),
     });
-    const response = await rawResponse.json();
+
+    this.#invalidate(response);
 
     return response;
   }
@@ -102,12 +121,13 @@ export default class APIClient {
    * @returns {Promise<import("../../global").APIResponse<any>>}
    */
   async delete(path, init) {
-    const rawResponse = await fetch(`${this.#url}${path}`, {
+    const response = await this.#fetcher.call(`${this.#url}${path}`, {
       ...init,
       headers: this.#getHeaders({ init }),
       method: "DELETE",
     });
-    const response = await rawResponse.json();
+
+    this.#invalidate(response);
 
     return response;
   }
@@ -115,6 +135,12 @@ export default class APIClient {
   get url() {
     return this.#url;
   }
+
+  #invalidate(response) {
+    if (typeof response === "object" && response && !response.error)
+      this.#fetcher.invalidate();
+  }
+
   /**
    * @param {import("../../global").FetchOptions} [init]
    */

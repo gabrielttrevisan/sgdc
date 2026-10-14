@@ -1,4 +1,4 @@
-import Toast, { useToasts } from "./ToastStorage";
+import Toast, { useToasts } from "./ToastStorage.js";
 import "./ToastTray.css";
 
 export const ToastTray = () => {

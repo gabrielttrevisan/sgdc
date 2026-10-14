@@ -1,30 +1,9 @@
-import APIClient from "../lib/client/APIClient";
-
-/**
- * @typedef {Object} AllocationType
- * @prop {number} id
- * @prop {string} name
- * @prop {string} description
- */
+import CachedAPIClient from "../lib/client/CachedAPIClient";
+import { Service } from "./Service";
 
 /** @implements {import("../global").PaginatableService<AllocationType>} */
-class AllocationTypesService {
-  /**
-   * @param {string} [message]
-   * @returns {APIResponse<import("../components/data-grid/DataGrid").PageData<AllocationType[]>>}
-   */
-  #internal(message = "Erro inesperado") {
-    return {
-      data: null,
-      error: {
-        code: 500,
-        message,
-        issues: [],
-      },
-    };
-  }
-
-  #client = new APIClient();
+class AllocationTypesService extends Service {
+  #client = new CachedAPIClient();
 
   /**
    * @param {import("../global").PaginatedQuery} query
@@ -38,8 +17,9 @@ class AllocationTypesService {
       });
 
       return response;
-    } catch {
-      return this.#internal("Erro inesperado");
+    } catch (error) {
+      console.log(error);
+      return this.internal("Erro inesperado");
     }
   }
 
@@ -54,7 +34,7 @@ class AllocationTypesService {
 
       return response;
     } catch {
-      return this.#internal("Erro inesperado");
+      return this.internal("Erro inesperado");
     }
   }
 
@@ -73,7 +53,7 @@ class AllocationTypesService {
 
       return response;
     } catch {
-      return this.#internal("Erro inesperado");
+      return this.internal("Erro inesperado");
     }
   }
 
@@ -90,9 +70,16 @@ class AllocationTypesService {
 
       return response;
     } catch {
-      return this.#internal("Erro inesperado");
+      return this.internal("Erro inesperado");
     }
   }
 }
 
 export default new AllocationTypesService();
+
+/**
+ * @typedef {Object} AllocationType
+ * @prop {number} id
+ * @prop {string} name
+ * @prop {string} description
+ */

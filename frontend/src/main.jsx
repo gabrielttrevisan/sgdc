@@ -21,10 +21,8 @@ import FamilyDetails from "./routes/families/FamilyDetails.jsx";
 import MeasuringUnitsForm from "./routes/measuring-units/MeasuringUnitsForm.jsx";
 import MeasuringUnitsDetails from "./routes/measuring-units/MeasuringUnitsDetails.jsx";
 import SignInForm from "./routes/auth/SignIn.jsx";
-import { AuthGuard } from "./components/auth/WithAuthGuard.hoc.jsx";
+import { AuthGuard } from "./components/auth/AuthGuard.jsx";
 import { NotFoundPage } from "./routes/not-found/NotFoundPage.jsx";
-
-import "./index.css";
 import { Users } from "./routes/users/Users.jsx";
 import CreateUsersForm from "./routes/users/CreateUsersForm.jsx";
 import EditUserForm from "./routes/users/EditUserForm.jsx";
@@ -43,6 +41,9 @@ import ExtendBillForm from "./routes/bills/ExtendBillForm.jsx";
 import CancelBillForm from "./routes/bills/CancelBillForm.jsx";
 import CancelAndCopyBillForm from "./routes/bills/CancelAndCopyBillForm.jsx";
 import ShowBillForm from "./routes/bills/ShowBillForm.jsx";
+
+import "./index.css";
+import PayBillForm from "./routes/bills/PayBillForm.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -101,6 +102,10 @@ createRoot(document.getElementById("root")).render(
             <Route
               path="/contas-a-pagar/:id/adiar"
               element={<ExtendBillForm />}
+            />
+            <Route
+              path="/contas-a-pagar/:id/baixa"
+              element={<PayBillForm />}
             />
             <Route
               path="/contas-a-pagar/:id/cancelar"

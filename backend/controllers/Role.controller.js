@@ -2,6 +2,7 @@ import APIResponse from "../lib/APIResponse.js";
 import DuplicatedFieldError from "../exception/DuplicatedFieldError.js";
 import ForeignKeyViolationError from "../exception/ForeignKeyViolationError.js";
 import { RoleModel } from "../models/Role.model.js";
+import { AuthSingleton } from "../lib/Auth.singleton.js";
 
 export class RoleController {
   /**
@@ -35,6 +36,8 @@ export class RoleController {
         .withIssue("INSERT_FAILURE", "Falha ao cadastrar nível de acesso")
         .send();
 
+    await AuthSingleton.instance.rolesUpdated();
+
     return response.success({ success: true });
   }
 
@@ -46,8 +49,14 @@ export class RoleController {
     const response = APIResponse.from(res);
     /** @type {import("../models/Role.model.js").FindAllRolesFilter} */
     const filter = {};
-    const { q, filter: roleFilter, sortKey, sortType, page, perPage } =
-      req.query;
+    const {
+      q,
+      filter: roleFilter,
+      sortKey,
+      sortType,
+      page,
+      perPage,
+    } = req.query;
 
     filter.query = q;
     filter.filter = roleFilter;
@@ -98,6 +107,8 @@ export class RoleController {
     if (!isDeleted)
       return response.internalError("Falha ao remover nível de acesso");
 
+    await AuthSingleton.instance.rolesUpdated();
+
     return response.success({ success: true });
   }
 
@@ -132,6 +143,8 @@ export class RoleController {
         .withIssue("UPDATE_FAILURE", "Falha ao editar nível de acesso")
         .send();
 
+    await AuthSingleton.instance.rolesUpdated();
+
     return response.success({ success: true });
   }
 
@@ -148,6 +161,8 @@ export class RoleController {
 
     if (!isRestored)
       return response.internalError("Falha ao reativar nível de acesso");
+
+    await AuthSingleton.instance.rolesUpdated();
 
     return response.success({ success: true });
   }

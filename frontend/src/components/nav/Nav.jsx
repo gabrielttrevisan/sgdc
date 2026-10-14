@@ -1,9 +1,9 @@
 import { useState, useCallback } from "react";
-import { VisuallyHidden } from "../accessibility/visually-hidden/VisuallyHidden";
-import useMatchMedia from "../media-query/useMatchMedia";
-import NavContextProvider from "./context/Provider";
-import { MenuIcon } from "../icons/MenuIcon";
-import { LargeCloseIcon } from "../icons/LargeCloseIcon";
+import { VisuallyHidden } from "../accessibility/visually-hidden/VisuallyHidden.jsx";
+import useMatchMedia from "../media-query/useMatchMedia.js";
+import NavContextProvider from "./context/Provider.jsx";
+import { MenuIcon } from "../icons/MenuIcon.jsx";
+import { LargeCloseIcon } from "../icons/LargeCloseIcon.jsx";
 
 /**
  * @typedef {Object} NavProps
