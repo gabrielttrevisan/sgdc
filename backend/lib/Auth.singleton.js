@@ -20,7 +20,7 @@ export class AuthSingleton {
    * @param {number} roleId
    * @param {Record<string, string[]>} permissions
    */
-  #setRole(roleId, permissions) {
+  setRole(roleId, permissions) {
     /** @type {[string, Set<string>]} */
     const permissionEntries = Object.entries(permissions).map(
       ([key, actions]) => [key, new Set(actions)],
@@ -71,7 +71,7 @@ export class AuthSingleton {
     }
 
     for (const role of roles) {
-      this.#setRole(role.id, role.permissions);
+      this.setRole(role.id, role.permissions);
     }
 
     this.#updating = false;
