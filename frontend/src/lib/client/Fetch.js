@@ -115,6 +115,8 @@ export class DefaultFetcher {
   async call(url, init) {
     return await fetch(url, init);
   }
+
+  invalidate() {}
 }
 
 /**
