@@ -37,9 +37,7 @@ import VolunteerDetailsForm from "./routes/Volunteers/VolunteersDetails.jsx";
 import { Arrecadacoes } from "./routes/arrecadacoes/Arrecadacoes.jsx";
 import { Bills } from "./routes/bills/Bills.jsx";
 import CreateBillForm from "./routes/bills/CreateBillForm.jsx";
-import ExtendBillForm from "./routes/bills/ExtendBillForm.jsx";
 import CancelBillForm from "./routes/bills/CancelBillForm.jsx";
-import CancelAndCopyBillForm from "./routes/bills/CancelAndCopyBillForm.jsx";
 import ShowBillForm from "./routes/bills/ShowBillForm.jsx";
 
 import "./index.css";
@@ -100,20 +98,12 @@ createRoot(document.getElementById("root")).render(
             <Route path="/contas-a-pagar" element={<Bills />} />
             <Route path="/contas-a-pagar/lancar" element={<CreateBillForm />} />
             <Route
-              path="/contas-a-pagar/:id/adiar"
-              element={<ExtendBillForm />}
-            />
-            <Route
               path="/contas-a-pagar/:id/baixa"
               element={<PayBillForm />}
             />
             <Route
               path="/contas-a-pagar/:id/cancelar"
               element={<CancelBillForm />}
-            />
-            <Route
-              path="/contas-a-pagar/:id/cancelar-e-copiar"
-              element={<CancelAndCopyBillForm />}
             />
             <Route
               path="/contas-a-pagar/:id/visualizar"
