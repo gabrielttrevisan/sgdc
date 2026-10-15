@@ -115,6 +115,20 @@ export const PAY_BILL_RULES = [
       return true;
     },
   },
+
+  {
+    property: "paidValue",
+    validate: (value) => {
+      if (typeof value !== "number") return "Valor inválido";
+
+      const parsed = parseFloat(value);
+
+      if (isNaN(parsed) || parsed <= 0.1)
+        return "Valor inválido. Deve ser numérico e maior que 0.1";
+
+      return true;
+    },
+  },
 ];
 
 /** @type {import("../middlewares/validator/validator.js").ValidationRule[]} */

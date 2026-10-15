@@ -46,34 +46,6 @@ class BillsService extends Service {
   }
 
   /**
-   * @param {BillToCancelAndCopy} bill
-   * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
-   */
-  async cancelAndCopy({
-    description,
-    value,
-    dueDate: d,
-    id,
-    cancelationDetails,
-  }) {
-    try {
-      const trimmedDesc = description.trim();
-      const dueDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, "0")}-${(d.getDate() + 1).toString().padStart(2, "0")}`;
-
-      const response = await this.#client.post(`bills/${id}/cancel-and-copy`, {
-        description: trimmedDesc,
-        dueDate,
-        value: parseFloat(value),
-        cancelationDetails,
-      });
-
-      return response;
-    } catch {
-      return this.internal("Erro inesperado");
-    }
-  }
-
-  /**
    * @param {BillToPay} bill
    * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
    */
@@ -81,6 +53,7 @@ class BillsService extends Service {
     try {
       const response = await this.#client.patch("bills/" + bill.id + "/pay", {
         details: bill.details,
+        paidValue: bill.paidValue,
       });
 
       return [response, null];
@@ -100,26 +73,6 @@ class BillsService extends Service {
       return response;
     } catch (error) {
       return this.internal("Erro inesperado\n" + (error.message ?? ""));
-    }
-  }
-
-  /**
-   * @param {BillToExtend} bill
-   * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
-   */
-  async extend({ details, newDueDate: d, id }) {
-    try {
-      const trimmedDetails = details.trim();
-      const newDueDate = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, "0")}-${(d.getDate() + 1).toString().padStart(2, "0")}`;
-
-      const response = await this.#client.patch("bills/" + id + "/extend", {
-        details: trimmedDetails,
-        newDueDate,
-      });
-
-      return response;
-    } catch {
-      return this.internal("Erro inesperado");
     }
   }
 
@@ -212,4 +165,5 @@ export default new BillsService();
  * @typedef {Object} BillToPay
  * @prop {string} details
  * @prop {number} id
+ * @prop {number} paidValue
  */

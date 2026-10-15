@@ -46,7 +46,7 @@ export default WithAuthGuard(function CancelAndCopyBillForm() {
           return true;
         } else if (response.error) {
           if (response.error.issues.length) {
-            Toast.error(
+            return Toast.error(
               <>
                 Falha ao cancelar conta a pagar
                 <br />
