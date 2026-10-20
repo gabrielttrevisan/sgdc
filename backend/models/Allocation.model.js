@@ -1,6 +1,7 @@
 import sql, { transaction } from "./core/sql.js";
 import RecordNotFoundError from "../exception/RecordNotFoundError.js";
 import ScheduleConflictError from "../exception/ScheduleConflictError.js";
+import AllocationTypeInUseError from "../exception/AllocationTypeInUseError.js";
 
 /**
  * Colunas projetadas por todas as consultas de leitura, garantindo que o
@@ -195,10 +196,18 @@ export default class AllocationModel {
           FROM ALLOCATION_TYPES
           WHERE ID = ${allocationTypeId}
             AND DELETED_AT IS NULL
+          FOR UPDATE
         `.run();
 
         if (types.length === 0)
           return [null, new RecordNotFoundError("tipo de alocação")];
+
+        const typeInUse = await AllocationModel.#isTypeUsedByOtherVolunteer(
+          tsql,
+          { allocationTypeId, volunteerId },
+        );
+
+        if (typeInUse) return [null, new AllocationTypeInUseError()];
 
         const conflict = await AllocationModel.#hasConflict(tsql, {
           volunteerId,
@@ -272,10 +281,18 @@ export default class AllocationModel {
           FROM ALLOCATION_TYPES
           WHERE ID = ${allocationTypeId}
             AND DELETED_AT IS NULL
+          FOR UPDATE
         `.run();
 
         if (types.length === 0)
           return [null, new RecordNotFoundError("tipo de alocação")];
+
+        const typeInUse = await AllocationModel.#isTypeUsedByOtherVolunteer(
+          tsql,
+          { allocationTypeId, volunteerId },
+        );
+
+        if (typeInUse) return [null, new AllocationTypeInUseError()];
 
         const conflict = await AllocationModel.#hasConflict(tsql, {
           volunteerId,
@@ -354,6 +371,34 @@ export default class AllocationModel {
     `.run();
 
     return conflict.length > 0;
+  }
+
+  /**
+   * Verifica se o tipo de alocação já está associado a outro voluntário. A
+   * regra é permanente (não depende do período), portanto basta existir uma
+   * alocação ativa do tipo pertencente a um voluntário diferente. Registros
+   * excluídos logicamente não são considerados. Ao editar, o próprio
+   * voluntário é ignorado, permitindo manter o tipo já pertencente ao
+   * registro sem falso conflito.
+   *
+   * @param {import("./core/sql.js").SqlFunctor} tsql
+   * @param {{allocationTypeId: number, volunteerId: number}} params
+   * @returns {Promise<boolean>}
+   */
+  static async #isTypeUsedByOtherVolunteer(
+    tsql,
+    { allocationTypeId, volunteerId },
+  ) {
+    const usage = await tsql.query`
+      SELECT ID
+      FROM ALLOCATIONS
+      WHERE ALLOCATION_TYPE_ID = ${allocationTypeId}
+        AND DELETED_AT IS NULL
+        AND VOLUNTEER_ID <> ${volunteerId}
+      LIMIT 1
+    `.run();
+
+    return usage.length > 0;
   }
 
   /**

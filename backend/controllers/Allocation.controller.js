@@ -2,6 +2,7 @@ import APIResponse from "../lib/APIResponse.js";
 import AllocationModel from "../models/Allocation.model.js";
 import RecordNotFoundError from "../exception/RecordNotFoundError.js";
 import ScheduleConflictError from "../exception/ScheduleConflictError.js";
+import AllocationTypeInUseError from "../exception/AllocationTypeInUseError.js";
 
 export default class AllocationController {
   /**
@@ -153,6 +154,12 @@ export default class AllocationController {
       return response
         .badRequest()
         .withIssue("SCHEDULE_CONFLICT", error.message)
+        .send();
+
+    if (error instanceof AllocationTypeInUseError)
+      return response
+        .badRequest()
+        .withIssue("ALLOCATION_TYPE_IN_USE", error.message)
         .send();
 
     if (error instanceof RecordNotFoundError)
