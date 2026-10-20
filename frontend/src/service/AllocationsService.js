@@ -3,9 +3,6 @@ import CachedAPIClient from "../lib/client/CachedAPIClient.js";
 import { Service } from "./Service.js";
 
 /**
- * Converte um valor de `<input type="datetime-local">` para uma data ISO 8601,
- * evitando ambiguidade de fuso horário no envio ao back-end.
- *
  * @param {string} value
  * @returns {string}
  */
@@ -46,8 +43,6 @@ class AllocationsService extends Service {
   }
 
   /**
-   * Busca a alocação em andamento do voluntário. Retorna `data: null` quando
-   * não há alocação vigente no momento atual.
    *
    * @param {number|string} volunteerId
    * @returns {Promise<import("../global").APIResponse<Allocation>>}

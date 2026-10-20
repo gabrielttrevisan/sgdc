@@ -48,7 +48,6 @@ export default class AllocationController {
   }
 
   /**
-   * Retorna a alocação em andamento do voluntário, ou `null` quando não há.
    *
    * @param {import("express").Request} req
    * @param {import("express").Response} res

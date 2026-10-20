@@ -1,7 +1,4 @@
 /**
- * Converte uma data ISO 8601 para o formato aceito por
- * `<input type="datetime-local">`, usando o fuso horário local do navegador.
- *
  * @param {string} value
  * @returns {string}
  */
@@ -18,8 +15,6 @@ export function toDateTimeLocal(value) {
 }
 
 /**
- * Normaliza a alocação recebida da API para o formato consumido pelo formulário.
- *
  * @param {import("../../../service/AllocationsService").Allocation} allocation
  * @returns {Record<string, unknown>}
  */

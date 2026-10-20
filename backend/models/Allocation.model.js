@@ -3,10 +3,6 @@ import RecordNotFoundError from "../exception/RecordNotFoundError.js";
 import ScheduleConflictError from "../exception/ScheduleConflictError.js";
 import AllocationTypeInUseError from "../exception/AllocationTypeInUseError.js";
 
-/**
- * Colunas projetadas por todas as consultas de leitura, garantindo que o
- * voluntário e o tipo de alocação venham associados de forma plana.
- */
 const ALLOCATION_SELECT = sql`
   A.ID AS ID,
   A.START_AT AS START_AT,
@@ -135,10 +131,6 @@ export default class AllocationModel {
   }
 
   /**
-   * Retorna a alocação em andamento do voluntário no momento atual, isto é,
-   * aquela cujo período engloba NOW(). Alocações apenas históricas ou futuras
-   * não são retornadas.
-   *
    * @param {number} volunteerId
    * @returns {Promise<FindAllocationByIdTuple>}
    */
@@ -245,8 +237,6 @@ export default class AllocationModel {
   }
 
   /**
-   * Atualiza uma alocação existente preservando seu voluntário original.
-   *
    * @param {AllocationToEdit} allocation
    * @returns {Promise<BooleanTuple>}
    */
@@ -348,9 +338,6 @@ export default class AllocationModel {
   }
 
   /**
-   * Verifica se existe alocação do voluntário sobrepondo o período informado.
-   * Períodos adjacentes (fim igual ao início seguinte) não são considerados
-   * conflito.
    *
    * @param {import("./core/sql.js").SqlFunctor} tsql
    * @param {{volunteerId: number, start: Date, end: Date, excludeId?: number}} params
@@ -374,13 +361,6 @@ export default class AllocationModel {
   }
 
   /**
-   * Verifica se o tipo de alocação já está associado a outro voluntário. A
-   * regra é permanente (não depende do período), portanto basta existir uma
-   * alocação ativa do tipo pertencente a um voluntário diferente. Registros
-   * excluídos logicamente não são considerados. Ao editar, o próprio
-   * voluntário é ignorado, permitindo manter o tipo já pertencente ao
-   * registro sem falso conflito.
-   *
    * @param {import("./core/sql.js").SqlFunctor} tsql
    * @param {{allocationTypeId: number, volunteerId: number}} params
    * @returns {Promise<boolean>}
@@ -427,11 +407,6 @@ export default class AllocationModel {
   }
 
   /**
-   * Normaliza um instante para segundos inteiros, alinhando o valor comparado
-   * ao da coluna DATETIME (sem fração de segundos). Sem isso, períodos
-   * adjacentes poderiam ser erroneamente tratados como sobrepostos quando o
-   * valor de entrada traz milissegundos.
-   *
    * @param {Date|string|number} value
    * @returns {Date}
    */

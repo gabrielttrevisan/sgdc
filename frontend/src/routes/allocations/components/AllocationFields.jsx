@@ -15,10 +15,6 @@ const TEN_HOURS_IN_MS = 10 * 60 * 60 * 1000;
 const NOTES_MAX_LENGTH = 255;
 
 /**
- * Campos compartilhados entre criação, edição e visualização de uma alocação.
- * O voluntário é imutável após a criação (tanto na edição quanto quando o
- * formulário é aberto a partir da tela de voluntários).
- *
  * @param {Object} props
  * @param {boolean} [props.readOnly]
  */
@@ -108,8 +104,6 @@ export function AllocationFields({ readOnly = false }) {
 }
 
 /**
- * Exibe o voluntário de forma imutável, mantendo seu identificador em um campo
- * oculto para envio. Necessário na edição e ao alocar a partir de Voluntários.
  */
 function LockedVolunteerField() {
   const { resource } = useResourceFormContext();
