@@ -15,8 +15,6 @@ import AllocationsService from "../../service/AllocationsService";
 
 import "./Allocations.css";
 
-const NOTES_CLAMP_MAX = 30;
-
 /**
  * @param {string} value
  * @returns {string}
@@ -87,21 +85,6 @@ export const Allocations = WithAuthGuard(() => {
       title: "Término",
       id: "end",
       className: "allocation__col --end",
-    },
-    {
-      DataGridCell: ({ notes }) => {
-        if (!notes) return <span>--</span>;
-
-        const text =
-          notes.length > NOTES_CLAMP_MAX
-            ? notes.slice(0, NOTES_CLAMP_MAX + 1) + "..."
-            : notes;
-
-        return <span>{text}</span>;
-      },
-      title: "Observações",
-      id: "notes",
-      className: "allocation__col --notes",
     },
   ];
 
