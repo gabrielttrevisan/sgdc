@@ -1,0 +1,22 @@
+.allocation__col {
+  vertical-align: middle;
+  text-align: left;
+  color: var(--colors-foreground-black);
+  height: 3.3333rem;
+  padding: 0 0 0 1.2rem;
+
+  &.--start,
+  &.--end {
+    white-space: nowrap;
+  }
+
+  &.--actions {
+    padding: 0 1.2rem;
+  }
+}
+
+li.data-grid__item.allocation__row {
+  .allocation__col {
+    height: max-content;
+  }
+}

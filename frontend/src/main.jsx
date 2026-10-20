@@ -39,6 +39,9 @@ import { Bills } from "./routes/bills/Bills.jsx";
 import CreateBillForm from "./routes/bills/CreateBillForm.jsx";
 import CancelBillForm from "./routes/bills/CancelBillForm.jsx";
 import ShowBillForm from "./routes/bills/ShowBillForm.jsx";
+import { Allocations } from "./routes/allocations/Allocations.jsx";
+import AllocationForm from "./routes/allocations/AllocationForm.jsx";
+import AllocationDetails from "./routes/allocations/AllocationDetails.jsx";
 
 import "./index.css";
 import PayBillForm from "./routes/bills/PayBillForm.jsx";
@@ -139,6 +142,18 @@ createRoot(document.getElementById("root")).render(
               element={<VolunteerDetailsForm />}
             />
             <Route path="/voluntarios/:id" element={<EditVolunteerForm />} />
+
+            <Route path="/alocacoes" element={<Allocations />} />
+            <Route path="/alocacoes/cadastrar" element={<AllocationForm />} />
+            <Route
+              path="/alocacoes/voluntario/:volunteerId"
+              element={<AllocationForm />}
+            />
+            <Route
+              path="/alocacoes/:id/visualizar"
+              element={<AllocationDetails />}
+            />
+            <Route path="/alocacoes/:id" element={<AllocationForm />} />
 
             <Route path="/usuarios" element={<Users />} />
             <Route path="/usuarios/cadastrar" element={<CreateUsersForm />} />
