@@ -57,3 +57,4 @@ Antes de executar os arquivos SQLs, deve-se criar um banco de dados com o nome c
 8. Rode `products.sql`
 9. Rode `sala.sql`
 10. Rode `volunteers.sql`
+11. Rode `allocations.sql`
