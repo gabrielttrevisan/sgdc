@@ -13,6 +13,7 @@ import { VisuallyHidden } from "../../components/accessibility/visually-hidden/V
 import Toast from "../../components/toast/ToastStorage";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import VolunteerService from "../../service/VolunteerService";
+import AllocationsService from "../../service/AllocationsService";
 
 export const Volunteers = WithAuthGuard(() => {
   const navigate = useNavigate();
@@ -113,8 +114,21 @@ export const Volunteers = WithAuthGuard(() => {
                 <span>Alocar</span>
               </>
             ),
-            onAction: async () => {
-              Toast.warn("Funcionalidade de Alocação (RF_F) em desenvolvimento.");
+            onAction: async (_type, target) => {
+              const { data, error } = await AllocationsService.getCurrent(
+                target.id,
+              );
+
+              if (error?.message) {
+                Toast.error(error.message);
+                return;
+              }
+
+              if (data?.id) {
+                navigate(`/alocacoes/${data.id}`);
+              } else {
+                navigate(`/alocacoes/voluntario/${target.id}`);
+              }
             },
           },
           {
