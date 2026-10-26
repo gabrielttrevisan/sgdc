@@ -1,0 +1,16 @@
+.in-stock-product-rooms {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  grid-column: span 2;
+
+  .in-stock-product-room {
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--colors-primary);
+  }
+}
+
+.in-stock-product-rooms-title {
+  grid-column: span 2;
+}

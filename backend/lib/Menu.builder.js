@@ -33,8 +33,8 @@ export class MenuBuilder {
           .pushByCategory(
             {
               id: new RandID(),
-              title: "Donativos",
-              path: "/donativos",
+              title: "Donativos/Estoque",
+              path: "/produtos-em-estoque",
             },
             "product",
           )
