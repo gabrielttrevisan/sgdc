@@ -101,11 +101,7 @@ export default class InStockProductModel {
    * @param {FindAllInStockProductsFilter} filter
    * @returns {Promise<FindAllInStockProductsTuple>}
    */
-  static async findAll({
-    query,
-    page = 1,
-    perPage = 10,
-  }) {
+  static async findAll({ query, page = 1, perPage = 10 }) {
     try {
       const likeQuery = `%${query ?? ""}%`;
       const whereClause = query
@@ -288,7 +284,6 @@ export default class InStockProductModel {
                 VALUES (${stockId}, ${room.id}, ${room.count})`.run();
             }
           }
-
         }
 
         return [true, null];
@@ -337,10 +332,16 @@ export default class InStockProductModel {
 
       const roomsTotal = rooms.reduce((total, room) => total + room.count, 0);
 
-      if (rooms.length > 0 && roomsTotal > change.total) {
-        throw new RangeError(
-          "A soma das quantidades das salas não pode ser maior que o total do produto",
-        );
+      if (rooms.length > 0) {
+        if (roomsTotal > change.total) {
+          throw new RangeError(
+            "A soma das quantidades das salas não pode ser maior que o total do produto",
+          );
+        } else if (roomsTotal < change.total) {
+          throw new RangeError(
+            "A soma das quantidades das salas não pode ser menor que o total do produto",
+          );
+        }
       }
 
       return {
