@@ -45,6 +45,8 @@ import AllocationDetails from "./routes/allocations/AllocationDetails.jsx";
 
 import "./index.css";
 import PayBillForm from "./routes/bills/PayBillForm.jsx";
+import { InStockProducts } from "./routes/in-stock-products/InStockProducts.jsx";
+import { InStockProductDetails } from "./routes/in-stock-products/InStockProductDetails.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -55,7 +57,15 @@ createRoot(document.getElementById("root")).render(
           <Route ErrorBoundary={ErrorBoundary} />
 
           <Route element={<Layout />}>
-            <Route path="/donativos" element={<AuthGuard />} />
+            <Route
+              path="/produtos-em-estoque/:id/visualizar"
+              element={<InStockProductDetails />}
+            />
+            <Route
+              path="/produtos-em-estoque"
+              element={<InStockProducts />}
+            />
+
             <Route path="/arrecadacoes" element={<Arrecadacoes />} />
             <Route path="/doacoes" element={<AuthGuard />} />
 
