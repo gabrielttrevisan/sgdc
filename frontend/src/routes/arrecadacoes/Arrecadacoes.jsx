@@ -6,7 +6,7 @@ import { ShowIcon } from "../../components/icons/ShowIcon";
 
 import "./Arrecadacoes.css";
 
-const API_URL = "http://localhost:3004/arrecadacoes";
+const API_URL = import.meta.env.VITE_API_URL + "arrecadacoes";
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
@@ -29,7 +29,8 @@ export const Arrecadacoes = WithAuthGuard(function ArrecadacoesPage() {
   const [mensagemErro, setMensagemErro] = useState("");
   const [modalAberto, setModalAberto] = useState(false);
   const [arrecadacaoEmEdicao, setArrecadacaoEmEdicao] = useState(null);
-  const [arrecadacaoEmVisualizacao, setArrecadacaoEmVisualizacao] = useState(null);
+  const [arrecadacaoEmVisualizacao, setArrecadacaoEmVisualizacao] =
+    useState(null);
 
   async function carregarArrecadacoes() {
     setCarregando(true);
@@ -48,7 +49,9 @@ export const Arrecadacoes = WithAuthGuard(function ArrecadacoesPage() {
       }
 
       if (!Array.isArray(data)) {
-        throw new Error("O servidor retornou uma lista de arrecadações inválida.");
+        throw new Error(
+          "O servidor retornou uma lista de arrecadações inválida.",
+        );
       }
 
       setArrecadacoes(data);
@@ -95,7 +98,10 @@ export const Arrecadacoes = WithAuthGuard(function ArrecadacoesPage() {
         </div>
       )}
       {mensagemErro && (
-        <div className="arrecadacoes-page__notice arrecadacoes-page__notice--error" role="alert">
+        <div
+          className="arrecadacoes-page__notice arrecadacoes-page__notice--error"
+          role="alert"
+        >
           {mensagemErro}
         </div>
       )}
@@ -131,7 +137,10 @@ export const Arrecadacoes = WithAuthGuard(function ArrecadacoesPage() {
               </tr>
             ) : erro ? (
               <tr>
-                <td colSpan="5" className="arrecadacoes-page__state arrecadacoes-page__state--error">
+                <td
+                  colSpan="5"
+                  className="arrecadacoes-page__state arrecadacoes-page__state--error"
+                >
                   {erro}
                   <button type="button" onClick={carregarArrecadacoes}>
                     Tentar novamente
