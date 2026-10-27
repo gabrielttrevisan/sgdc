@@ -24,6 +24,9 @@ const EnvironmentSchema = v.object({
     v.optional(v.string(), DEFAULT_EXPIRES_IN),
     v.toNumber(),
   ),
+  EMAIL_USER: v.pipe(v.string(), v.email()),
+  EMAIL_PASS: v.pipe(v.string(), v.length(16)),
+  EMAIL_SERVICE: v.pipe(v.optional(v.string(), "gmail")),
 });
 
 export const env = v.parse(EnvironmentSchema, process.env, {
