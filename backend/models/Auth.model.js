@@ -5,6 +5,7 @@ import InactiveRoleError from "../exception/InactiveRoleError.js";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
 import bcrypt from "bcryptjs";
+import { RandID } from "../lib/RandID.js";
 
 export default class AuthModel {
   /**
@@ -52,8 +53,7 @@ export default class AuthModel {
 
       if (!isCredentialsOk) return [null, new UserCredentialMismatchError()];
 
-      if (foundUser.role_deleted_at)
-        return [null, new InactiveRoleError()];
+      if (foundUser.role_deleted_at) return [null, new InactiveRoleError()];
 
       const userData = {
         id: foundUser.id,
@@ -73,6 +73,65 @@ export default class AuthModel {
       ];
     } catch (e) {
       return [null, e];
+    }
+  }
+
+  /**
+   * @param {string} user
+   * @returns {Promise<[{email: string, token: string}, null] | [null, null] | [null, Error]>}
+   */
+  static async generateRecoveryToken(user) {
+    try {
+      const [foundUser] = await sql.query`
+        SELECT ID AS id, EMAIL AS email
+        FROM USERS
+        WHERE
+          DELETED_AT IS NULL AND
+          (EMAIL = ${user} OR CPF = ${user} OR USER_NAME = ${user})
+        LIMIT 1
+      `.run();
+
+      if (!foundUser) return [null, null];
+
+      const token = new RandID(16);
+      const result = await sql.exec`
+        UPDATE USERS
+        SET RECOVERY_TOKEN = ${token},
+            RECOVERY_TOKEN_GENERATED_AT = CURRENT_TIMESTAMP
+        WHERE ID = ${foundUser.id}
+      `.run();
+
+      if (result.affectedRows !== 1) {
+        return [null, new Error("Falha ao salvar o token de recuperação")];
+      }
+
+      return [{ email: foundUser.email, token }, null];
+    } catch (error) {
+      return [null, error];
+    }
+  }
+
+  /**
+   * @param {{cpf: string, token: string, pass: string}} recovery
+   * @returns {Promise<[boolean, null] | [null, Error]>}
+   */
+  static async resetPassword({ cpf, token, pass }) {
+    try {
+      const hashedPassword = await bcrypt.hash(pass, 10);
+      const result = await sql.exec`
+        UPDATE USERS
+        SET PASS = ${hashedPassword},
+            RECOVERY_TOKEN = NULL,
+            RECOVERY_TOKEN_GENERATED_AT = NULL
+        WHERE CPF = ${cpf}
+          AND RECOVERY_TOKEN = ${token}
+          AND RECOVERY_TOKEN_GENERATED_AT >= DATE_SUB(CURRENT_TIMESTAMP, INTERVAL 24 HOUR)
+          AND DELETED_AT IS NULL
+      `.run();
+
+      return [result.affectedRows === 1, null];
+    } catch (error) {
+      return [false, error];
     }
   }
 }

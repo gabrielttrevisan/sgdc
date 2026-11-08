@@ -21,6 +21,7 @@ import FamilyDetails from "./routes/families/FamilyDetails.jsx";
 import MeasuringUnitsForm from "./routes/measuring-units/MeasuringUnitsForm.jsx";
 import MeasuringUnitsDetails from "./routes/measuring-units/MeasuringUnitsDetails.jsx";
 import SignInForm from "./routes/auth/SignIn.jsx";
+import ResetPasswordForm from "./routes/auth/ResetPassword.jsx";
 import { AuthGuard } from "./components/auth/AuthGuard.jsx";
 import { NotFoundPage } from "./routes/not-found/NotFoundPage.jsx";
 import { Users } from "./routes/users/Users.jsx";
@@ -43,10 +44,12 @@ import { Allocations } from "./routes/allocations/Allocations.jsx";
 import AllocationForm from "./routes/allocations/AllocationForm.jsx";
 import AllocationDetails from "./routes/allocations/AllocationDetails.jsx";
 
-import "./index.css";
 import PayBillForm from "./routes/bills/PayBillForm.jsx";
 import { InStockProducts } from "./routes/in-stock-products/InStockProducts.jsx";
 import { InStockProductDetails } from "./routes/in-stock-products/InStockProductDetails.jsx";
+
+import { ToastTray } from "./components/toast/ToastTray.jsx";
+import "./index.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -54,6 +57,10 @@ createRoot(document.getElementById("root")).render(
       <BrowserRouter>
         <Routes>
           <Route path="/sign-in" element={<SignInForm />} />
+          <Route
+            path="/reset-password"
+            element={<ResetPasswordForm />}
+          />
           <Route ErrorBoundary={ErrorBoundary} />
 
           <Route element={<Layout />}>
@@ -177,6 +184,8 @@ createRoot(document.getElementById("root")).render(
           </Route>
         </Routes>
       </BrowserRouter>
+      
+      <ToastTray />
     </MatchMediaProvider>
   </StrictMode>,
 );
