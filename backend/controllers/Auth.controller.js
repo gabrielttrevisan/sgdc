@@ -70,12 +70,17 @@ export default class AuthController {
             pass: env.EMAIL_PASS,
           },
         });
+        const recoveryUrl = new URL(
+          "/reset-password",
+          env.FRONTEND_URL[0],
+        );
+        recoveryUrl.searchParams.set("token", recovery.token);
 
         await transporter.sendMail({
           from: env.EMAIL_USER,
           to: recovery.email,
           subject: "Recuperação de senha",
-          text: `Clique para recuperar sua senha: ${recovery.token}\n\nSe você não solicitou a recuperação de senha, ignore este e-mail.`,
+          text: `Acesse o link abaixo para recuperar sua senha:\n${recoveryUrl.toString()}\n\nSe você não solicitou a recuperação de senha, ignore este e-mail.`,
         });
       } catch {
         return response.internalError(

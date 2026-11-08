@@ -131,7 +131,7 @@ export default class AuthModel {
 
       return [result.affectedRows === 1, null];
     } catch (error) {
-      return [null, error];
+      return [false, error];
     }
   }
 }

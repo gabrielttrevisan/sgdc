@@ -6,8 +6,9 @@ import { FormControllerProvider } from "../../components/form/context/FormContro
 import Toast from "../../components/toast/ToastStorage";
 import AuthService from "../../service/AuthService";
 
-import "../../components/resource-form/InlineForm.css"
+import "../../components/resource-form/InlineForm.css";
 import "./SignIn.css";
+import RecoveryTokenButton from "./RecoveryTokenButton";
 
 export default function SignInForm() {
   const navigate = useNavigate();
@@ -89,6 +90,7 @@ export default function SignInForm() {
             <FormModalSubmitButton>
               <span>Entrar</span>
             </FormModalSubmitButton>
+            <RecoveryTokenButton />
           </footer>
         </Form>
       </div>

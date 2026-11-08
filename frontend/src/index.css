@@ -203,6 +203,20 @@ dialog {
     }
   }
 
+  &.--link {
+    border: 0;
+    padding: 0;
+    --bb-base-bg: none;
+    --bb-base-color: var(--colors-primary-dark);
+    cursor: pointer;
+    font: inherit;
+    text-decoration: underline;
+  }
+
+  .loading-label {
+    display: none;
+  }
+
   &.--loading {
     &::before {
       content: " ";
@@ -216,7 +230,11 @@ dialog {
       border-radius: 16px;
     }
 
-    > span,
+    .loading-label {
+      display: block;
+    }
+
+    > span:not(.loading-label),
     > svg {
       display: none;
     }
