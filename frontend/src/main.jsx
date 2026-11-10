@@ -50,6 +50,8 @@ import { InStockProductDetails } from "./routes/in-stock-products/InStockProduct
 
 import { ToastTray } from "./components/toast/ToastTray.jsx";
 import "./index.css";
+import { SelectProducts } from "./routes/products/SelectProducts.jsx";
+import AttendanceForm from "./routes/families/AttendanceForm.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -85,6 +87,7 @@ createRoot(document.getElementById("root")).render(
 
             <Route path="/produtos" element={<Products />} />
             <Route path="/produtos/cadastrar" element={<ProductForm />} />
+            <Route path="/produtos/selecionar" element={<SelectProducts />} />
             <Route
               path="/produtos/:id/visualizar"
               element={<ProductDetails />}
@@ -142,6 +145,10 @@ createRoot(document.getElementById("root")).render(
             <Route path="/beneficiarios/:id" element={<BeneficiaryForm />} />
             <Route path="/familias" element={<Families />} />
             <Route path="/familias/cadastrar" element={<FamilyForm />} />
+            <Route
+              path="/familias/atender/:id"
+              element={<AttendanceForm />}
+            />
             <Route
               path="/familias/:id/visualizar"
               element={<FamilyDetails />}

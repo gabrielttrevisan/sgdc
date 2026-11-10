@@ -2,6 +2,7 @@ import { DataGrid } from "../../components/data-grid/DataGrid";
 import { ShowIcon } from "../../components/icons/ShowIcon";
 import { EditIcon } from "../../components/icons/EditIcon";
 import { DeleteIcon } from "../../components/icons/DeleteIcon";
+import { SurveyIcon } from "../../components/icons/SurveyIcon";
 import { AtoZIconAsc } from "../../components/icons/AtoZIconAsc";
 import { useRef } from "react";
 import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
@@ -123,6 +124,22 @@ export const Families = WithAuthGuard(() => {
             onAction: async (_type, target) => {
               if (target) {
                 navigate(`/familias/${target.id}`);
+              } else {
+                Toast.error("Erro inesperado");
+              }
+            },
+          },
+          {
+            type: "session",
+            content: (
+              <>
+                <SurveyIcon />
+                <span>atender</span>
+              </>
+            ),
+            onAction: async (_type, target) => {
+              if (target) {
+                navigate(`/familias/atender/${target.id}`);
               } else {
                 Toast.error("Erro inesperado");
               }
