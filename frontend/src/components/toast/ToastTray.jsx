@@ -11,6 +11,8 @@ export const ToastTray = () => {
           className={`toast-tray__toast --${toast.type}`}
           key={toast.key}
           onClick={() => Toast.pop(toast.key)}
+          onMouseEnter={() => Toast.pause(toast.key)}
+          onMouseLeave={() => Toast.resume(toast.key)}
         >
           {toast.message}
         </div>
