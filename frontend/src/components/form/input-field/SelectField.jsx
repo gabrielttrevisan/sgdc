@@ -35,6 +35,7 @@ export const SelectField = ({
   variant = "full",
   options,
   onChange,
+  defaultValue,
   ...props
 }) => {
   return (
@@ -53,6 +54,7 @@ export const SelectField = ({
           mask,
           validate,
           required,
+          defaultValue,
         })}
         onChange={(e) => {
           const option = options.find(

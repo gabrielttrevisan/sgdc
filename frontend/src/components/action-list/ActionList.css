@@ -26,6 +26,31 @@
     --bb-base-bg: rgb(var(--colors-primary-base) / 80%);
   }
 
+  &.--select {
+    --bb-base-color: rgb(var(--colors-primary-base) / 60%);
+    --bb-base-bg: transparent;
+    border: 2px solid rgb(var(--colors-primary-base) / 60%);
+    padding: 0.4rem;
+    width: 33px;
+    height: 33px;
+
+    &:hover {
+      --bb-base-color: var(--colors-background-light);
+      --bb-base-bg: rgb(var(--colors-primary-base) / 80%);
+    }
+
+    &[aria-checked="true"] {
+      --bb-base-color: var(--colors-background-light);
+      --bb-base-bg: rgb(var(--colors-primary-base) / 60%);
+      border-color: rgb(var(--colors-primary-base) / 60%);
+
+      &:hover {
+        --bb-base-bg: rgb(var(--colors-primary-base) / 80%);
+        border-color: var(--bb-base-bg);
+      }
+    }
+  }
+
   &.--deactivate,
   &.--cancel {
     --bb-base-bg: rgb(var(--colors-status-warning-secondary) / 90%);

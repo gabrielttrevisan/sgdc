@@ -51,7 +51,11 @@ import { InStockProductDetails } from "./routes/in-stock-products/InStockProduct
 import { ToastTray } from "./components/toast/ToastTray.jsx";
 import "./index.css";
 import { SelectProducts } from "./routes/products/SelectProducts.jsx";
-import AttendanceForm from "./routes/families/AttendanceForm.jsx";
+import AttendanceForm from "./routes/attendance/AttendanceForm.jsx";
+import { Attendances } from "./routes/attendance/Attendances.jsx";
+import AttendanceDetails from "./routes/attendance/AttendanceDetails.jsx";
+import EditAttendanceForm from "./routes/attendance/EditAttendanceForm.jsx";
+import CancelAttendanceForm from "./routes/attendance/CancelAttendanceForm.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -146,8 +150,24 @@ createRoot(document.getElementById("root")).render(
             <Route path="/familias" element={<Families />} />
             <Route path="/familias/cadastrar" element={<FamilyForm />} />
             <Route
-              path="/familias/atender/:id"
+              path="/atendimentos"
+              element={<Attendances />}
+            />
+            <Route
+              path="/atendimentos/cadastrar/:id"
               element={<AttendanceForm />}
+            />
+            <Route
+              path="/atendimentos/cancelar"
+              element={<CancelAttendanceForm />}
+            />
+            <Route
+              path="/atendimentos/:id/visualizar"
+              element={<AttendanceDetails />}
+            />
+            <Route
+              path="/atendimento/:id"
+              element={<EditAttendanceForm />}
             />
             <Route
               path="/familias/:id/visualizar"

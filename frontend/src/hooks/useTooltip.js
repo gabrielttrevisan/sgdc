@@ -36,11 +36,13 @@ export function useTooltip(tooltip, options = {}) {
     if (tooltip && triggerRef.current && tooltipRef.current) {
       const open = () => {
         const buttonRect = triggerRef.current.getBoundingClientRect();
+        const leftOffset = buttonRect.left + Math.floor(buttonRect.width / 2);
 
         tooltipRef.current.showPopover();
         tooltipRef.current.style.top = buttonRect.bottom + 4 + "px";
-        tooltipRef.current.style.left =
-          buttonRect.left + Math.floor(buttonRect.width / 2) + "px";
+        tooltipRef.current.style.left = leftOffset + "px";
+
+        if (leftOffset < 0) tooltipRef.current.style.left = "16px";
 
         options.onOpen?.();
         options.onToggle?.(true);

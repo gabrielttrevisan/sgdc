@@ -29,7 +29,7 @@ export function useRegisterField(name, stateInit) {
                   ? new SelectFieldController(instance)
                   : instance;
 
-        controller.registerField(name,stateInit,controllerInterface,);
+        controller.registerField(name, stateInit, controllerInterface);
       }
     },
   };

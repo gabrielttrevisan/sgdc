@@ -16,6 +16,7 @@
  * @prop {boolean} required
  * @prop {MaskStringCallback} [mask]
  * @prop {ValidateFieldCallback} [validate]
+ * @prop {any} [defaultValue]
  */
 
 /**
@@ -150,6 +151,9 @@ class FormController extends EventTarget {
         this.validate();
       }, 300);
     });
+
+    if (fieldInit.defaultValue && newField.input.fill)
+      newField.input.fill(fieldInit.mask, fieldInit.defaultValue);
   }
 
   #emitFieldValidated({ name, valid, error, touched }) {
@@ -379,7 +383,7 @@ export default FormController;
  * @prop {*} value
  * @prop {VoidFunction} clear
  * @prop {(value: true | string) => void} setValidity
- * @prop {(callback: (mask: any, value?: any) => any) => void} [fill]
+ * @prop {(callback: (mask: any, value?: any) => any, value: any) => void} [fill]
  * @prop {() => any} getFormData
  * @prop {VoidFunction} enable
  * @prop {VoidFunction} disable

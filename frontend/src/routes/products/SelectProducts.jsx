@@ -16,12 +16,7 @@ export const SelectProducts = WithAuthGuard(function SelectProducts() {
   if (!listId || !state.from) return <></>;
 
   const handleClick = () => {
-    navigate(state.from, {
-      state: {
-        listId,
-        donor: state.donor,
-      },
-    });
+    navigate(state.from, { state: { ...state, listId } });
   };
 
   return (

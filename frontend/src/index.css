@@ -96,6 +96,10 @@ dialog {
     background-color: var(--colors-primary);
     width: fit-content;
   }
+
+  &.pill--small {
+    font-size: 0.8rem;
+  }
 }
 
 .button-close {
@@ -237,6 +241,17 @@ dialog {
     > span:not(.loading-label),
     > svg {
       display: none;
+    }
+  }
+
+  &.--danger {
+    padding: 8px;
+    --bb-base-bg: rgb(var(--colors-state-error) / 10%);
+    --bb-base-color: var(--colors-state-error-light);
+
+    &:hover:not([disabled]) {
+      --bb-base-bg: var(--colors-state-error-light);
+      --bb-base-color: var(--colors-text-white);
     }
   }
 }

@@ -22,7 +22,7 @@ import arrecadacaoRouter from "./routes/arrecadacao.route.js";
 import billsRouter from "./routes/bill.route.js";
 import inStockProductsRouter from "./routes/inStockProducts.route.js";
 import InStockProductModel from "./models/InStockProduct.model.js";
-import sessionsRouter from "./routes/sessions.route.js";
+import attendanceRouter from "./routes/attendance.route.js";
 
 const app = express();
 
@@ -48,7 +48,7 @@ protectedRoutes.use("/allocation-types", allocationTypesRouter);
 protectedRoutes.use("/allocations", allocationsRouter);
 protectedRoutes.use("/measuring-units", measuringUnitsRouter);
 protectedRoutes.use("/families", familyRouter);
-protectedRoutes.use("/sessions", sessionsRouter);
+protectedRoutes.use("/attendances", attendanceRouter);
 protectedRoutes.use("/volunteers", volunteersRouter);
 protectedRoutes.use("/donors", router);
 protectedRoutes.use("/products", productsRouter);

@@ -105,4 +105,5 @@ export default new FamiliesService();
  * @prop {int} id
  * @prop {string} name
  * @prop {FamilyParticipant[]} participants
+ * @prop {boolean} hasOpenAttendance
  */

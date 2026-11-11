@@ -118,9 +118,9 @@ export const Families = WithAuthGuard(() => {
             content: (
               <>
                 <EditIcon />
-                <span>Editar</span>
               </>
             ),
+            tooltip: "Editar Família",
             onAction: async (_type, target) => {
               if (target) {
                 navigate(`/familias/${target.id}`);
@@ -130,20 +130,21 @@ export const Families = WithAuthGuard(() => {
             },
           },
           {
-            type: "session",
+            type: "attendance",
             content: (
               <>
                 <SurveyIcon />
-                <span>atender</span>
+                <span>Atender</span>
               </>
             ),
             onAction: async (_type, target) => {
               if (target) {
-                navigate(`/familias/atender/${target.id}`);
+                navigate(`/atendimentos/cadastrar/${target.id}`);
               } else {
                 Toast.error("Erro inesperado");
               }
             },
+            shouldRender: (target) => !target.hasOpenAttendance,
           },
           {
             type: "delete",
@@ -162,7 +163,16 @@ export const Families = WithAuthGuard(() => {
                 if (data?.success) {
                   Toast.success("Família deletada com sucesso");
                   dataGridRef.current?.update();
-                } else if (error?.message) Toast.error(error.message);
+                } else if (error) {
+                  Toast.error(
+                    error.issues?.find(
+                      ({ code }) => code === "FAMILY_HAS_OPEN_ATTENDANCE",
+                    )?.description ??
+                      error.issues?.[0]?.description ??
+                      error.message ??
+                      "Não foi possível excluir a família",
+                  );
+                }
               }
             },
           },
