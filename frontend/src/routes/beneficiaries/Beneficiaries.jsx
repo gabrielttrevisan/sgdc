@@ -147,7 +147,7 @@ export const Beneficiaries = WithAuthGuard(() => {
               </>
             ),
             onAction: async (_type, target) => {
-              const confirmed = await modalRef.current?.open();
+              const confirmed = await modalRef.current?.openAsync();
 
               if (confirmed) {
                 const { data, error } = await BeneficiariesService.delete(

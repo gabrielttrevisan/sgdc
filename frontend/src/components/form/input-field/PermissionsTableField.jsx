@@ -62,6 +62,16 @@ const PERMISSION_GROUPS = [
     actions: COMMON_RESOURCE_ACTIONS,
   },
   {
+    resource: "attendance",
+    label: "Atendimentos",
+    actions: [
+      PermissionGroupAction.VIEW,
+      PermissionGroupAction.LIST,
+      PermissionGroupAction.EDIT,
+      PermissionGroupAction.DELETE,
+    ],
+  },
+  {
     resource: "measuring_unit",
     label: "Unidades de medida",
     actions: COMMON_RESOURCE_ACTIONS,

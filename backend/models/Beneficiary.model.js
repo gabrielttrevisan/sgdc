@@ -35,10 +35,10 @@ export default class BeneficiaryModel {
     try {
       const likeQuery = `%${query}%`;
       const whereClause = query
-        ? sql`WHERE DELETED_AT IS NULL AND (FULL_NAME LIKE ${likeQuery} OR NATIONAL_ID LIKE ${likeQuery})`
-        : sql`WHERE DELETED_AT IS NULL`;
+        ? sql`WHERE B.DELETED_AT IS NULL AND (B.FULL_NAME LIKE ${likeQuery} OR B.NATIONAL_ID LIKE ${likeQuery})`
+        : sql`WHERE B.DELETED_AT IS NULL`;
       const orderByColumn =
-        sortKey === "name" ? sql`FULL_NAME` : sql`HAS_OPEN_REQUEST`;
+        sortKey === "name" ? sql`B.FULL_NAME` : sql`HAS_OPEN_REQUEST`;
       const orderBySorting =
         sortKey === "name" ? sql([sortType.toUpperCase()]) : sql`DESC`;
       const orderByClause = sortKey
@@ -50,17 +50,23 @@ export default class BeneficiaryModel {
       const [data, [{ TOTAL: total }]] = await Promise.all([
         sql.query`
           SELECT
-            ID,
-            NATIONAL_ID,
-            FULL_NAME,
-            0 AS HAS_OPEN_REQUEST
-          FROM BENEFICIARIES
+            B.ID,
+            B.NATIONAL_ID,
+            B.FULL_NAME,
+            EXISTS (
+              SELECT 1
+              FROM CLIENT_ATTENDANCES CA
+              WHERE
+                CA.BENEFICIARY_ID = B.ID AND
+                CA.CANCELLED_AT IS NULL
+            ) AS HAS_OPEN_REQUEST
+          FROM BENEFICIARIES B
           ${whereClause}
           ${orderByClause}
           ${limitClause}`.run(),
         sql.query`
           SELECT COUNT(*) AS TOTAL
-          FROM BENEFICIARIES
+          FROM BENEFICIARIES B
           ${whereClause}`.run(),
       ]);
 

@@ -115,6 +115,10 @@ export class MenuBuilder {
             "family",
           )
           .pushByCategory(
+            { id: new RandID(), title: "Atendimentos", path: "/atendimentos" },
+            "attendance",
+          )
+          .pushByCategory(
             { id: new RandID(), title: "Doadores", path: "/doadores" },
             "donor",
           )

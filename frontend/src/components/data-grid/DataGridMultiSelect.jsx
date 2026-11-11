@@ -1,0 +1,337 @@
+import { useCallback, useEffect, useImperativeHandle, useState } from "react";
+import { PaginationInfo } from "../pagination-info/PaginationInfo";
+import { PaginationLinks } from "../pagination-links/PaginationLinks";
+import { SearchBox } from "../search-box/SearchBox";
+import Toast from "../toast/ToastStorage";
+import { DataGridContent } from "./grid/DataGridContent";
+import { DataGridFilterList } from "./grid/DataGridFilterList";
+import { DataGridItemList } from "./grid/DataGridItemList";
+import { DataGridEmptyMessage } from "./grid/DataGridEmptyMessage";
+import { DataGridItem } from "./grid/DataGridItem";
+import { DataGridItemProp } from "./grid/DataGridItemProp";
+import { DataGridFilter } from "./grid/DataGridFilter";
+import { IsDataGridMobileProvider } from "./context/IsDataGridMobileProvider";
+import { DataGridHeader } from "./grid/DataGridHeader";
+import { DataGridHeaderActions } from "./grid/DataGridHeaderActions";
+import { DataGridWrapper } from "./grid/DataGridWrapper";
+import DataGridMultiSelectButton from "./grid/DataGridMultiSelectButton";
+
+import "./DataGrid.css";
+
+/**
+ * @typedef {"none"|"asc"|"desc"} SortState
+ */
+
+/**
+ * @typedef {Object} SortIconProps
+ * @prop {string} [state]
+ * @prop {string} [sortKey]
+ */
+
+/**
+ * @callback SortIcon
+ * @param {SortIconProps} props
+ * @returns {import("react").JSX.Element}
+ */
+
+/**
+ * @template T
+ * @typedef {Object} DataGridColumn
+ * @prop {string} title
+ * @prop {import("react").ElementType<T>} DataGridCell
+ * @prop {string} [className]
+ * @prop {string} [headingClassName]
+ * @prop {string} id
+ * @prop {boolean} [sortable]
+ * @prop {SortIcon} [SortIcon]
+ * @prop {keyof T} [sortKey]
+ * @prop {string[]} [sortType]
+ */
+
+/**
+ * @template T
+ * @typedef {Object} DataGridRef
+ * @prop {VoidFunction} update
+ */
+/**
+ * @template T
+ * @typedef {Object} DataGridMultiSelectProps
+ * @prop {import("../../global").PaginatableService<T>} paginatableService
+ * @prop {DataGridColumn[]} columns
+ * @prop {string} [singularName]
+ * @prop {string} [pluralName]
+ * @prop {string} [title]
+ * @prop {DataGridRef<T>} [ref]
+ * @prop {string} [rowClassName]
+ * @prop {string} [actionsCellClassName]
+ * @prop {import("react").ReactNode} [children]
+ * @prop {string} [searchBoxPlaceholder]
+ * @prop {keyof T|(item: T) => string} keyProp
+ * @prop {keyof T} [sortKeyDefault]
+ * @prop {string} [sortTypeDefault]
+ * @prop {string} [breakpoint]
+ * @prop {string} [matchMedia]
+ * @prop {string} [selectLabel]
+ * @prop {string} listId
+ */
+
+/**
+ * @template T
+ * @param {DataGridMultiSelectProps<T>} props
+ * @returns {import("react").JSX.Element}
+ */
+export function DataGridMultiSelect({
+  paginatableService,
+  pluralName,
+  singularName,
+  title,
+  columns,
+  ref,
+  actionsCellClassName,
+  rowClassName = "",
+  children,
+  searchBoxPlaceholder,
+  keyProp,
+  sortKeyDefault,
+  sortTypeDefault,
+  breakpoint,
+  matchMedia,
+  listId,
+}) {
+  /** @type {[import("../../global").AsyncPageData<T>, import("react").Dispatch<import("react").SetStateAction<import("../../global").AsyncPageData<T>>>]} */
+  const [page, setPage] = useState({
+    items: [],
+    page: 1,
+    sortKey: sortKeyDefault,
+    sortType: sortTypeDefault,
+    totalPages: 1,
+    totalRecords: 0,
+    query: undefined,
+    loading: false,
+  });
+
+  const getPage = useCallback(
+    (
+      count = 1,
+      sortKey = undefined,
+      query = undefined,
+      sortType = undefined,
+      noSorting = false,
+    ) => {
+      setPage((prev) => ({ ...prev, loading: true }));
+
+      const actualSortKey = noSorting ? undefined : (sortKey ?? sortKeyDefault);
+      const actualSortType = noSorting
+        ? undefined
+        : (sortType ?? sortTypeDefault);
+
+      paginatableService
+        .list({
+          page: count,
+          sortKey: actualSortKey,
+          sortType: actualSortType,
+          query,
+        })
+        .then((response) => {
+          if (!response.data) {
+            Toast.error(response.error.message);
+
+            setPage({
+              items: [],
+              page: 1,
+              sortKey: actualSortKey,
+              sortType: actualSortType,
+              totalPages: 1,
+              totalRecords: 0,
+              query,
+              loading: false,
+            });
+
+            return;
+          }
+
+          setPage({
+            ...response.data,
+            sortKey: actualSortKey,
+            sortType: actualSortType,
+            loading: false,
+          });
+        });
+    },
+    [paginatableService],
+  );
+
+  useEffect(() => {
+    getPage(1);
+  }, []);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      update() {
+        getPage(1);
+      },
+    }),
+    [getPage],
+  );
+
+  return (
+    <IsDataGridMobileProvider breakpoint={breakpoint} matchMedia={matchMedia}>
+      <section className="data-grid">
+        <DataGridHeader>
+          <h2 className="data-grid__title" id={`data-grid-title-${pluralName}`}>
+            {title ?? pluralName}
+          </h2>
+
+          <DataGridHeaderActions>
+            <SearchBox
+              onSearch={(query) =>
+                getPage(1, page.sortKey, query, page.sortType)
+              }
+              onReset={() => getPage(1, page.sortKey, undefined, page.sortType)}
+              placeholder={
+                searchBoxPlaceholder
+                  ? searchBoxPlaceholder
+                  : `Buscar ${pluralName?.toLocaleLowerCase() ?? "registros"}...`
+              }
+              gridId={`data-grid-${pluralName}`}
+            />
+
+            {children}
+          </DataGridHeaderActions>
+        </DataGridHeader>
+
+        <DataGridWrapper>
+          <DataGridContent
+            className="data-grid__table --beneficiaries"
+            role="grid"
+            id={`data-grid-${pluralName}`}
+            aria-rowcount={page.items.length}
+            aria-labelledby={`data-grid-title-${pluralName}`}
+          >
+            <DataGridFilterList noActions>
+              {columns.map((column) => (
+                <DataGridFilter
+                  key={column.id}
+                  className={column.headingClassName}
+                  sortable={column.sortable}
+                >
+                  <span>{column.title}</span>
+
+                  {column.sortable && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (column.sortType) {
+                          if (!page.sortType) {
+                            getPage(
+                              1,
+                              column.sortKey,
+                              page.query,
+                              column.sortType[0],
+                            );
+                          } else {
+                            const index = column.sortType.findIndex(
+                              (i) => i === page.sortType,
+                            );
+
+                            if (index === column.sortType.length - 1) {
+                              getPage(
+                                1,
+                                sortKeyDefault,
+                                page.query,
+                                sortTypeDefault,
+                                page.sortKey === sortKeyDefault,
+                              );
+                            } else {
+                              getPage(
+                                1,
+                                column.sortKey,
+                                page.query,
+                                column.sortType[index + 1],
+                              );
+                            }
+                          }
+                        } else if (page.sortKey !== column.sortKey) {
+                          getPage(1, column.sortKey, page.query);
+                        } else
+                          getPage(
+                            1,
+                            sortKeyDefault,
+                            page.query,
+                            sortTypeDefault,
+                          );
+                      }}
+                    >
+                      <column.SortIcon
+                        sortKey={page.sortKey}
+                        state={page.sortType}
+                      />
+                    </button>
+                  )}
+                </DataGridFilter>
+              ))}
+            </DataGridFilterList>
+
+            <DataGridItemList>
+              {page.items.length === 0 && (
+                <DataGridEmptyMessage
+                  colSpan={1 + columns.length}
+                  className="data-grid__no-results"
+                >
+                  Nenhum resultado encontrado
+                </DataGridEmptyMessage>
+              )}
+
+              {page.items.map((item) => {
+                const key =
+                  typeof keyProp === "function" ? keyProp(item) : item[keyProp];
+
+                return (
+                  <DataGridItem key={key} className={rowClassName} role="row">
+                    <DataGridMultiSelectButton
+                      actionsCellClassName={actionsCellClassName}
+                      item={item}
+                      itemId={key}
+                      listId={listId}
+                    />
+
+                    {columns.map((column) => (
+                      <DataGridItemProp
+                        key={column.id}
+                        className={column.className}
+                        heading={column.title}
+                      >
+                        <column.DataGridCell {...item} />
+                      </DataGridItemProp>
+                    ))}
+                  </DataGridItem>
+                );
+              })}
+            </DataGridItemList>
+          </DataGridContent>
+        </DataGridWrapper>
+
+        <div className="data-grid__pagination">
+          <PaginationInfo
+            perPage={page.items.length}
+            totalRecords={page.totalRecords}
+            pluralName={pluralName}
+            singularName={singularName}
+            className="data-grid__pagination-info"
+          />
+
+          <PaginationLinks
+            currentPage={page.page}
+            onPaginate={(toPage) =>
+              getPage(toPage, page.sortKey, page.query, page.sortType)
+            }
+            totalPages={page.totalPages}
+            className="data-grid__pagination-links"
+            buttonClassName="data-grid__pagination-link"
+          />
+        </div>
+      </section>
+    </IsDataGridMobileProvider>
+  );
+}

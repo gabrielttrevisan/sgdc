@@ -54,12 +54,14 @@ type Resource =
   | "product"
   | "sala"
   | "volunteer"
+  | "attendance"
   | (string & {});
 
 type ResourceAction =
   | "list"
   | "view"
   | "create"
+  | "update"
   | "delete"
   | "restore"
   | "pay"

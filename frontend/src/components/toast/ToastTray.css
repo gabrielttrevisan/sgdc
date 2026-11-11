@@ -43,6 +43,10 @@
         toast-out;
     animation-composition: add;
 
+    &:hover {
+      animation-play-state: paused;
+    }
+
     &.--error {
       --ttt-bg: rgb(var(--colors-state-error) / 60%);
       --ttt-color: var(--colors-background-light);

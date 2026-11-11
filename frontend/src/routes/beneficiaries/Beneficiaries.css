@@ -64,9 +64,9 @@ th.--has-request {
   border-radius: 0.5rem;
   text-align: center;
   font-size: 0.8rem;
-
+  
   &.--warn {
-    background-color: var(--colors-status-warning);
+    background-color: rgb(var(--colors-status-warning) / 60%);
   }
 
   &.--none {

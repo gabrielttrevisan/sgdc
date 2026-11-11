@@ -1,7 +1,29 @@
 import ExintingFamilyParticipantsError from "../exception/ExistingFamilyParticipants.js";
 import sql, { transaction } from "./core/sql.js";
 
+export class FamilyHasOpenAttendanceError extends Error {
+  constructor() {
+    super(
+      "Não é possível editar ou excluir esta família enquanto houver um atendimento em aberto. Acesse Famílias > Atendimentos, localize e cancele o atendimento pendente; depois tente novamente. O histórico do atendimento será preservado.",
+    );
+    this.name = "FamilyHasOpenAttendanceError";
+  }
+}
+
 export default class FamilyModel {
+  static async #hasOpenAttendance(tsql, id) {
+    const attendances = await tsql.query`
+      SELECT CA.ID
+      FROM FAMILY_PARTICIPANTS FP
+        INNER JOIN CLIENT_ATTENDANCES CA
+          ON CA.BENEFICIARY_ID = FP.BEN_ID
+      WHERE FP.FAM_ID = ${id} AND CA.CANCELLED_AT IS NULL
+      LIMIT 1
+      FOR UPDATE`.run();
+
+    return attendances.length > 0;
+  }
+
   /**
    * @param {FindAllFamiliesFilter} [filter]
    * @returns {Promise<FindAllFamiliesTuple>}
@@ -34,7 +56,16 @@ export default class FamilyModel {
               SELECT
                 P.ID, P.NAME,
                 B.FULL_NAME AS BEN_NAME,
-                FP.BEN_ID, FP.IS_RESPOSIBLE
+                FP.BEN_ID, FP.IS_RESPOSIBLE,
+                EXISTS (
+                  SELECT 1
+                  FROM FAMILY_PARTICIPANTS FPA
+                    INNER JOIN CLIENT_ATTENDANCES CA
+                      ON CA.BENEFICIARY_ID = FPA.BEN_ID
+                  WHERE
+                    FPA.FAM_ID = P.ID AND
+                    CA.CANCELLED_AT IS NULL
+                ) AS HAS_OPEN_ATTENDANCE
               FROM PAGE P
                 INNER JOIN FAMILY_PARTICIPANTS FP ON FP.FAM_ID = P.ID
                 INNER JOIN BENEFICIARIES B ON FP.BEN_ID = B.ID
@@ -74,6 +105,7 @@ export default class FamilyModel {
                   name: datum.BEN_NAME,
                 },
               ],
+              hasOpenAttendance: Boolean(datum.HAS_OPEN_ATTENDANCE),
             };
           }
 
@@ -148,10 +180,20 @@ export default class FamilyModel {
   static async delete(id) {
     try {
       return await transaction(async (tsql) => {
+        const family = await tsql.query`
+          SELECT ID
+          FROM FAMILIES
+          WHERE ID = ${id} AND DELETED_AT IS NULL
+          FOR UPDATE`.run();
+
+        if (family.length === 0) return [false, null];
+        if (await this.#hasOpenAttendance(tsql, id))
+          return [false, new FamilyHasOpenAttendanceError()];
+
         const deletedFamily = await tsql.exec`
             UPDATE FAMILIES
             SET DELETED_AT = CURRENT_TIMESTAMP()
-            WHERE ID = ${id}
+            WHERE ID = ${id} AND DELETED_AT IS NULL
           `.run();
 
         if (deletedFamily.affectedRows < 1) return [false, null];
@@ -240,6 +282,17 @@ export default class FamilyModel {
   static async edit({ id, name, participants }) {
     try {
       return await transaction(async (tsql) => {
+        const existingFamily = await tsql.query`
+          SELECT ID
+          FROM FAMILIES
+          WHERE ID = ${id} AND DELETED_AT IS NULL
+          FOR UPDATE`.run();
+
+        if (existingFamily.length === 0)
+          return [false, new Error("Família não encontrada")];
+        if (await this.#hasOpenAttendance(tsql, id))
+          return [false, new FamilyHasOpenAttendanceError()];
+
         const family = await tsql.exec`
           UPDATE FAMILIES
           SET NAME = ${name}
@@ -354,6 +407,7 @@ export default class FamilyModel {
  * @prop {number} BEN_ID
  * @prop {string} BEN_NAME
  * @prop {number} IS_RESPOSIBLE
+ * @prop {number} HAS_OPEN_ATTENDANCE
  */
 
 /**
@@ -361,6 +415,7 @@ export default class FamilyModel {
  * @prop {number} id
  * @prop {string} name
  * @prop {PersistedFamilyParticipant[]} participants
+ * @prop {boolean} hasOpenAttendance
  */
 
 /**

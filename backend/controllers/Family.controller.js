@@ -1,6 +1,8 @@
 import ExintingFamilyParticipantsError from "../exception/ExistingFamilyParticipants.js";
 import APIResponse from "../lib/APIResponse.js";
-import FamilyModel from "../models/Family.model.js";
+import FamilyModel, {
+  FamilyHasOpenAttendanceError,
+} from "../models/Family.model.js";
 
 export class FamilyController {
   /**
@@ -105,6 +107,13 @@ export class FamilyController {
 
       if (isEdited) return response.success({ success: true });
       else {
+        if (error instanceof FamilyHasOpenAttendanceError) {
+          return response
+            .badRequest(error.message)
+            .withIssue("FAMILY_HAS_OPEN_ATTENDANCE", error.message)
+            .send();
+        }
+
         if (error instanceof ExintingFamilyParticipantsError) {
           return response
             .badRequest()
@@ -142,6 +151,13 @@ export class FamilyController {
     const response = APIResponse.from(res);
 
     const [isDeleted, error] = await FamilyModel.delete(req.params.id);
+
+    if (error instanceof FamilyHasOpenAttendanceError) {
+      return response
+        .badRequest(error.message)
+        .withIssue("FAMILY_HAS_OPEN_ATTENDANCE", error.message)
+        .send();
+    }
 
     if (error) {
       return response.internalError();

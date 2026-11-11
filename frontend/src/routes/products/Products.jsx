@@ -123,7 +123,7 @@ export default WithAuthGuard(function Products() {
               </>
             ),
             onAction: async (_type, target) => {
-              if (!(await deleteModalRef.current?.open())) return;
+              if (!(await deleteModalRef.current?.openAsync())) return;
 
               const response = await ProductsService.delete(target.id);
               if (response.data?.success) {
