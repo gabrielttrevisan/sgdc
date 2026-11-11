@@ -1,8 +1,36 @@
 import CachedAPIClient from "../lib/client/CachedAPIClient.js";
+import InStockProductsService from "./InStockProductsService.js";
+import AttendanceService from "./AttendanceService.js";
+import BeneficiariesService from "./BeneficiariesService.js";
+import FamiliesService from "./FamiliesService.js";
 import { Service } from "./Service.js";
 
 class DonationsService extends Service {
   #client = new CachedAPIClient();
+
+  /**
+   * @param {import("../global").PaginatedQuery} query
+   * @returns {Promise<import("../global").APIResponse<import("../global").PageData<Donation[]>>>}
+   */
+  async list({ query, ...rest } = { page: 1, perPage: 10 }) {
+    try {
+      return await this.#client.get("donations", { q: query, ...rest });
+    } catch {
+      return this.internal("Não foi possível carregar doações");
+    }
+  }
+
+  /**
+   * @param {number|string} id
+   * @returns {Promise<import("../global").APIResponse<DonationDetails>>}
+   */
+  async getById(id) {
+    try {
+      return await this.#client.get(`donations/${id}`);
+    } catch {
+      return this.internal("Não foi possível carregar a doação");
+    }
+  }
 
   /**
    * @param {number|string} beneficiaryId
@@ -22,7 +50,16 @@ class DonationsService extends Service {
    */
   async create(donation) {
     try {
-      return await this.#client.post("donations", donation);
+      const response = await this.#client.post("donations", donation);
+
+      if (response.data && !response.error) {
+        InStockProductsService.invalidate();
+        AttendanceService.invalidate();
+        BeneficiariesService.invalidate();
+        FamiliesService.invalidate();
+      }
+
+      return response;
     } catch {
       return this.internal("Falha ao registrar doação");
     }
@@ -32,9 +69,21 @@ class DonationsService extends Service {
    * @param {number|string} id
    * @returns {Promise<import("../global").APIResponse<{success:boolean}>>}
    */
-  async cancel(id) {
+  async cancel(id, details) {
     try {
-      return await this.#client.delete(`donations/${id}`);
+      const response = await this.#client.delete(`donations/${id}`, {
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ details }),
+      });
+
+      if (response.data && !response.error) {
+        InStockProductsService.invalidate();
+        AttendanceService.invalidate();
+        BeneficiariesService.invalidate();
+        FamiliesService.invalidate();
+      }
+
+      return response;
     } catch {
       return this.internal("Falha ao cancelar doação");
     }
@@ -42,6 +91,25 @@ class DonationsService extends Service {
 }
 
 export default new DonationsService();
+
+/**
+ * @typedef {object} Donation
+ * @property {number} id
+ * @property {string} details
+ * @property {string} createdAt
+ * @property {{id:number,name:string}} beneficiary
+ * @property {boolean} isCancelled
+ */
+
+/**
+ * @typedef {object} DonationDetails
+ * @property {{id:number,details:string,createdAt:string,cancelledAt:string|null,cancellationDetails:string|null}} donation
+ * @property {{id:number,name:string,family:{id:number,name:string}|null}} beneficiary
+ * @property {{id:number,name:string}} createdBy
+ * @property {{id:number,name:string}|null} cancelledBy
+ * @property {{id:number,details:string,attendedAt:string|null,attendee:{id:number,name:string}}|null} attendance
+ * @property {{product:{id:number,name:string},quantity:number}[]} items
+ */
 
 /**
  * @typedef {object} DonationBatch
@@ -56,7 +124,8 @@ export default new DonationsService();
  * @typedef {object} DonationAttendance
  * @property {number} id
  * @property {string} details
- * @property {{product:{id:number,name:string},quantity:number,stock:DonationBatch[]}[]} requestedItems
+ * @property {"OPEN"|"PARTIAL"|"CLOSED"} status
+ * @property {{product:{id:number,name:string},quantity:number,providedQuantity:number,status:"OPEN"|"PARTIAL"|"CLOSED",stock:DonationBatch[]}[]} requestedItems
  */
 
 /**

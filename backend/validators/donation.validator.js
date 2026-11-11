@@ -60,3 +60,18 @@ export const CREATE_DONATION_RULES = [
     },
   },
 ];
+
+/** @type {import("../middlewares/validator/validator.js").ValidationRule[]} */
+export const CANCEL_DONATION_RULES = [
+  {
+    property: "details",
+    validate(value) {
+      if (typeof value !== "string")
+        return "Motivo do cancelamento inválido";
+      const trimmed = value.trim();
+      return trimmed.length > 0 && trimmed.length <= 255
+        ? true
+        : "O motivo deve conter entre 1 e 255 caracteres";
+    },
+  },
+];

@@ -10,6 +10,12 @@ import AttendanceService from "../../service/AttendanceService.js";
 
 const DETAILS_MAX_LENGTH = 48;
 
+const ATTENDANCE_STATUS_LABELS = {
+  OPEN: "Em aberto",
+  PARTIAL: "Parcialmente fechada",
+  CLOSED: "Fechada",
+};
+
 export const Attendances = WithAuthGuard(function Attendances() {
   const navigate = useNavigate();
 
@@ -43,9 +49,9 @@ export const Attendances = WithAuthGuard(function Attendances() {
       className: "attendance__col --details",
     },
     {
-      DataGridCell: ({ isCancelled }) => (
-        <span className={`attendance__status --${isCancelled ? "cancelled" : "active"}`}>
-          {isCancelled ? "Cancelado" : "Ativo"}
+      DataGridCell: ({ isCancelled, status }) => (
+        <span className={`attendance__status --${isCancelled ? "cancelled" : status.toLowerCase()}`}>
+          {isCancelled ? "Cancelado" : ATTENDANCE_STATUS_LABELS[status]}
         </span>
       ),
       title: "Situação",
@@ -86,7 +92,8 @@ export const Attendances = WithAuthGuard(function Attendances() {
           ),
           onAction: (_, target) =>
             navigate(`/atendimento/${target.id}`),
-          shouldRender: (target) => !target.isCancelled,
+          shouldRender: (target) =>
+            !target.isCancelled && target.status !== "CLOSED",
         },
         {
           type: "cancel",
@@ -101,7 +108,8 @@ export const Attendances = WithAuthGuard(function Attendances() {
               `/atendimentos/cancelar?id=${encodeURIComponent(target.id)}`,
             ),
           tooltip: "Cancelar atendimento",
-          shouldRender: (target) => !target.isCancelled,
+          shouldRender: (target) =>
+            !target.isCancelled && target.status !== "CLOSED",
         },
       ]}
     >

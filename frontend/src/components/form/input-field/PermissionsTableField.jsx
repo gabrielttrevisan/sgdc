@@ -74,7 +74,12 @@ const PERMISSION_GROUPS = [
   {
     resource: "donation",
     label: "Doações",
-    actions: [PermissionGroupAction.CREATE, PermissionGroupAction.DELETE],
+    actions: [
+      PermissionGroupAction.CREATE,
+      PermissionGroupAction.DELETE,
+      PermissionGroupAction.VIEW,
+      PermissionGroupAction.LIST,
+    ],
   },
   {
     resource: "measuring_unit",

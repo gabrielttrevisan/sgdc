@@ -2,6 +2,79 @@ import sql, { transaction } from "./core/sql.js";
 
 export default class AttendanceModel {
   /**
+   * Recalculates item and attendance fulfillment status from active donations.
+   *
+   * @param {Function} tsql
+   * @param {number} id
+   */
+  static async refreshFulfillmentStatus(tsql, id) {
+    const requestRows = await tsql.query`
+      SELECT
+        CAR.PRODUCT_ID,
+        CAR.QUANTITY,
+        COALESCE(SUM(DI.QUANTITY), 0) AS PROVIDED_QUANTITY
+      FROM CLIENT_ATTENDANCE_REQUEST CAR
+        LEFT JOIN DONATIONS D
+          ON D.ATTENDANCE_ID = CAR.ATTENDANCE_ID
+          AND D.CANCELLED_AT IS NULL
+        LEFT JOIN DONATION_ITEMS DI
+          ON DI.DONATION_ID = D.ID
+          AND DI.PRODUCT_ID = CAR.PRODUCT_ID
+      WHERE CAR.ATTENDANCE_ID = ${id}
+      GROUP BY CAR.PRODUCT_ID, CAR.QUANTITY`.run();
+
+    for (const request of requestRows) {
+      const requestedQuantity = Number(request.QUANTITY);
+      const providedQuantity = Math.min(
+        requestedQuantity,
+        Number(request.PROVIDED_QUANTITY),
+      );
+      const status =
+        providedQuantity === 0
+          ? "OPEN"
+          : providedQuantity >= requestedQuantity
+            ? "CLOSED"
+            : "PARTIAL";
+
+      await tsql.exec`
+        UPDATE CLIENT_ATTENDANCE_REQUEST
+        SET PROVIDED_QUANTITY = ${providedQuantity},
+            STATUS = ${status}
+        WHERE ATTENDANCE_ID = ${id}
+          AND PRODUCT_ID = ${request.PRODUCT_ID}`.run();
+    }
+
+    const [attendanceStatus] = await tsql.query`
+      SELECT
+        COUNT(CAR.PRODUCT_ID) AS ITEM_COUNT,
+        SUM(CAR.STATUS = 'CLOSED') AS CLOSED_ITEM_COUNT,
+        EXISTS (
+          SELECT 1
+          FROM DONATIONS D
+          WHERE D.ATTENDANCE_ID = ${id}
+            AND D.CANCELLED_AT IS NULL
+        ) AS HAS_ACTIVE_DONATION
+      FROM CLIENT_ATTENDANCE_REQUEST CAR
+      WHERE CAR.ATTENDANCE_ID = ${id}`.run();
+
+    const itemCount = Number(attendanceStatus.ITEM_COUNT);
+    const closedItemCount = Number(attendanceStatus.CLOSED_ITEM_COUNT ?? 0);
+    const hasActiveDonation = Boolean(attendanceStatus.HAS_ACTIVE_DONATION);
+    const status =
+      (itemCount === 0 && hasActiveDonation) ||
+      (itemCount > 0 && closedItemCount === itemCount)
+        ? "CLOSED"
+        : hasActiveDonation
+          ? "PARTIAL"
+          : "OPEN";
+
+    await tsql.exec`
+      UPDATE CLIENT_ATTENDANCES
+      SET STATUS = ${status}
+      WHERE ID = ${id}`.run();
+  }
+
+  /**
    * @param {AttendanceToCreate} attendance
    * @returns {Promise<BooleanTuple>}
    */
@@ -34,7 +107,9 @@ export default class AttendanceModel {
           FROM FAMILY_PARTICIPANTS FP
             INNER JOIN CLIENT_ATTENDANCES CA
               ON CA.BENEFICIARY_ID = FP.BEN_ID
-          WHERE FP.FAM_ID = ${familyId} AND CA.CANCELLED_AT IS NULL
+          WHERE FP.FAM_ID = ${familyId}
+            AND CA.CANCELLED_AT IS NULL
+            AND CA.STATUS <> 'CLOSED'
           LIMIT 1`.run();
 
         if (openAttendances.length > 0)
@@ -53,12 +128,12 @@ export default class AttendanceModel {
             ",",
             ...requests.map(
               ({ productId, quantity = 1 }) =>
-                tsql`(${createdAttendance.insertId}, ${productId}, ${quantity})`,
+                tsql`(${createdAttendance.insertId}, ${productId}, ${quantity}, 0, 'OPEN')`,
             ),
           );
           const createdRequests = await tsql.exec`
             INSERT INTO client_attendance_request
-              (ATTENDANCE_ID, PRODUCT_ID, QUANTITY)
+              (ATTENDANCE_ID, PRODUCT_ID, QUANTITY, PROVIDED_QUANTITY, STATUS)
             VALUES ${requestValues}
           `.run();
 
@@ -94,6 +169,7 @@ export default class AttendanceModel {
             CA.ID,
             CA.DETAILS,
             CA.CANCELLED_AT,
+            CA.STATUS,
             B.ID AS BENEFICIARY_ID,
             B.FULL_NAME AS BENEFICIARY_NAME
           FROM CLIENT_ATTENDANCES CA
@@ -118,6 +194,7 @@ export default class AttendanceModel {
               name: row.BENEFICIARY_NAME,
             },
             isCancelled: row.CANCELLED_AT !== null,
+            status: row.STATUS,
           })),
           totalRecords: total,
           page,
@@ -143,6 +220,7 @@ export default class AttendanceModel {
           CA.ID,
           CA.DETAILS,
           CA.CANCELLED_AT,
+          CA.STATUS,
           CA.CANCELLATION_REASON,
           CA.CANCELLED_BY,
           B.ID AS BENEFICIARY_ID,
@@ -162,6 +240,8 @@ export default class AttendanceModel {
           P.ID AS PRODUCT_ID,
           P.NAME AS PRODUCT_NAME,
           CAR.QUANTITY,
+          CAR.PROVIDED_QUANTITY,
+          CAR.STATUS,
           CASE WHEN COALESCE(STOCK.TOTAL, 0) > 0 THEN 1 ELSE 0 END AS IN_STOCK
         FROM CLIENT_ATTENDANCE_REQUEST CAR
           INNER JOIN PRODUCTS P ON P.ID = CAR.PRODUCT_ID
@@ -178,6 +258,7 @@ export default class AttendanceModel {
           attendance: {
             id: row.ID,
             details: row.DETAILS,
+            status: row.STATUS,
             cancelledAt: row.CANCELLED_AT
               ? row.CANCELLED_AT.toISOString()
               : null,
@@ -194,6 +275,8 @@ export default class AttendanceModel {
           requestedItems: requestedItems.map((item) => ({
             product: { id: item.PRODUCT_ID, name: item.PRODUCT_NAME },
             quantity: item.QUANTITY,
+            providedQuantity: item.PROVIDED_QUANTITY,
+            status: item.STATUS,
             inStock: Boolean(item.IN_STOCK),
           })),
         },
@@ -213,12 +296,14 @@ export default class AttendanceModel {
     try {
       return await transaction(async (tsql) => {
         const existing = await tsql.query`
-          SELECT ID
+          SELECT ID, STATUS
           FROM CLIENT_ATTENDANCES
           WHERE ID = ${id} AND CANCELLED_AT IS NULL
           FOR UPDATE`.run();
 
         if (existing.length !== 1) return [false, null];
+        if (existing[0].STATUS === "CLOSED")
+          return [false, new ClosedAttendanceError()];
 
         if (details !== undefined) {
           await tsql.exec`
@@ -237,18 +322,20 @@ export default class AttendanceModel {
               ",",
               ...requests.map(
                 ({ productId, quantity = 1 }) =>
-                  tsql`(${id}, ${productId}, ${quantity})`,
+                  tsql`(${id}, ${productId}, ${quantity}, 0, 'OPEN')`,
               ),
             );
             const createdRequests = await tsql.exec`
               INSERT INTO CLIENT_ATTENDANCE_REQUEST
-                (ATTENDANCE_ID, PRODUCT_ID, QUANTITY)
+                (ATTENDANCE_ID, PRODUCT_ID, QUANTITY, PROVIDED_QUANTITY, STATUS)
               VALUES ${requestValues}`.run();
 
             if (createdRequests.affectedRows !== requests.length)
               return [false, new Error("Falha ao atualizar produtos solicitados")];
           }
         }
+
+        await this.refreshFulfillmentStatus(tsql, id);
 
         return [true, null];
       });
@@ -265,19 +352,39 @@ export default class AttendanceModel {
    */
   static async cancel({ id, reason }, user) {
     try {
-      const cancelled = await sql.exec`
-        UPDATE CLIENT_ATTENDANCES
-        SET
-          CANCELLED_AT = CURRENT_TIMESTAMP,
-          CANCELLED_BY = ${user.id},
-          CANCELLATION_REASON = ${reason.trim()}
-        WHERE ID = ${id} AND CANCELLED_AT IS NULL`.run();
+      return await transaction(async (tsql) => {
+        const attendances = await tsql.query`
+          SELECT ID, STATUS, CANCELLED_AT
+          FROM CLIENT_ATTENDANCES
+          WHERE ID = ${id}
+          FOR UPDATE`.run();
 
-      return [cancelled.affectedRows === 1, null];
+        if (attendances.length !== 1 || attendances[0].CANCELLED_AT)
+          return [false, null];
+        if (attendances[0].STATUS === "CLOSED")
+          return [false, new ClosedAttendanceError()];
+
+        const cancelled = await tsql.exec`
+          UPDATE CLIENT_ATTENDANCES
+          SET
+            CANCELLED_AT = CURRENT_TIMESTAMP,
+            CANCELLED_BY = ${user.id},
+            CANCELLATION_REASON = ${reason.trim()}
+          WHERE ID = ${id} AND CANCELLED_AT IS NULL`.run();
+
+        return [cancelled.affectedRows === 1, null];
+      });
     } catch (error) {
       console.error(error);
       return [false, error];
     }
+  }
+}
+
+export class ClosedAttendanceError extends Error {
+  constructor() {
+    super("Atendimentos fechados não podem ser alterados ou cancelados");
+    this.name = "ClosedAttendanceError";
   }
 }
 
@@ -332,6 +439,7 @@ export class OpenAttendanceExistsError extends Error {
  * @prop {string} details
  * @prop {{id: number, name: string}} beneficiary
  * @prop {boolean} isCancelled
+ * @prop {"OPEN"|"PARTIAL"|"CLOSED"} status
  */
 
 /**
@@ -340,5 +448,5 @@ export class OpenAttendanceExistsError extends Error {
  * @prop {{id: number, name: string}} beneficiary
  * @prop {{id: number, name: string}|null} cancelledBy
  * @prop {string|null} cancellationReason
- * @prop {{product: {id: number, name: string}, quantity: number, inStock: boolean}[]} requestedItems
+ * @prop {{product: {id: number, name: string}, quantity: number, providedQuantity: number, status: "OPEN"|"PARTIAL"|"CLOSED", inStock: boolean}[]} requestedItems
  */

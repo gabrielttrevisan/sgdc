@@ -52,7 +52,7 @@ export class MenuBuilder {
               title: "Doações",
               path: "/doacoes",
             },
-            "product",
+            "donation",
           )
           .pushByCategory(
             {

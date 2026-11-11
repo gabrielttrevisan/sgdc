@@ -20,7 +20,8 @@ import { getStateFromHistory } from "../../hooks/useStateFromHistory/index.js";
 
 function DonationFormContent() {
   const { beneficiaryId } = useParams();
-  const { state } = useLocation();
+  const location = useLocation();
+  const { state } = location;
   const navigate = useNavigate();
   const formRef = useRef(null);
   const fallbackListId = useMemo(
@@ -86,7 +87,8 @@ function DonationFormContent() {
       );
 
       for (const requestedItem of attendance?.requestedItems ?? []) {
-        let remaining = requestedItem.quantity;
+        let remaining =
+          requestedItem.quantity - requestedItem.providedQuantity;
         for (const batch of requestedItem.stock) {
           if (remaining <= 0) break;
           const quantity = Math.min(batch.count, remaining);

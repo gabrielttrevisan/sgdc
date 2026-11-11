@@ -58,6 +58,9 @@ import EditAttendanceForm from "./routes/attendance/EditAttendanceForm.jsx";
 import CancelAttendanceForm from "./routes/attendance/CancelAttendanceForm.jsx";
 import DonationForm from "./routes/donations/DonationForm.jsx";
 import { SelectInStockProducts } from "./routes/in-stock-products/SelectInStockProducts.jsx";
+import { Donations } from "./routes/donations/Donations.jsx";
+import DonationDetails from "./routes/donations/DonationDetails.jsx";
+import CancelDonationForm from "./routes/donations/CancelDonationForm.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -86,7 +89,12 @@ createRoot(document.getElementById("root")).render(
               path="/doacoes/cadastrar/:beneficiaryId"
               element={<DonationForm />}
             />
-            <Route path="/doacoes" element={<AuthGuard />} />
+            <Route path="/doacoes/cancelar" element={<CancelDonationForm />} />
+            <Route
+              path="/doacoes/:id/visualizar"
+              element={<DonationDetails />}
+            />
+            <Route path="/doacoes" element={<Donations />} />
             <Route
               path="/produtos-em-estoque/selecionar"
               element={<SelectInStockProducts />}

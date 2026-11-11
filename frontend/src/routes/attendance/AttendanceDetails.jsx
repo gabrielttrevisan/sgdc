@@ -4,6 +4,18 @@ import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import AttendanceService from "../../service/AttendanceService.js";
 import { useNavigate } from "react-router";
 
+const ATTENDANCE_STATUS_LABELS = {
+  OPEN: "Em aberto",
+  PARTIAL: "Parcialmente fechada",
+  CLOSED: "Fechada",
+};
+
+const ATTENDANCE_ITEM_STATUS_LABELS = {
+  OPEN: "Em aberto",
+  PARTIAL: "Parcialmente fornecido",
+  CLOSED: "Fornecido",
+};
+
 function AttendanceDetailsContent() {
   const { resource } = useResourceFormContext();
 
@@ -19,6 +31,12 @@ function AttendanceDetailsContent() {
         </p>
         <p>
           <strong>Detalhes:</strong> {resource.attendance.details}
+        </p>
+        <p>
+          <strong>Situação:</strong>{" "}
+          {resource.attendance.cancelledAt
+            ? "Cancelado"
+            : ATTENDANCE_STATUS_LABELS[resource.attendance.status]}
         </p>
         <p>
           <strong>Cancelado por:</strong>{" "}
@@ -38,12 +56,15 @@ function AttendanceDetailsContent() {
         <h3>Produtos solicitados</h3>
         {resource.requestedItems.length ? (
           <ul>
-            {resource.requestedItems.map(({ product, quantity, inStock }) => (
+            {resource.requestedItems.map(
+              ({ product, quantity, providedQuantity, status, inStock }) => (
               <li key={product.id}>
-                #{product.id} - {product.name} (quantidade: {quantity}) —{" "}
+                #{product.id} - {product.name} (fornecido: {providedQuantity} de{" "}
+                {quantity}; {ATTENDANCE_ITEM_STATUS_LABELS[status]}) —{" "}
                 {inStock ? "Em estoque" : "Fora de estoque"}
               </li>
-            ))}
+              ),
+            )}
           </ul>
         ) : (
           <p>Nenhum produto solicitado.</p>

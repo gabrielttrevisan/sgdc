@@ -105,6 +105,10 @@ class BeneficiariesService extends Service {
       return this.internal("Erro inesperado");
     }
   }
+
+  invalidate() {
+    this.#client.invalidate();
+  }
 }
 
 export default new BeneficiariesService();

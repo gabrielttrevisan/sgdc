@@ -1,4 +1,6 @@
 import CachedAPIClient from "../lib/client/CachedAPIClient.js";
+import BeneficiariesService from "./BeneficiariesService.js";
+import FamiliesService from "./FamiliesService.js";
 import { Service } from "./Service.js";
 
 /** @implements {import("../global").PaginatableService<Attendance>} */
@@ -35,7 +37,14 @@ class AttendanceService extends Service {
    */
   async create(attendance) {
     try {
-      return await this.#client.post("attendances", attendance);
+      const response = await this.#client.post("attendances", attendance);
+
+      if (response.data && !response.error) {
+        BeneficiariesService.invalidate();
+        FamiliesService.invalidate();
+      }
+
+      return response;
     } catch {
       return this.internal("Falha ao registrar atendimento");
     }
@@ -47,7 +56,17 @@ class AttendanceService extends Service {
    */
   async update({ id, details, requests }) {
     try {
-      return await this.#client.put(`attendances/${id}`, { details, requests });
+      const response = this.#client.put(`attendances/${id}`, {
+        details,
+        requests,
+      });
+
+      if (response.data && !response.error) {
+        BeneficiariesService.invalidate();
+        FamiliesService.invalidate();
+      }
+
+      return response;
     } catch {
       return this.internal("Falha ao atualizar atendimento");
     }
@@ -59,12 +78,23 @@ class AttendanceService extends Service {
    */
   async cancel({ id, reason }) {
     try {
-      return await this.#client.patch(`attendances/${id}/cancel`, {
+      const response = await this.#client.patch(`attendances/${id}/cancel`, {
         reason: reason.trim(),
       });
+
+      if (response.data && !response.error) {
+        BeneficiariesService.invalidate();
+        FamiliesService.invalidate();
+      }
+
+      return response;
     } catch {
       return this.internal("Falha ao cancelar atendimento");
     }
+  }
+
+  invalidate() {
+    this.#client.invalidate();
   }
 }
 
@@ -76,15 +106,16 @@ export default new AttendanceService();
  * @prop {string} details
  * @prop {{id: number, name: string}} beneficiary
  * @prop {boolean} isCancelled
+ * @prop {"OPEN"|"PARTIAL"|"CLOSED"} status
  */
 
 /**
  * @typedef {Object} AttendanceDetails
- * @prop {{id: number, details: string, cancelledAt: string|null}} attendance
+ * @prop {{id: number, details: string, status: "OPEN"|"PARTIAL"|"CLOSED", cancelledAt: string|null}} attendance
  * @prop {{id: number, name: string}} beneficiary
  * @prop {{id: number, name: string}|null} cancelledBy
  * @prop {string|null} cancellationReason
- * @prop {{product: {id: number, name: string}, quantity: number, inStock: boolean}[]} requestedItems
+ * @prop {{product: {id: number, name: string}, quantity: number, providedQuantity: number, status: "OPEN"|"PARTIAL"|"CLOSED", inStock: boolean}[]} requestedItems
  */
 
 /**

@@ -1,4 +1,5 @@
 import sql, { transaction } from "./core/sql.js";
+import AttendanceModel from "./Attendance.model.js";
 import InStockProductModel from "./InStockProduct.model.js";
 
 export class DonationValidationError extends Error {}
@@ -6,6 +7,164 @@ export class DonationNotFoundError extends Error {}
 export class InsufficientDonationStockError extends Error {}
 
 export default class DonationModel {
+  /**
+   * @param {{query?:string,page?:number,perPage?:number}} filter
+   * @returns {Promise<[object|null, Error|null]>}
+   */
+  static async findAll({ query, page = 1, perPage = 10 }) {
+    try {
+      const likeQuery = `%${query ?? ""}%`;
+      const whereClause = query
+        ? sql`WHERE B.FULL_NAME LIKE ${likeQuery}
+            OR D.DETAILS LIKE ${likeQuery}
+            OR CAST(D.ID AS CHAR) LIKE ${likeQuery}`
+        : sql.empty;
+      const limitClause = sql`LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
+      const [rows, [{ TOTAL: total }]] = await Promise.all([
+        sql.query`
+          SELECT
+            D.ID,
+            D.DETAILS,
+            D.CREATED_AT,
+            D.CANCELLED_AT,
+            B.ID AS BENEFICIARY_ID,
+            B.FULL_NAME AS BENEFICIARY_NAME
+          FROM DONATIONS D
+            INNER JOIN BENEFICIARIES B ON B.ID = D.BENEFICIARY_ID
+          ${whereClause}
+          ORDER BY D.ID DESC
+          ${limitClause}`.run(),
+        sql.query`
+          SELECT COUNT(*) AS TOTAL
+          FROM DONATIONS D
+            INNER JOIN BENEFICIARIES B ON B.ID = D.BENEFICIARY_ID
+          ${whereClause}`.run(),
+      ]);
+
+      return [
+        {
+          items: rows.map((row) => ({
+            id: row.ID,
+            details: row.DETAILS,
+            createdAt: row.CREATED_AT,
+            beneficiary: {
+              id: row.BENEFICIARY_ID,
+              name: row.BENEFICIARY_NAME,
+            },
+            isCancelled: row.CANCELLED_AT !== null,
+          })),
+          totalRecords: total,
+          page,
+          totalPages: Math.ceil(total / perPage),
+          query,
+        },
+        null,
+      ];
+    } catch (error) {
+      console.error(error);
+      return [null, error];
+    }
+  }
+
+  /**
+   * @param {number} id
+   * @returns {Promise<[object|null, Error|null]>}
+   */
+  static async findById(id) {
+    try {
+      const rows = await sql.query`
+        SELECT
+          D.ID,
+          D.DETAILS,
+          D.CREATED_AT,
+          D.CANCELLED_AT,
+          D.CANCELLATION_DETAILS,
+          B.ID AS BENEFICIARY_ID,
+          B.FULL_NAME AS BENEFICIARY_NAME,
+          F.ID AS FAMILY_ID,
+          F.NAME AS FAMILY_NAME,
+          UC.ID AS CREATED_BY_ID,
+          UC.NAME AS CREATED_BY_NAME,
+          UX.ID AS CANCELLED_BY_ID,
+          UX.NAME AS CANCELLED_BY_NAME,
+          CA.ID AS ATTENDANCE_ID,
+          CA.DETAILS AS ATTENDANCE_DETAILS,
+          CA.STATUS AS ATTENDANCE_STATUS,
+          CA.CREATED_AT AS ATTENDANCE_CREATED_AT,
+          BA.ID AS ATTENDEE_ID,
+          BA.FULL_NAME AS ATTENDEE_NAME
+        FROM DONATIONS D
+          INNER JOIN BENEFICIARIES B ON B.ID = D.BENEFICIARY_ID
+          LEFT JOIN FAMILIES F ON F.ID = D.FAMILY_ID
+          INNER JOIN USERS UC ON UC.ID = D.CREATED_BY
+          LEFT JOIN USERS UX ON UX.ID = D.CANCELLED_BY
+          LEFT JOIN CLIENT_ATTENDANCES CA ON CA.ID = D.ATTENDANCE_ID
+          LEFT JOIN BENEFICIARIES BA ON BA.ID = CA.BENEFICIARY_ID
+        WHERE D.ID = ${id}`.run();
+
+      if (rows.length === 0) return [null, null];
+
+      const row = rows[0];
+      const itemRows = await sql.query`
+        SELECT
+          P.ID AS PRODUCT_ID,
+          P.NAME AS PRODUCT_NAME,
+          SUM(DI.QUANTITY) AS QUANTITY
+        FROM DONATION_ITEMS DI
+          INNER JOIN PRODUCTS P ON P.ID = DI.PRODUCT_ID
+        WHERE DI.DONATION_ID = ${id}
+        GROUP BY P.ID, P.NAME
+        ORDER BY P.NAME`.run();
+
+      return [
+        {
+          donation: {
+            id: row.ID,
+            details: row.DETAILS,
+            createdAt: row.CREATED_AT,
+            cancelledAt: row.CANCELLED_AT,
+            cancellationDetails: row.CANCELLATION_DETAILS,
+          },
+          beneficiary: {
+            id: row.BENEFICIARY_ID,
+            name: row.BENEFICIARY_NAME,
+            family: row.FAMILY_ID
+              ? { id: row.FAMILY_ID, name: row.FAMILY_NAME }
+              : null,
+          },
+          createdBy: {
+            id: row.CREATED_BY_ID,
+            name: row.CREATED_BY_NAME,
+          },
+          cancelledBy:
+            row.CANCELLED_BY_ID && row.CANCELLED_BY_NAME
+              ? { id: row.CANCELLED_BY_ID, name: row.CANCELLED_BY_NAME }
+              : null,
+          attendance:
+            row.ATTENDANCE_ID !== null
+              ? {
+                  id: row.ATTENDANCE_ID,
+                  details: row.ATTENDANCE_DETAILS,
+                  attendedAt: row.ATTENDANCE_CREATED_AT,
+                  attendee: {
+                    id: row.ATTENDEE_ID,
+                    name: row.ATTENDEE_NAME,
+                  },
+                }
+              : null,
+          items: itemRows.map((item) => ({
+            product: { id: item.PRODUCT_ID, name: item.PRODUCT_NAME },
+            quantity: item.QUANTITY,
+          })),
+        },
+        null,
+      ];
+    } catch (error) {
+      console.error(error);
+      return [null, error];
+    }
+  }
+
   /**
    * @param {number} beneficiaryId
    * @returns {Promise<[{beneficiary: object, family: object|null, representatives: object[], attendances: object[]}|null, Error|null]>}
@@ -50,9 +209,12 @@ export default class DonationModel {
         SELECT
           CA.ID AS ATTENDANCE_ID,
           CA.DETAILS AS ATTENDANCE_DETAILS,
+          CA.STATUS AS ATTENDANCE_STATUS,
           CAR.PRODUCT_ID,
           P.NAME AS PRODUCT_NAME,
           CAR.QUANTITY AS REQUESTED_QUANTITY,
+          CAR.PROVIDED_QUANTITY,
+          CAR.STATUS AS REQUEST_STATUS,
           ISP.ID AS ISP_ID,
           ISP.COUNT AS STOCK_COUNT,
           DATE_FORMAT(DATE(ISP.EXPIRES_AT), '%Y-%m-%d') AS EXPIRES_AT
@@ -64,6 +226,7 @@ export default class DonationModel {
             ON ISP.PRODUCT_ID = CAR.PRODUCT_ID AND ISP.COUNT > 0
         WHERE CA.BENEFICIARY_ID = ${beneficiaryId}
           AND CA.CANCELLED_AT IS NULL
+          AND CA.STATUS <> 'CLOSED'
         ORDER BY CA.ID DESC, P.NAME, ISP.EXPIRES_AT, ISP.ID`.run();
 
       const attendances = new Map();
@@ -72,6 +235,7 @@ export default class DonationModel {
           attendances.set(row.ATTENDANCE_ID, {
             id: row.ATTENDANCE_ID,
             details: row.ATTENDANCE_DETAILS,
+            status: row.ATTENDANCE_STATUS,
             requestedItems: [],
           });
         }
@@ -87,6 +251,8 @@ export default class DonationModel {
           requestedItem = {
             product: { id: row.PRODUCT_ID, name: row.PRODUCT_NAME },
             quantity: row.REQUESTED_QUANTITY,
+            providedQuantity: row.PROVIDED_QUANTITY,
+            status: row.REQUEST_STATUS,
             stock: [],
           };
           attendance.requestedItems.push(requestedItem);
@@ -97,7 +263,7 @@ export default class DonationModel {
           productId: row.PRODUCT_ID,
           name: row.PRODUCT_NAME,
           expiresAt: row.EXPIRES_AT,
-          count: row.STOCK_COUNT,
+          count: Number(row.STOCK_COUNT),
         });
       }
 
@@ -181,6 +347,7 @@ export default class DonationModel {
             WHERE ID = ${attendanceId}
               AND BENEFICIARY_ID = ${beneficiaryId}
               AND CANCELLED_AT IS NULL
+              AND STATUS <> 'CLOSED'
             FOR UPDATE`.run();
 
           if (attendanceRows.length !== 1)
@@ -242,9 +409,12 @@ export default class DonationModel {
 
           for (const room of roomRows) {
             if (roomQuantity === 0) break;
+
             const quantity = Math.min(room.STORED_COUNT, roomQuantity);
+
             roomQuantity -= quantity;
-            roomChanges.push({ id: room.ROOM_ID, count: -quantity });
+
+            roomChanges.push({ id: room.ROOM_ID, count: -Number(quantity) });
             donationItems.push({
               stockId: stock.ID,
               productId: stock.PRODUCT_ID,
@@ -261,7 +431,7 @@ export default class DonationModel {
             stockId: stock.ID,
             productId: stock.PRODUCT_ID,
             expiresAt: stock.EXPIRES_AT,
-            total: -allocatedToRooms,
+            total: -Number(allocatedToRooms),
             rooms: roomChanges,
           });
 
@@ -271,7 +441,7 @@ export default class DonationModel {
               stockId: stock.ID,
               productId: stock.PRODUCT_ID,
               expiresAt: stock.EXPIRES_AT,
-              total: -unallocatedQuantity,
+              total: -Number(unallocatedQuantity),
               rooms: [],
             });
             donationItems.push({
@@ -314,6 +484,9 @@ export default class DonationModel {
         if (insertedItems.affectedRows !== donationItems.length)
           return [false, new Error("Falha ao registrar os produtos da doação")];
 
+        if (attendanceId !== undefined)
+          await AttendanceModel.refreshFulfillmentStatus(tx, attendanceId);
+
         return [true, null];
       });
     } catch (error) {
@@ -327,11 +500,11 @@ export default class DonationModel {
    * @param {number} userId
    * @returns {Promise<[boolean, Error|null]>}
    */
-  static async cancel(id, userId) {
+  static async cancel(id, userId, details) {
     try {
       return await transaction(async (tx) => {
         const donations = await tx.query`
-          SELECT ID, CANCELLED_AT
+          SELECT ID, CANCELLED_AT, ATTENDANCE_ID
           FROM DONATIONS
           WHERE ID = ${id}
           FOR UPDATE`.run();
@@ -339,7 +512,10 @@ export default class DonationModel {
         if (donations.length === 0)
           return [false, new DonationNotFoundError("Doação não encontrada")];
         if (donations[0].CANCELLED_AT)
-          return [false, new DonationValidationError("A doação já foi cancelada")];
+          return [
+            false,
+            new DonationValidationError("A doação já foi cancelada"),
+          ];
 
         const items = await tx.query`
           SELECT
@@ -377,21 +553,21 @@ export default class DonationModel {
           else
             stock.roomItems.push({
               id: item.ROOM_ID,
-              count: item.QUANTITY,
+              count: Number(item.QUANTITY),
             });
         }
 
         for (const [stockId, stock] of byStock) {
           if (stock.roomItems.length > 0) {
             const roomTotal = stock.roomItems.reduce(
-              (total, room) => total + room.count,
+              (total, room) => total + Number(room.count),
               0,
             );
             changes.push({
               stockId,
               productId: stock.productId,
               expiresAt: stock.expiresAt,
-              total: roomTotal,
+              total: Number(roomTotal),
               rooms: stock.roomItems,
             });
           }
@@ -401,7 +577,7 @@ export default class DonationModel {
               stockId,
               productId: stock.productId,
               expiresAt: stock.expiresAt,
-              total: stock.unallocatedQuantity,
+              total: Number(stock.unallocatedQuantity),
               rooms: [],
             });
           }
@@ -414,11 +590,18 @@ export default class DonationModel {
         const cancelled = await tx.exec`
           UPDATE DONATIONS
           SET CANCELLED_AT = CURRENT_TIMESTAMP,
-              CANCELLED_BY = ${userId}
+              CANCELLED_BY = ${userId},
+              CANCELLATION_DETAILS = ${details.trim()}
           WHERE ID = ${id} AND CANCELLED_AT IS NULL`.run();
 
         if (cancelled.affectedRows !== 1)
           return [false, new Error("Falha ao cancelar doação")];
+
+        if (donations[0].ATTENDANCE_ID !== null)
+          await AttendanceModel.refreshFulfillmentStatus(
+            tx,
+            donations[0].ATTENDANCE_ID,
+          );
 
         return [true, null];
       });

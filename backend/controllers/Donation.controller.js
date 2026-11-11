@@ -10,6 +10,38 @@ export default class DonationController {
    * @param {import("express").Request} req
    * @param {import("express").Response} res
    */
+  static async findAll(req, res) {
+    const response = APIResponse.from(res);
+    const { q, page, perPage } = req.query;
+    const [donations, error] = await DonationModel.findAll({
+      query: q,
+      page: page ? parseInt(page, 10) : 1,
+      perPage: perPage ? parseInt(perPage, 10) : 10,
+    });
+
+    if (error) return response.internalError();
+    return response.success(donations);
+  }
+
+  /**
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
+  static async findById(req, res) {
+    const response = APIResponse.from(res);
+    const [donation, error] = await DonationModel.findById(
+      parseInt(req.params.id, 10),
+    );
+
+    if (error) return response.internalError();
+    if (!donation) return response.notFound("Doação não encontrada");
+    return response.success(donation);
+  }
+
+  /**
+   * @param {import("express").Request} req
+   * @param {import("express").Response} res
+   */
   static async getBeneficiaryContext(req, res) {
     const response = APIResponse.from(res);
     const [context, error] = await DonationModel.getBeneficiaryContext(
@@ -55,6 +87,7 @@ export default class DonationController {
     const [cancelled, error] = await DonationModel.cancel(
       parseInt(req.params.id, 10),
       req.auth.user.id,
+      req.body.details,
     );
 
     if (error instanceof DonationNotFoundError)

@@ -47,6 +47,10 @@ class InStockProductsService extends Service {
       return this.internal("Erro ao carregar produto em estoque");
     }
   }
+
+  invalidate() {
+    this.#client.invalidate();
+  }
 }
 
 /**
