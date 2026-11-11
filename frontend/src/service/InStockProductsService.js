@@ -21,6 +21,21 @@ class InStockProductsService extends Service {
   }
 
   /**
+   * @param {import("../global").PaginatedQuery} query
+   * @returns {Promise<import("../global").APIResponse<import("../global").PageData<InStockProduct[]>>>}
+   */
+  async listBatches({ query, ...rest } = { page: 1, perPage: 10 }) {
+    try {
+      return await this.#client.get("in-stock-products/batches", {
+        q: query,
+        ...rest,
+      });
+    } catch {
+      return this.internal("Erro ao carregar produtos em estoque");
+    }
+  }
+
+  /**
    * @param {number|string} id
    * @returns {Promise<import("../global").APIResponse<InStockProductDetails>>}
    */

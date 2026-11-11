@@ -56,6 +56,8 @@ import { Attendances } from "./routes/attendance/Attendances.jsx";
 import AttendanceDetails from "./routes/attendance/AttendanceDetails.jsx";
 import EditAttendanceForm from "./routes/attendance/EditAttendanceForm.jsx";
 import CancelAttendanceForm from "./routes/attendance/CancelAttendanceForm.jsx";
+import DonationForm from "./routes/donations/DonationForm.jsx";
+import { SelectInStockProducts } from "./routes/in-stock-products/SelectInStockProducts.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -80,7 +82,15 @@ createRoot(document.getElementById("root")).render(
             />
 
             <Route path="/arrecadacoes" element={<Arrecadacoes />} />
+            <Route
+              path="/doacoes/cadastrar/:beneficiaryId"
+              element={<DonationForm />}
+            />
             <Route path="/doacoes" element={<AuthGuard />} />
+            <Route
+              path="/produtos-em-estoque/selecionar"
+              element={<SelectInStockProducts />}
+            />
 
             <Route path="/" element={<AuthGuard />} />
             <Route path="/locais-de-armazenamento" element={<Armaz />} />

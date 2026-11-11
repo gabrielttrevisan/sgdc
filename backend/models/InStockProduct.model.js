@@ -8,6 +8,7 @@ import sql, { transaction } from "./core/sql.js";
 
 /**
  * @typedef {object} StockChange
+ * @property {number} [stockId]
  * @property {number} productId
  * @property {number} total
  * @property {Date|string} expiresAt
@@ -167,6 +168,60 @@ export default class InStockProductModel {
   }
 
   /**
+   * Lista os registros individuais de estoque disponíveis para seleção.
+   *
+   * @param {FindAllInStockProductsFilter} filter
+   * @returns {Promise<FindAllInStockProductsTuple>}
+   */
+  static async findAllBatches({ query, page = 1, perPage = 10 }) {
+    try {
+      const likeQuery = `%${query ?? ""}%`;
+      const whereClause = query
+        ? sql`WHERE P.NAME LIKE ${likeQuery} AND ISP.COUNT > 0`
+        : sql`WHERE ISP.COUNT > 0`;
+      const limitClause = sql`LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
+      const [data, [{ TOTAL: total }]] = await Promise.all([
+        sql.query`
+          SELECT
+            ISP.ID,
+            P.ID AS PRODUCT_ID,
+            P.NAME,
+            DATE_FORMAT(DATE(ISP.EXPIRES_AT), '%d/%m/%Y') AS EXPIRES_AT,
+            ISP.COUNT
+          FROM IN_STOCK_PRODUCTS ISP
+            INNER JOIN PRODUCTS P ON P.ID = ISP.PRODUCT_ID
+          ${whereClause}
+          ORDER BY ISP.EXPIRES_AT ASC, P.NAME ASC, ISP.ID ASC
+          ${limitClause}`.run(),
+        sql.query`
+          SELECT COUNT(*) AS TOTAL
+          FROM IN_STOCK_PRODUCTS ISP
+            INNER JOIN PRODUCTS P ON P.ID = ISP.PRODUCT_ID
+          ${whereClause}`.run(),
+      ]);
+
+      return [
+        {
+          items: data.map((row) => ({
+            id: row.ID,
+            productId: row.PRODUCT_ID,
+            name: row.NAME,
+            expiresAt: row.EXPIRES_AT,
+            count: row.COUNT,
+          })),
+          totalRecords: total,
+          page,
+          totalPages: Math.ceil(total / perPage),
+          query,
+        },
+        null,
+      ];
+    } catch (error) {
+      return [null, error];
+    }
+  }
+
+  /**
    * Busca os dados de um registro de produto em estoque e as salas onde está
    * armazenado.
    *
@@ -227,26 +282,39 @@ export default class InStockProductModel {
    * validade. Atualiza as quantidades apenas das salas informadas.
    *
    * @param {StockChange[]} changes
+   * @param {object} [transactionSql] Transaction-bound SQL helper
    * @returns {Promise<[boolean, Error|null]>}
    */
-  static async updateStock(changes) {
+  static async updateStock(changes, transactionSql = null) {
     try {
       const validChanges = InStockProductModel.#validateChanges(changes);
 
-      return await transaction(async (tx) => {
+      const applyChanges = async (tx) => {
         for (const change of validChanges) {
-          const stockRows = await tx.query`
-            SELECT ID
-            FROM IN_STOCK_PRODUCTS
-            WHERE PRODUCT_ID = ${change.productId}
-              AND DATE(EXPIRES_AT) = ${change.expiresAt}
-            LIMIT 1
-            FOR UPDATE`.run();
+          const stockRows = change.stockId
+            ? await tx.query`
+                SELECT ID, COUNT
+                FROM IN_STOCK_PRODUCTS
+                WHERE ID = ${change.stockId}
+                  AND PRODUCT_ID = ${change.productId}
+                  AND DATE(EXPIRES_AT) = ${change.expiresAt}
+                FOR UPDATE`.run()
+            : await tx.query`
+                SELECT ID, COUNT
+                FROM IN_STOCK_PRODUCTS
+                WHERE PRODUCT_ID = ${change.productId}
+                  AND DATE(EXPIRES_AT) = ${change.expiresAt}
+                ORDER BY ID
+                LIMIT 1
+                FOR UPDATE`.run();
 
           let stockId;
 
           if (stockRows.length > 0) {
             stockId = stockRows[0].ID;
+            if (stockRows[0].COUNT + change.total < 0)
+              throw new RangeError("Estoque insuficiente");
+
             await tx.exec`
               UPDATE IN_STOCK_PRODUCTS
               SET COUNT = COUNT + ${change.total}
@@ -267,13 +335,16 @@ export default class InStockProductModel {
 
           for (const room of change.rooms) {
             const roomRows = await tx.query`
-              SELECT ID
+              SELECT ID, STORED_COUNT
               FROM ISP_IN_ROOM
               WHERE ISP_ID = ${stockId} AND ROOM_ID = ${room.id}
               LIMIT 1
               FOR UPDATE`.run();
 
             if (roomRows.length > 0) {
+              if (roomRows[0].STORED_COUNT + room.count < 0)
+                throw new RangeError("Estoque insuficiente no local");
+
               await tx.exec`
                 UPDATE ISP_IN_ROOM
                 SET STORED_COUNT = STORED_COUNT + ${room.count}
@@ -287,7 +358,11 @@ export default class InStockProductModel {
         }
 
         return [true, null];
-      });
+      };
+
+      return transactionSql
+        ? await applyChanges(transactionSql)
+        : await transaction(applyChanges);
     } catch (error) {
       return [false, error];
     }
@@ -307,6 +382,8 @@ export default class InStockProductModel {
         !change ||
         !Number.isSafeInteger(change.productId) ||
         change.productId <= 0 ||
+        (change.stockId !== undefined &&
+          (!Number.isSafeInteger(change.stockId) || change.stockId <= 0)) ||
         !Number.isSafeInteger(change.total) ||
         !Array.isArray(change.rooms)
       ) {

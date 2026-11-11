@@ -72,6 +72,11 @@ const PERMISSION_GROUPS = [
     ],
   },
   {
+    resource: "donation",
+    label: "Doações",
+    actions: [PermissionGroupAction.CREATE, PermissionGroupAction.DELETE],
+  },
+  {
     resource: "measuring_unit",
     label: "Unidades de medida",
     actions: COMMON_RESOURCE_ACTIONS,

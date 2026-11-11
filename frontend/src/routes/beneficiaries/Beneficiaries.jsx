@@ -133,10 +133,9 @@ export const Beneficiaries = WithAuthGuard(() => {
                 <span>Doar</span>
               </>
             ),
-            onAction: async () => {
-              Toast.warn("Função não implementada!");
+            onAction: (_type, target) => {
+              navigate(`/doacoes/cadastrar/${target.id}`);
             },
-            buttonProps: { disabled: true },
           },
           {
             type: "delete",

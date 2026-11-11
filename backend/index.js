@@ -23,6 +23,7 @@ import billsRouter from "./routes/bill.route.js";
 import inStockProductsRouter from "./routes/inStockProducts.route.js";
 import InStockProductModel from "./models/InStockProduct.model.js";
 import attendanceRouter from "./routes/attendance.route.js";
+import donationsRouter from "./routes/donations.route.js";
 
 const app = express();
 
@@ -49,6 +50,7 @@ protectedRoutes.use("/allocations", allocationsRouter);
 protectedRoutes.use("/measuring-units", measuringUnitsRouter);
 protectedRoutes.use("/families", familyRouter);
 protectedRoutes.use("/attendances", attendanceRouter);
+protectedRoutes.use("/donations", donationsRouter);
 protectedRoutes.use("/volunteers", volunteersRouter);
 protectedRoutes.use("/donors", router);
 protectedRoutes.use("/products", productsRouter);
