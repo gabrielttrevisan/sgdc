@@ -53,13 +53,14 @@ export default class BeneficiaryModel {
             B.ID,
             B.NATIONAL_ID,
             B.FULL_NAME,
-            CASE 
-              WHEN CA.BENEFICIARY_ID IS NULL OR CA.CANCELLED_AT IS NOT NULL THEN 0
-              ELSE 1
-            END AS HAS_OPEN_REQUEST
+            EXISTS (
+              SELECT 1
+              FROM CLIENT_ATTENDANCES CA
+              WHERE
+                CA.BENEFICIARY_ID = B.ID AND
+                CA.CANCELLED_AT IS NULL
+            ) AS HAS_OPEN_REQUEST
           FROM BENEFICIARIES B
-            LEFT JOIN CLIENT_ATTENDANCES CA
-              ON CA.BENEFICIARY_ID = B.ID
           ${whereClause}
           ${orderByClause}
           ${limitClause}`.run(),
