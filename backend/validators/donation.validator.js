@@ -16,8 +16,11 @@ export const CREATE_DONATION_RULES = [
   },
   {
     property: "responsibleId",
+    required: false,
     validate: (value) =>
-      isPositiveSafeInteger(value) ? true : "Representante inválido",
+      value === null || isPositiveSafeInteger(value)
+        ? true
+        : "Representante inválido",
   },
   {
     property: "attendanceId",

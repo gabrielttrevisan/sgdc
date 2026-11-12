@@ -65,9 +65,9 @@ export default class FamilyModel {
                     INNER JOIN CLIENT_ATTENDANCES CA
                       ON CA.BENEFICIARY_ID = FPA.BEN_ID
                   WHERE
-                    FPA.FAM_ID = P.ID AND
-                    CA.CANCELLED_AT IS NULL AND
-                    CA.STATUS <> 'CLOSED'
+                    FPA.FAM_ID = P.ID
+                    AND CA.CANCELLED_AT IS NULL
+                    AND CA.STATUS <> 'CLOSED'
                 ) AS HAS_OPEN_ATTENDANCE
               FROM PAGE P
                 INNER JOIN FAMILY_PARTICIPANTS FP ON FP.FAM_ID = P.ID

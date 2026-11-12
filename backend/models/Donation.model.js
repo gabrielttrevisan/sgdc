@@ -295,7 +295,10 @@ export default class DonationModel {
   ) {
     try {
       beneficiaryId = Number(beneficiaryId);
-      responsibleId = Number(responsibleId);
+      responsibleId =
+        responsibleId == null || responsibleId === ""
+          ? null
+          : Number(responsibleId);
       attendanceId = attendanceId == null ? undefined : Number(attendanceId);
       items = items.map(({ ispId, quantity }) => ({
         ispId: Number(ispId),
@@ -306,11 +309,11 @@ export default class DonationModel {
         const familyRows = await tx.query`
           SELECT F.ID AS FAMILY_ID
           FROM BENEFICIARIES B
-            INNER JOIN FAMILY_PARTICIPANTS FP ON FP.BEN_ID = B.ID
-            INNER JOIN FAMILIES F ON F.ID = FP.FAM_ID
+            LEFT JOIN FAMILY_PARTICIPANTS FP ON FP.BEN_ID = B.ID
+            LEFT JOIN FAMILIES F
+              ON F.ID = FP.FAM_ID AND F.DELETED_AT IS NULL
           WHERE B.ID = ${beneficiaryId}
             AND B.DELETED_AT IS NULL
-            AND F.DELETED_AT IS NULL
           ORDER BY F.ID
           LIMIT 1
           FOR UPDATE`.run();
@@ -318,27 +321,35 @@ export default class DonationModel {
         if (familyRows.length !== 1)
           return [
             false,
-            new DonationValidationError(
-              "O beneficiário precisa pertencer a uma família ativa",
-            ),
+            new DonationValidationError("Beneficiário não encontrado"),
           ];
 
-        const familyId = familyRows[0].FAMILY_ID;
-        const representativeRows = await tx.query`
-          SELECT BEN_ID
-          FROM FAMILY_PARTICIPANTS
-          WHERE FAM_ID = ${familyId}
-            AND BEN_ID = ${responsibleId}
-            AND IS_RESPOSIBLE = 1
-          FOR UPDATE`.run();
+        const familyId = familyRows[0].FAMILY_ID ?? null;
+        if (familyId) {
+          if (!Number.isSafeInteger(responsibleId) || responsibleId <= 0)
+            return [
+              false,
+              new DonationValidationError("Selecione um representante"),
+            ];
 
-        if (representativeRows.length !== 1)
-          return [
-            false,
-            new DonationValidationError(
-              "O representante não pertence à família do beneficiário",
-            ),
-          ];
+          const representativeRows = await tx.query`
+            SELECT BEN_ID
+            FROM FAMILY_PARTICIPANTS
+            WHERE FAM_ID = ${familyId}
+              AND BEN_ID = ${responsibleId}
+              AND IS_RESPOSIBLE = 1
+            FOR UPDATE`.run();
+
+          if (representativeRows.length !== 1)
+            return [
+              false,
+              new DonationValidationError(
+                "O representante não pertence à família do beneficiário",
+              ),
+            ];
+        } else {
+          responsibleId = null;
+        }
 
         if (attendanceId !== undefined) {
           const attendanceRows = await tx.query`

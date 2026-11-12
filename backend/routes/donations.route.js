@@ -40,12 +40,4 @@ donationsRouter.post(
   DonationController.create,
 );
 
-donationsRouter.delete(
-  "/:id",
-  canManageDonations.withAction("delete"),
-  identifier,
-  validateRequest.body.withRules(CANCEL_DONATION_RULES).middleware,
-  DonationController.cancel,
-);
-
 export default donationsRouter;
