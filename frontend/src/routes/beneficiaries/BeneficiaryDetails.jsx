@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router";
-import { ReadOnlyResourceForm } from "../../components/resource-form/ReadOnlyResourceForm.jsx";
-import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import BeneficiariesService from "../../service/BeneficiariesService";
 import { BeneficiaryFields } from "./components/BeneficiaryFields";
+import { ReadOnlyResourceForm } from "../../components/resource-form/read-only/ReadOnlyResourceForm.jsx";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 
 function normalizeBeneficiary(data) {
   return {

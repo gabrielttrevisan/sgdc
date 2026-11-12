@@ -139,7 +139,7 @@ export default new DonationsService();
 /**
  * @typedef {object} DonationToCreate
  * @property {number} beneficiaryId
- * @property {number} responsibleId
+ * @property {number|null} responsibleId
  * @property {number} [attendanceId]
  * @property {string} details
  * @property {{ispId:number,quantity:number}[]} items

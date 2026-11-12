@@ -2,9 +2,9 @@ import { useNavigate } from "react-router";
 import { InputField } from "../../components/form/input-field/InputField";
 import { TextAreaField } from "../../components/form/input-field/TextAreaField";
 import { PermissionsTableField } from "../../components/form/input-field/PermissionsTableField";
-import { ReadOnlyResourceForm } from "../../components/resource-form/ReadOnlyResourceForm";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import RolesService from "../../service/RolesService";
+import { ReadOnlyResourceForm } from "../../components/resource-form/read-only/ReadOnlyResourceForm.jsx";
 
 export default WithAuthGuard(function RoleDetailsForm() {
   const navigate = useNavigate();

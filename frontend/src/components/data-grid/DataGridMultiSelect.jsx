@@ -288,7 +288,12 @@ export function DataGridMultiSelect({
                   typeof keyProp === "function" ? keyProp(item) : item[keyProp];
 
                 return (
-                  <DataGridItem key={key} className={rowClassName} role="row">
+                  <DataGridItem
+                    key={key}
+                    className={rowClassName}
+                    role="row"
+                    isSelectable
+                  >
                     <DataGridMultiSelectButton
                       actionsCellClassName={actionsCellClassName}
                       item={item}

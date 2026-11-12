@@ -60,7 +60,6 @@ import DonationForm from "./routes/donations/DonationForm.jsx";
 import { SelectInStockProducts } from "./routes/in-stock-products/SelectInStockProducts.jsx";
 import { Donations } from "./routes/donations/Donations.jsx";
 import DonationDetails from "./routes/donations/DonationDetails.jsx";
-import CancelDonationForm from "./routes/donations/CancelDonationForm.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -89,7 +88,6 @@ createRoot(document.getElementById("root")).render(
               path="/doacoes/cadastrar/:beneficiaryId"
               element={<DonationForm />}
             />
-            <Route path="/doacoes/cancelar" element={<CancelDonationForm />} />
             <Route
               path="/doacoes/:id/visualizar"
               element={<DonationDetails />}

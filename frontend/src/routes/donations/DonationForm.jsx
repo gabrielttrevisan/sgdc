@@ -55,10 +55,13 @@ function DonationFormContent() {
 
   useEffect(() => {
     let active = true;
+
     DonationsService.getBeneficiaryContext(beneficiaryId).then((response) => {
       if (!active) return;
       if (!response.data) {
-        Toast.error(response.error?.message ?? "Não foi possível carregar o beneficiário");
+        Toast.error(
+          response.error?.message ?? "Não foi possível carregar o beneficiário",
+        );
         setIsLoading(false);
         return;
       }
@@ -67,9 +70,8 @@ function DonationFormContent() {
       const attendance = loadedContext.attendances[0] ?? null;
       setContext(loadedContext);
       setSelectedAttendanceId((current) =>
-        current && loadedContext.attendances.some(
-          ({ id }) => String(id) === current,
-        )
+        current &&
+        loadedContext.attendances.some(({ id }) => String(id) === current)
           ? current
           : attendance
             ? String(attendance.id)
@@ -77,9 +79,7 @@ function DonationFormContent() {
       );
       setSelectedResponsibleId((current) =>
         current &&
-        loadedContext.representatives.some(
-          ({ id }) => String(id) === current,
-        )
+        loadedContext.representatives.some(({ id }) => String(id) === current)
           ? current
           : loadedContext.representatives[0]
             ? String(loadedContext.representatives[0].id)
@@ -87,8 +87,7 @@ function DonationFormContent() {
       );
 
       for (const requestedItem of attendance?.requestedItems ?? []) {
-        let remaining =
-          requestedItem.quantity - requestedItem.providedQuantity;
+        let remaining = requestedItem.quantity - requestedItem.providedQuantity;
         for (const batch of requestedItem.stock) {
           if (remaining <= 0) break;
           const quantity = Math.min(batch.count, remaining);
@@ -154,14 +153,11 @@ function DonationFormContent() {
           ref={formRef}
           className="form-inline"
           onSubmit={async (data) => {
-            if (!context?.family) {
-              Toast.error("O beneficiário precisa pertencer a uma família ativa");
-              return false;
-            }
-
             const response = await DonationsService.create({
               beneficiaryId: Number(beneficiaryId),
-              responsibleId: Number(selectedResponsibleId),
+              responsibleId: context.family
+                ? Number(selectedResponsibleId)
+                : null,
               ...(attendance && { attendanceId: attendance.id }),
               details: data.details,
               items: list.items.map((item) => ({
@@ -217,21 +213,25 @@ function DonationFormContent() {
                 defaultValue={String(context.beneficiary.id)}
               />
 
-              <SelectField
-                name="responsibleId"
-                id="responsibleId"
-                label="Representante Familiar"
-                required
-                disabled={Boolean(attendance) || isLoading}
-                options={representativeOptions}
-                defaultValue={selectedResponsibleId}
-                onChange={(option) => setSelectedResponsibleId(option.value)}
-                validate={(value) =>
-                  value && Number.isInteger(Number(value)) && Number(value) > 0
-                    ? true
-                    : "Selecione um representante"
-                }
-              />
+              {context.family && (
+                <SelectField
+                  name="responsibleId"
+                  id="responsibleId"
+                  label="Representante Familiar"
+                  required
+                  disabled={Boolean(attendance) || isLoading}
+                  options={representativeOptions}
+                  defaultValue={selectedResponsibleId}
+                  onChange={(option) => setSelectedResponsibleId(option.value)}
+                  validate={(value) =>
+                    value &&
+                    Number.isInteger(Number(value)) &&
+                    Number(value) > 0
+                      ? true
+                      : "Selecione um representante"
+                  }
+                />
+              )}
 
               {context.attendances.length > 0 && (
                 <SelectField

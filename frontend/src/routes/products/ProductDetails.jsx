@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router";
-import { ReadOnlyResourceForm } from "../../components/resource-form/ReadOnlyResourceForm.jsx";
 import { InputField } from "../../components/form/input-field/InputField";
 import { TextAreaField } from "../../components/form/input-field/TextAreaField";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import ProductsService from "../../service/ProductsService";
+import { ReadOnlyResourceForm } from "../../components/resource-form/read-only/ReadOnlyResourceForm.jsx";
 
 export default WithAuthGuard(function ProductDetails() {
   const navigate = useNavigate();

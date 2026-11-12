@@ -1,116 +1,53 @@
 import { useNavigate } from "react-router";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
-import { ReadOnlyResourceForm } from "../../components/resource-form/ReadOnlyResourceForm.jsx";
-import { useResourceFormContext } from "../../components/resource-form/context.js";
+import { ReadOnlyResourceForm } from "../../components/resource-form/read-only/ReadOnlyResourceForm.jsx";
 import DonationsService from "../../service/DonationsService.js";
-
-function formatDateTime(value) {
-  if (!value) return "—";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? "—"
-    : date.toLocaleString("pt-BR");
-}
-
-function DonationDetailsContent() {
-  const { resource } = useResourceFormContext();
-
-  if (!resource) return null;
-
-  const { donation, beneficiary, createdBy, cancelledBy, attendance, items } =
-    resource;
-
-  return (
-    <div className="donation-details">
-      <section>
-        <h3>Doação #{donation.id}</h3>
-        <p>
-          <strong>Beneficiário:</strong> #{beneficiary.id} - {beneficiary.name}
-        </p>
-        <p>
-          <strong>Família:</strong> {beneficiary.family?.name ?? "—"}
-        </p>
-        <p>
-          <strong>Detalhes:</strong> {donation.details}
-        </p>
-        <p>
-          <strong>Criada em:</strong> {formatDateTime(donation.createdAt)}
-        </p>
-        <p>
-          <strong>Criada por:</strong> {createdBy.name} (#{createdBy.id})
-        </p>
-        <p>
-          <strong>Situação:</strong>{" "}
-          {donation.cancelledAt ? "Cancelada" : "Ativa"}
-        </p>
-        {cancelledBy && (
-          <>
-            <p>
-              <strong>Cancelada em:</strong>{" "}
-              {formatDateTime(donation.cancelledAt)}
-            </p>
-            <p>
-              <strong>Cancelada por:</strong> {cancelledBy.name} (#
-              {cancelledBy.id})
-            </p>
-            {donation.cancellationDetails && (
-              <p>
-                <strong>Motivo do cancelamento:</strong>{" "}
-                {donation.cancellationDetails}
-              </p>
-            )}
-          </>
-        )}
-      </section>
-
-      <section>
-        <h3>Produtos doados</h3>
-        {items.length > 0 ? (
-          <ul>
-            {items.map(({ product, quantity }) => (
-              <li key={product.id}>
-                #{product.id} - {product.name} (quantidade: {quantity})
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>Nenhum produto registrado.</p>
-        )}
-      </section>
-
-      <section>
-        <h3>Atendimento relacionado</h3>
-        {attendance ? (
-          <>
-            <p>
-              <strong>Atendimento:</strong> #{attendance.id}
-            </p>
-            <p>
-              <strong>Beneficiário atendido:</strong> {attendance.attendee.name}{" "}
-              (#{attendance.attendee.id})
-            </p>
-            <p>
-              <strong>Data do atendimento:</strong>{" "}
-              {formatDateTime(attendance.attendedAt)}
-            </p>
-            <p>
-              <strong>Detalhes:</strong> {attendance.details}
-            </p>
-          </>
-        ) : (
-          <p>Esta doação não está vinculada a um atendimento.</p>
-        )}
-      </section>
-    </div>
-  );
-}
+import DonationDetailsContent from "./components/donation-details-content/DonationDetailsContent.jsx";
+import formatDate from "../../lib/format/date.js";
 
 export default WithAuthGuard(function DonationDetails() {
   const navigate = useNavigate();
 
   return (
     <ReadOnlyResourceForm
-      fetchResource={(id) => DonationsService.getById(id)}
+      fetchResource={async (id) => {
+        const response = await DonationsService.getById(id);
+
+        if (response.error) return response;
+
+        const data = response.data;
+        const {
+          beneficiary,
+          donation,
+          createdBy,
+          cancelledBy,
+          items,
+          attendance,
+        } = data;
+
+        return {
+          data: {
+            ...data,
+            beneficiary: `#${beneficiary.id} - ${beneficiary.name}`,
+            familyName: beneficiary.family?.name ?? "Não Informado",
+            createdAt: formatDate(donation.createdAt),
+            details: donation.details,
+            status: donation.cancelledAt ? "Revertida" : "Realizada",
+            registry: `${createdBy.name}`,
+            cancelledBy: cancelledBy?.name,
+            cancelledAt: formatDate(donation?.cancelledAt, "Não Informado"),
+            cancellationDetails: donation?.cancellationDetails,
+            items:
+              items?.map((item) => ({
+                name: `${item.quantity} unidades de ${item.product.name}`,
+              })) ?? [],
+            attendedAt: formatDate(attendance?.attendedAt, "Não Informado"),
+            attendanceDetails: attendance?.details,
+            attendee: attendance?.attendee?.name,
+          },
+          error: null,
+        };
+      }}
       breadcrumbs={[{ id: "donations", name: "Doações" }]}
       title="Visualizar doação"
       onCancel={() => navigate("/doacoes")}

@@ -3,16 +3,10 @@ import { useNavigate } from "react-router";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden.jsx";
 import { DataGrid } from "../../components/data-grid/DataGrid.jsx";
-import { DeleteIcon } from "../../components/icons/DeleteIcon.jsx";
 import { ShowIcon } from "../../components/icons/ShowIcon.jsx";
 import DonationsService from "../../service/DonationsService.js";
-
-const DETAILS_MAX_LENGTH = 48;
-
-function formatDate(value) {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "—" : date.toLocaleDateString("pt-BR");
-}
+import formatName from "../../lib/format/name.js";
+import formatDate from "../../lib/format/date.js";
 
 export const Donations = WithAuthGuard(function Donations() {
   const navigate = useNavigate();
@@ -20,29 +14,11 @@ export const Donations = WithAuthGuard(function Donations() {
 
   const columns = [
     {
-      DataGridCell: ({ id }) => <>#{id}</>,
-      title: "ID",
-      id: "id",
-    },
-    {
       DataGridCell: ({ beneficiary }) => (
-        <span title={beneficiary.name}>
-          #{beneficiary.id} - {beneficiary.name}
-        </span>
+        <span title={beneficiary.name}>{formatName(beneficiary.name)}</span>
       ),
       title: "Beneficiário",
       id: "beneficiary",
-    },
-    {
-      DataGridCell: ({ details }) => (
-        <span title={details}>
-          {details.length > DETAILS_MAX_LENGTH
-            ? `${details.slice(0, DETAILS_MAX_LENGTH)}...`
-            : details}
-        </span>
-      ),
-      title: "Detalhes",
-      id: "details",
     },
     {
       DataGridCell: ({ createdAt }) => <span>{formatDate(createdAt)}</span>,
@@ -76,22 +52,8 @@ export const Donations = WithAuthGuard(function Donations() {
               <VisuallyHidden>Ver doação</VisuallyHidden>
             </>
           ),
-          onAction: (_, target) =>
-            navigate(`/doacoes/${target.id}/visualizar`),
+          onAction: (_, target) => navigate(`/doacoes/${target.id}/visualizar`),
           tooltip: "Visualizar doação",
-        },
-        {
-          type: "delete",
-          content: (
-            <>
-              <DeleteIcon />
-              <VisuallyHidden>Cancelar doação</VisuallyHidden>
-            </>
-          ),
-          onAction: (_, target) =>
-            navigate(`/doacoes/cancelar?id=${encodeURIComponent(target.id)}`),
-          tooltip: "Cancelar doação",
-          shouldRender: (target) => !target.isCancelled,
         },
       ]}
     />

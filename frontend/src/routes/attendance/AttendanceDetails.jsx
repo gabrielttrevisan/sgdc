@@ -1,8 +1,8 @@
-import { ReadOnlyResourceForm } from "../../components/resource-form/ReadOnlyResourceForm.jsx";
-import { useResourceFormContext } from "../../components/resource-form/context";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import AttendanceService from "../../service/AttendanceService.js";
 import { useNavigate } from "react-router";
+import { ReadOnlyResourceForm } from "../../components/resource-form/read-only/ReadOnlyResourceForm.jsx";
+import { useResourceFormContext } from "../../components/resource-form/context.js";
 
 const ATTENDANCE_STATUS_LABELS = {
   OPEN: "Em aberto",
@@ -58,11 +58,11 @@ function AttendanceDetailsContent() {
           <ul>
             {resource.requestedItems.map(
               ({ product, quantity, providedQuantity, status, inStock }) => (
-              <li key={product.id}>
-                #{product.id} - {product.name} (fornecido: {providedQuantity} de{" "}
-                {quantity}; {ATTENDANCE_ITEM_STATUS_LABELS[status]}) —{" "}
-                {inStock ? "Em estoque" : "Fora de estoque"}
-              </li>
+                <li key={product.id}>
+                  #{product.id} - {product.name} (fornecido: {providedQuantity}{" "}
+                  de {quantity}; {ATTENDANCE_ITEM_STATUS_LABELS[status]}) —{" "}
+                  {inStock ? "Em estoque" : "Fora de estoque"}
+                </li>
               ),
             )}
           </ul>
