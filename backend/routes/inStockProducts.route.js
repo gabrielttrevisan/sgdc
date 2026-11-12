@@ -7,12 +7,20 @@ import { FILTER_IN_STOCK_PRODUCT_RULES } from "../validators/inStockProduct.vali
 
 const inStockProductsRouter = Router();
 const canAccessProducts = requiresPermission.forResource("product");
+const canCreateDonations = requiresPermission.forResource("donation");
 
 inStockProductsRouter.get(
   "/",
   canAccessProducts.withAction("list"),
   pagination(FILTER_IN_STOCK_PRODUCT_RULES),
   InStockProductController.findAll,
+);
+
+inStockProductsRouter.get(
+  "/batches",
+  canCreateDonations.withAction("create"),
+  pagination(FILTER_IN_STOCK_PRODUCT_RULES),
+  InStockProductController.findAllBatches,
 );
 
 inStockProductsRouter.get(

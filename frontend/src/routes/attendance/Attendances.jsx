@@ -7,8 +7,15 @@ import { LargeCloseIcon } from "../../components/icons/LargeCloseIcon";
 import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
 import AttendanceService from "../../service/AttendanceService.js";
+import formatName from "../../lib/format/name.js";
 
 const DETAILS_MAX_LENGTH = 48;
+
+const ATTENDANCE_STATUS_LABELS = {
+  OPEN: "Em aberto",
+  PARTIAL: "Parcialmente fechada",
+  CLOSED: "Fechada",
+};
 
 export const Attendances = WithAuthGuard(function Attendances() {
   const navigate = useNavigate();
@@ -22,9 +29,7 @@ export const Attendances = WithAuthGuard(function Attendances() {
     },
     {
       DataGridCell: ({ beneficiary }) => (
-        <span title={beneficiary.name}>
-          #{beneficiary.id} - {beneficiary.name}
-        </span>
+        <span title={beneficiary.name}>{formatName(beneficiary.name)}</span>
       ),
       title: "Beneficiário",
       id: "beneficiary",
@@ -43,9 +48,11 @@ export const Attendances = WithAuthGuard(function Attendances() {
       className: "attendance__col --details",
     },
     {
-      DataGridCell: ({ isCancelled }) => (
-        <span className={`attendance__status --${isCancelled ? "cancelled" : "active"}`}>
-          {isCancelled ? "Cancelado" : "Ativo"}
+      DataGridCell: ({ isCancelled, status }) => (
+        <span
+          className={`attendance__status --${isCancelled ? "cancelled" : status.toLowerCase()}`}
+        >
+          {isCancelled ? "Cancelado" : ATTENDANCE_STATUS_LABELS[status]}
         </span>
       ),
       title: "Situação",
@@ -84,9 +91,9 @@ export const Attendances = WithAuthGuard(function Attendances() {
               <span>Editar</span>
             </>
           ),
-          onAction: (_, target) =>
-            navigate(`/atendimento/${target.id}`),
-          shouldRender: (target) => !target.isCancelled,
+          onAction: (_, target) => navigate(`/atendimento/${target.id}`),
+          shouldRender: (target) =>
+            !target.isCancelled && target.status !== "CLOSED",
         },
         {
           type: "cancel",
@@ -101,7 +108,8 @@ export const Attendances = WithAuthGuard(function Attendances() {
               `/atendimentos/cancelar?id=${encodeURIComponent(target.id)}`,
             ),
           tooltip: "Cancelar atendimento",
-          shouldRender: (target) => !target.isCancelled,
+          shouldRender: (target) =>
+            !target.isCancelled && target.status !== "CLOSED",
         },
       ]}
     >

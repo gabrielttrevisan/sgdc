@@ -1,5 +1,6 @@
 import APIResponse from "../lib/APIResponse.js";
 import AttendanceModel, {
+  ClosedAttendanceError,
   OpenAttendanceExistsError,
 } from "../models/Attendance.model.js";
 
@@ -76,6 +77,8 @@ export default class AttendanceController {
       ...req.body,
     });
 
+    if (error instanceof ClosedAttendanceError)
+      return response.badRequest(error.message).send();
     if (error) return response.internalError();
     if (!isUpdated)
       return response.badRequest("Falha ao atualizar atendimento").send();
@@ -97,6 +100,8 @@ export default class AttendanceController {
       req.auth.user,
     );
 
+    if (error instanceof ClosedAttendanceError)
+      return response.badRequest(error.message).send();
     if (error) return response.internalError();
     if (!isCancelled)
       return response.badRequest("Falha ao cancelar atendimento").send();

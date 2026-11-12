@@ -20,7 +20,6 @@
         var(--data-grid-shadow),
         0 0 5px rgba(0, 0, 0, 0.25),
         0 2px 5px rgba(0, 0, 0, 0.15);
-      width: max-content;
     }
   }
 
@@ -248,6 +247,17 @@
         &:first-child,
         &:last-child {
           border-radius: 0.3333rem;
+        }
+      }
+    }
+
+    &.data-grid__item--selectable {
+      .data-grid__item-actions {
+        margin-top: 0;
+
+        &::before {
+          display: none;
+          content: unset;
         }
       }
     }

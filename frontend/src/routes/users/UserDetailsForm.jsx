@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router";
 import { InputField } from "../../components/form/input-field/InputField.jsx";
-import { ReadOnlyResourceForm } from "../../components/resource-form/ReadOnlyResourceForm.jsx";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import UsersService from "../../service/UsersService.js";
 import { RolesSelectInput } from "./components/RolesSelectInput.jsx";
 import { UserTimeline } from "./components/UserTimeline.jsx";
+import { ReadOnlyResourceForm } from "../../components/resource-form/read-only/ReadOnlyResourceForm.jsx";
 
 export default WithAuthGuard(function UserDetailsForm() {
   const navigate = useNavigate();

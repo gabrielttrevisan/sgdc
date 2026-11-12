@@ -50,6 +50,12 @@ function EditAttendanceFormContent() {
         return;
       }
 
+      if (response.data.attendance.status === "CLOSED") {
+        Toast.error("Atendimentos fechados não podem ser alterados");
+        navigate("/atendimentos");
+        return;
+      }
+
       response.data.requestedItems.forEach(({ product, quantity }) => {
         list.append(product.id, product);
         quantities.set(product.id, quantity);

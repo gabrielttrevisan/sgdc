@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import { ResourceForm } from "../../components/resource-form/ResourceForm.jsx";
@@ -10,6 +11,43 @@ export default WithAuthGuard(function CancelAttendanceForm() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const id = searchParams.get("id");
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    if (!id) {
+      Toast.error("Atendimento inválido");
+      navigate("/atendimentos");
+      return () => {
+        active = false;
+      };
+    }
+
+    AttendanceService.getById(id).then((response) => {
+      if (!active) return;
+
+      const attendance = response.data?.attendance;
+      if (!attendance) {
+        Toast.error(response.error?.message ?? "Não foi possível carregar atendimento");
+        navigate("/atendimentos");
+      } else if (attendance.cancelledAt) {
+        Toast.error("Atendimentos cancelados não podem ser cancelados novamente");
+        navigate("/atendimentos");
+      } else if (attendance.status === "CLOSED") {
+        Toast.error("Atendimentos fechados não podem ser cancelados");
+        navigate("/atendimentos");
+      } else {
+        setIsReady(true);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, [id, navigate]);
+
+  if (!isReady) return <p>Carregando atendimento...</p>;
 
   return (
     <ResourceForm

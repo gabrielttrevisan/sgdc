@@ -58,7 +58,8 @@ export default class BeneficiaryModel {
               FROM CLIENT_ATTENDANCES CA
               WHERE
                 CA.BENEFICIARY_ID = B.ID AND
-                CA.CANCELLED_AT IS NULL
+                CA.CANCELLED_AT IS NULL AND
+                CA.STATUS <> 'CLOSED'
             ) AS HAS_OPEN_REQUEST
           FROM BENEFICIARIES B
           ${whereClause}
@@ -184,7 +185,13 @@ export default class BeneficiaryModel {
             B.*,
             C.NAME AS CITY_NAME,
             C.STATE AS STATE,
-            0 AS HAS_OPEN_REQUEST
+            EXISTS (
+              SELECT 1
+              FROM CLIENT_ATTENDANCES CA
+              WHERE CA.BENEFICIARY_ID = B.ID
+                AND CA.CANCELLED_AT IS NULL
+                AND CA.STATUS <> 'CLOSED'
+            ) AS HAS_OPEN_REQUEST
           FROM BENEFICIARIES B
             INNER JOIN CITIES C ON C.ID = B.CITY_ID
           WHERE B.ID = ${id}`.run();

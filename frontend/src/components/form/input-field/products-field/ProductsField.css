@@ -1,6 +1,10 @@
 .products-field {
   margin-top: 1.5rem;
 
+  &.products-field--readonly {
+    margin-top: 0;
+  }
+
   header,
   .products-field__list > div,
   .products-field__list-item-left {
@@ -17,21 +21,24 @@
 
   .products-field__list-item {
     padding: 8px;
+    background-color: rgb(242 242 242 / 40%);
 
     div:first-of-type {
       text-transform: capitalize;
     }
 
     &:nth-child(odd) {
-      background-color: #efefef;
+      background-color: rgb(242 242 242 / 100%);
     }
 
     &:first-child {
-      border-radius: 6px 6px 0 0;
+      border-top-left-radius: 6px;
+      border-top-right-radius: 6px;
     }
 
     &:last-child {
-      border-radius: 0 0 6px 6px;
+      border-bottom-left-radius: 6px;
+      border-bottom-right-radius: 6px;
     }
   }
 }

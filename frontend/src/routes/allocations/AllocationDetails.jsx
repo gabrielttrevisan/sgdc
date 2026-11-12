@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router";
-import { ReadOnlyResourceForm } from "../../components/resource-form/ReadOnlyResourceForm.jsx";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import AllocationsService from "../../service/AllocationsService";
 import { AllocationFields } from "./components/AllocationFields";
 import { normalizeAllocation } from "./components/allocation-normalizer";
+import { ReadOnlyResourceForm } from "../../components/resource-form/read-only/ReadOnlyResourceForm.jsx";
 
 export default WithAuthGuard(function AllocationDetails() {
   const navigate = useNavigate();

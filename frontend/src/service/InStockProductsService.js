@@ -21,6 +21,21 @@ class InStockProductsService extends Service {
   }
 
   /**
+   * @param {import("../global").PaginatedQuery} query
+   * @returns {Promise<import("../global").APIResponse<import("../global").PageData<InStockProductBatch[]>>>}
+   */
+  async listBatches({ query, ...rest } = { page: 1, perPage: 10 }) {
+    try {
+      return await this.#client.get("in-stock-products/batches", {
+        q: query,
+        ...rest,
+      });
+    } catch {
+      return this.internal("Erro ao carregar produtos em estoque");
+    }
+  }
+
+  /**
    * @param {number|string} id
    * @returns {Promise<import("../global").APIResponse<InStockProductDetails>>}
    */
@@ -32,10 +47,26 @@ class InStockProductsService extends Service {
       return this.internal("Erro ao carregar produto em estoque");
     }
   }
+
+  invalidate() {
+    this.#client.invalidate();
+  }
 }
 
 /**
  * @typedef {object} InStockProduct
+ * @property {number} productId
+ * @property {string} name
+ * @property {string} expiresAt
+ * @property {number} count
+ */
+
+/**
+ * @typedef {object} InStockProductBatch
+ * @property {string} id
+ * @property {number} ispId
+ * @property {number} roomId
+ * @property {string} roomName
  * @property {number} productId
  * @property {string} name
  * @property {string} expiresAt

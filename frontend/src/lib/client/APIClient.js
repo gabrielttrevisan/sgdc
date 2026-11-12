@@ -117,7 +117,7 @@ export default class APIClient {
 
   /**
    * @param {string} path
-   * @param {import("../../global").FetchOptions} [init]
+   * @param {import("../../global").FetchOptions & {body?: BodyInit|null}} [init]
    * @returns {Promise<import("../../global").APIResponse<any>>}
    */
   async delete(path, init) {
@@ -139,6 +139,10 @@ export default class APIClient {
   #invalidate(response) {
     if (typeof response === "object" && response && !response.error)
       this.#fetcher.invalidate();
+  }
+
+  invalidate() {
+    this.#fetcher.invalidate();
   }
 
   /**
