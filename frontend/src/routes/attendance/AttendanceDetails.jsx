@@ -2,7 +2,8 @@ import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import AttendanceService from "../../service/AttendanceService.js";
 import { useNavigate } from "react-router";
 import { ReadOnlyResourceForm } from "../../components/resource-form/read-only/ReadOnlyResourceForm.jsx";
-import { useResourceFormContext } from "../../components/resource-form/context.js";
+import AttendanceDetailsContent from "./components/attendance-details-content/AttendanceDetailsContent.jsx";
+import formatDate from "../../lib/format/date.js";
 
 const ATTENDANCE_STATUS_LABELS = {
   OPEN: "Em aberto",
@@ -16,70 +17,42 @@ const ATTENDANCE_ITEM_STATUS_LABELS = {
   CLOSED: "Fornecido",
 };
 
-function AttendanceDetailsContent() {
-  const { resource } = useResourceFormContext();
-
-  if (!resource) return null;
-
-  return (
-    <div className="attendance-details">
-      <section>
-        <h3>Atendimento #{resource.attendance.id}</h3>
-        <p>
-          <strong>Beneficiário:</strong> {resource.beneficiary.name} (#
-          {resource.beneficiary.id})
-        </p>
-        <p>
-          <strong>Detalhes:</strong> {resource.attendance.details}
-        </p>
-        <p>
-          <strong>Situação:</strong>{" "}
-          {resource.attendance.cancelledAt
-            ? "Cancelado"
-            : ATTENDANCE_STATUS_LABELS[resource.attendance.status]}
-        </p>
-        <p>
-          <strong>Cancelado por:</strong>{" "}
-          {resource.cancelledBy
-            ? `${resource.cancelledBy.name} (#${resource.cancelledBy.id})`
-            : "Não cancelado"}
-        </p>
-        {resource.cancellationReason && (
-          <p>
-            <strong>Motivo do cancelamento:</strong>{" "}
-            {resource.cancellationReason}
-          </p>
-        )}
-      </section>
-
-      <section>
-        <h3>Produtos solicitados</h3>
-        {resource.requestedItems.length ? (
-          <ul>
-            {resource.requestedItems.map(
-              ({ product, quantity, providedQuantity, status, inStock }) => (
-                <li key={product.id}>
-                  #{product.id} - {product.name} (fornecido: {providedQuantity}{" "}
-                  de {quantity}; {ATTENDANCE_ITEM_STATUS_LABELS[status]}) —{" "}
-                  {inStock ? "Em estoque" : "Fora de estoque"}
-                </li>
-              ),
-            )}
-          </ul>
-        ) : (
-          <p>Nenhum produto solicitado.</p>
-        )}
-      </section>
-    </div>
-  );
-}
-
 export default WithAuthGuard(function AttendanceDetails() {
   const navigate = useNavigate();
 
   return (
     <ReadOnlyResourceForm
-      fetchResource={(id) => AttendanceService.getById(id)}
+      fetchResource={async (id) => {
+        const response = await AttendanceService.getById(id);
+
+        if (response.error) return response;
+
+        const {
+          beneficiary,
+          attendance,
+          cancelledBy,
+          cancellationReason,
+          requestedItems,
+        } = response.data;
+
+        return {
+          data: {
+            beneficiary: beneficiary.name,
+            details: attendance.details,
+            status: attendance.cancelledAt
+              ? "Cancelado"
+              : ATTENDANCE_STATUS_LABELS[attendance.status],
+            cancelledBy: cancelledBy?.name,
+            cancelledAt: formatDate(attendance.cancelledAt, "Não Informado"),
+            cancellationReason,
+            products: requestedItems.map(
+              ({ product, quantity, providedQuantity, status, inStock }) => ({
+                name: `${product.name} (fornecidos ${providedQuantity} de ${quantity}; ${ATTENDANCE_ITEM_STATUS_LABELS[status]}); ${inStock ? "Em estoque" : "Fora de estoque"}`,
+              }),
+            ),
+          },
+        };
+      }}
       breadcrumbs={[{ id: "attendance", name: "Atendimentos" }]}
       title="Visualizar atendimento"
       onCancel={() => navigate("/atendimentos")}
