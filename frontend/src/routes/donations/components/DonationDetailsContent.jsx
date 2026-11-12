@@ -1,9 +1,9 @@
-import { InputField } from "../../../../components/form/input-field/InputField";
-import { TextAreaField } from "../../../../components/form/input-field/TextAreaField";
-import { useResourceFormContext } from "../../../../components/resource-form/context";
+import { InputField } from "../../../components/form/input-field/InputField";
+import { TextAreaField } from "../../../components/form/input-field/TextAreaField";
+import { useResourceFormContext } from "../../../components/resource-form/context";
 import { useEffect, useRef } from "react";
-import ProductsFieldReadOnly from "../../../../components/form/input-field/products-field/ProductsFieldReadOnly";
-import ReadOnlyResourceFormSection from "../../../../components/resource-form/read-only/ReadOnlyResourceFormSection";
+import ProductsFieldReadOnly from "../../../components/form/input-field/products-field/ProductsFieldReadOnly";
+import ReadOnlyResourceFormSection from "../../../components/resource-form/read-only/ReadOnlyResourceFormSection";
 
 export default function DonationDetailsContent() {
   const { resource } = useResourceFormContext();

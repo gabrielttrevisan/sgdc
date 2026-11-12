@@ -113,7 +113,10 @@ export default new DonationsService();
 
 /**
  * @typedef {object} DonationBatch
- * @property {number} id
+ * @property {string} id
+ * @property {number} ispId
+ * @property {number} roomId
+ * @property {string} roomName
  * @property {number} productId
  * @property {string} name
  * @property {string} expiresAt
@@ -142,5 +145,5 @@ export default new DonationsService();
  * @property {number|null} responsibleId
  * @property {number} [attendanceId]
  * @property {string} details
- * @property {{ispId:number,quantity:number}[]} items
+ * @property {{ispId:number,roomId:number,quantity:number}[]} items
  */

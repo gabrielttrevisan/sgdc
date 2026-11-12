@@ -46,17 +46,22 @@ export const CREATE_DONATION_RULES = [
       if (!Array.isArray(value) || value.length === 0)
         return "Selecione ao menos um produto";
 
-      const ispIds = new Set();
+      const stockLocations = new Set();
       for (const item of value) {
+        const stockLocation =
+          item && typeof item === "object"
+            ? `${Number(item.ispId)}:${Number(item.roomId)}`
+            : "";
         if (
           !item ||
           typeof item !== "object" ||
           !isPositiveSafeInteger(item.ispId) ||
+          !isPositiveSafeInteger(item.roomId) ||
           !isPositiveSafeInteger(item.quantity) ||
-          ispIds.has(Number(item.ispId))
+          stockLocations.has(stockLocation)
         )
           return "Produtos da doação inválidos";
-        ispIds.add(Number(item.ispId));
+        stockLocations.add(stockLocation);
       }
 
       return true;

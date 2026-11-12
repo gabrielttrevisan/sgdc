@@ -2,8 +2,8 @@ import { useNavigate } from "react-router";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import { ReadOnlyResourceForm } from "../../components/resource-form/read-only/ReadOnlyResourceForm.jsx";
 import DonationsService from "../../service/DonationsService.js";
-import DonationDetailsContent from "./components/donation-details-content/DonationDetailsContent.jsx";
 import formatDate from "../../lib/format/date.js";
+import DonationDetailsContent from "./components/DonationDetailsContent.jsx";
 
 export default WithAuthGuard(function DonationDetails() {
   const navigate = useNavigate();

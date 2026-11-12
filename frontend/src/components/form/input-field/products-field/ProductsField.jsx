@@ -18,6 +18,7 @@ import "./ProductsField.css";
  * @prop {import("react").ReactNode} [label]
  * @prop {import("react").ReactNode} [buttonLabel]
  * @prop {import("react").ComponentType} [ExtraFields]
+ * @prop {import("react").ComponentType} [ProductLabel]
  */
 
 /**
@@ -30,6 +31,7 @@ export default function ProductsField({
   listId,
   ExtraFields,
   onAddProduct,
+  ProductLabel,
 }) {
   const { items, remove } = useListStorage(listId);
 
@@ -61,10 +63,14 @@ export default function ProductsField({
       </header>
 
       <div className="products-field__list">
-        {items.length ?
+        {items.length ? (
           items.map((item) => (
             <div className="products-field__list-item" key={item.id}>
-              <div>{item.name}</div>
+              {ProductLabel ? (
+                <ProductLabel {...item} />
+              ) : (
+                <div>{item.name}</div>
+              )}
 
               <div className="products-field__list-item-left">
                 {ExtraFields && <ExtraFields {...item} />}
@@ -78,7 +84,10 @@ export default function ProductsField({
                 </button>
               </div>
             </div>
-          )) : <>Nenhum produto selecionado</>}
+          ))
+        ) : (
+          <>Nenhum produto selecionado</>
+        )}
       </div>
     </div>
   );

@@ -216,18 +216,23 @@ export default class DonationModel {
           CAR.PROVIDED_QUANTITY,
           CAR.STATUS AS REQUEST_STATUS,
           ISP.ID AS ISP_ID,
-          ISP.COUNT AS STOCK_COUNT,
-          DATE_FORMAT(DATE(ISP.EXPIRES_AT), '%Y-%m-%d') AS EXPIRES_AT
+          DATE_FORMAT(DATE(ISP.EXPIRES_AT), '%Y-%m-%d') AS EXPIRES_AT,
+          IR.ROOM_ID,
+          S.NOME AS ROOM_NAME,
+          IR.STORED_COUNT AS ROOM_COUNT
         FROM CLIENT_ATTENDANCES CA
           LEFT JOIN CLIENT_ATTENDANCE_REQUEST CAR
             ON CAR.ATTENDANCE_ID = CA.ID
           LEFT JOIN PRODUCTS P ON P.ID = CAR.PRODUCT_ID
           LEFT JOIN IN_STOCK_PRODUCTS ISP
             ON ISP.PRODUCT_ID = CAR.PRODUCT_ID AND ISP.COUNT > 0
+          LEFT JOIN ISP_IN_ROOM IR
+            ON IR.ISP_ID = ISP.ID AND IR.STORED_COUNT > 0
+          LEFT JOIN SALAS S ON S.ID = IR.ROOM_ID
         WHERE CA.BENEFICIARY_ID = ${beneficiaryId}
           AND CA.CANCELLED_AT IS NULL
           AND CA.STATUS <> 'CLOSED'
-        ORDER BY CA.ID DESC, P.NAME, ISP.EXPIRES_AT, ISP.ID`.run();
+        ORDER BY CA.ID DESC, P.NAME, ISP.EXPIRES_AT, ISP.ID, S.NOME`.run();
 
       const attendances = new Map();
       for (const row of attendanceRows) {
@@ -240,7 +245,7 @@ export default class DonationModel {
           });
         }
 
-        if (!row.PRODUCT_ID || !row.ISP_ID) continue;
+        if (!row.PRODUCT_ID) continue;
 
         const attendance = attendances.get(row.ATTENDANCE_ID);
         let requestedItem = attendance.requestedItems.find(
@@ -258,13 +263,26 @@ export default class DonationModel {
           attendance.requestedItems.push(requestedItem);
         }
 
-        requestedItem.stock.push({
-          id: row.ISP_ID,
-          productId: row.PRODUCT_ID,
-          name: row.PRODUCT_NAME,
-          expiresAt: row.EXPIRES_AT,
-          count: Number(row.STOCK_COUNT),
-        });
+        if (!row.ISP_ID || !row.ROOM_ID) continue;
+
+        const stockItemId = `${row.ISP_ID}:${row.ROOM_ID}`;
+        let stockItem = requestedItem.stock.find(
+          (batch) => batch.id === stockItemId,
+        );
+        if (!stockItem) {
+          stockItem = {
+            id: stockItemId,
+            ispId: row.ISP_ID,
+            roomId: row.ROOM_ID,
+            roomName: row.ROOM_NAME,
+            productId: row.PRODUCT_ID,
+            name: row.PRODUCT_NAME,
+            expiresAt: row.EXPIRES_AT,
+            count: 0,
+          };
+          requestedItem.stock.push(stockItem);
+        }
+        stockItem.count += Number(row.ROOM_COUNT);
       }
 
       return [
@@ -285,7 +303,7 @@ export default class DonationModel {
   }
 
   /**
-   * @param {{beneficiaryId:number, responsibleId:number, attendanceId?:number, details:string, items:{ispId:number,quantity:number}[]}} donation
+   * @param {{beneficiaryId:number, responsibleId:number, attendanceId?:number, details:string, items:{ispId:number,roomId:number,quantity:number}[]}} donation
    * @param {number} userId
    * @returns {Promise<[boolean, Error|null]>}
    */
@@ -300,8 +318,9 @@ export default class DonationModel {
           ? null
           : Number(responsibleId);
       attendanceId = attendanceId == null ? undefined : Number(attendanceId);
-      items = items.map(({ ispId, quantity }) => ({
+      items = items.map(({ ispId, roomId, quantity }) => ({
         ispId: Number(ispId),
+        roomId: Number(roomId),
         quantity: Number(quantity),
       }));
 
@@ -370,7 +389,7 @@ export default class DonationModel {
             ];
         }
 
-        const ispIds = items.map(({ ispId }) => ispId);
+        const ispIds = [...new Set(items.map(({ ispId }) => ispId))];
         const stockRows = await tx.query`
           SELECT
             ID,
@@ -383,7 +402,7 @@ export default class DonationModel {
           FOR UPDATE`.run();
         const stockById = new Map(stockRows.map((row) => [row.ID, row]));
 
-        if (stockById.size !== items.length) {
+        if (stockById.size !== ispIds.length) {
           return [
             false,
             new DonationValidationError(
@@ -392,76 +411,76 @@ export default class DonationModel {
           ];
         }
 
-        const changes = [];
-        const donationItems = [];
-
+        const quantityByStock = new Map();
         for (const item of items) {
-          const stock = stockById.get(item.ispId);
-          if (stock.COUNT < item.quantity)
+          quantityByStock.set(
+            item.ispId,
+            (quantityByStock.get(item.ispId) ?? 0) + item.quantity,
+          );
+        }
+        for (const [stockId, quantity] of quantityByStock) {
+          if (Number(stockById.get(stockId).COUNT) < quantity)
             return [
               false,
               new InsufficientDonationStockError(
                 "Estoque insuficiente para um ou mais produtos",
               ),
             ];
+        }
+
+        const changes = [];
+        const donationItems = [];
+
+        for (const item of items) {
+          const stock = stockById.get(item.ispId);
+
+          if (!Number.isSafeInteger(item.roomId) || item.roomId <= 0)
+            return [
+              false,
+              new DonationValidationError("Selecione uma sala para cada produto"),
+            ];
 
           const roomRows = await tx.query`
             SELECT ID, ROOM_ID, STORED_COUNT
             FROM ISP_IN_ROOM
-            WHERE ISP_ID = ${stock.ID} AND STORED_COUNT > 0
-            ORDER BY ID
+            WHERE ISP_ID = ${stock.ID}
+              AND ROOM_ID = ${item.roomId}
+              AND STORED_COUNT > 0
             FOR UPDATE`.run();
+          if (roomRows.length === 0)
+            return [
+              false,
+              new DonationValidationError(
+                "A sala selecionada não possui este produto em estoque",
+              ),
+            ];
 
-          let roomQuantity = Math.min(
-            item.quantity,
-            roomRows.reduce((total, room) => total + room.STORED_COUNT, 0),
-          );
-          const roomChanges = [];
-
-          for (const room of roomRows) {
-            if (roomQuantity === 0) break;
-
-            const quantity = Math.min(room.STORED_COUNT, roomQuantity);
-
-            roomQuantity -= quantity;
-
-            roomChanges.push({ id: room.ROOM_ID, count: -Number(quantity) });
-            donationItems.push({
-              stockId: stock.ID,
-              productId: stock.PRODUCT_ID,
-              quantity,
-              roomId: room.ROOM_ID,
-            });
-          }
-
-          const allocatedToRooms = roomChanges.reduce(
-            (total, room) => total - room.count,
+          const room = roomRows[0];
+          const roomCount = roomRows.reduce(
+            (total, row) => total + Number(row.STORED_COUNT),
             0,
           );
+          if (roomCount < item.quantity)
+            return [
+              false,
+              new InsufficientDonationStockError(
+                "Estoque insuficiente na sala selecionada",
+              ),
+            ];
+
           changes.push({
             stockId: stock.ID,
             productId: stock.PRODUCT_ID,
             expiresAt: stock.EXPIRES_AT,
-            total: -Number(allocatedToRooms),
-            rooms: roomChanges,
+            total: -item.quantity,
+            rooms: [{ id: room.ROOM_ID, count: -item.quantity }],
           });
-
-          const unallocatedQuantity = item.quantity - allocatedToRooms;
-          if (unallocatedQuantity > 0) {
-            changes.push({
-              stockId: stock.ID,
-              productId: stock.PRODUCT_ID,
-              expiresAt: stock.EXPIRES_AT,
-              total: -Number(unallocatedQuantity),
-              rooms: [],
-            });
-            donationItems.push({
-              stockId: stock.ID,
-              productId: stock.PRODUCT_ID,
-              quantity: unallocatedQuantity,
-              roomId: null,
-            });
-          }
+          donationItems.push({
+            stockId: stock.ID,
+            productId: stock.PRODUCT_ID,
+            quantity: item.quantity,
+            roomId: room.ROOM_ID,
+          });
         }
 
         const [stockUpdated, stockError] =

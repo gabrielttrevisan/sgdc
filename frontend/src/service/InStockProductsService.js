@@ -22,7 +22,7 @@ class InStockProductsService extends Service {
 
   /**
    * @param {import("../global").PaginatedQuery} query
-   * @returns {Promise<import("../global").APIResponse<import("../global").PageData<InStockProduct[]>>>}
+   * @returns {Promise<import("../global").APIResponse<import("../global").PageData<InStockProductBatch[]>>>}
    */
   async listBatches({ query, ...rest } = { page: 1, perPage: 10 }) {
     try {
@@ -55,6 +55,18 @@ class InStockProductsService extends Service {
 
 /**
  * @typedef {object} InStockProduct
+ * @property {number} productId
+ * @property {string} name
+ * @property {string} expiresAt
+ * @property {number} count
+ */
+
+/**
+ * @typedef {object} InStockProductBatch
+ * @property {string} id
+ * @property {number} ispId
+ * @property {number} roomId
+ * @property {string} roomName
  * @property {number} productId
  * @property {string} name
  * @property {string} expiresAt

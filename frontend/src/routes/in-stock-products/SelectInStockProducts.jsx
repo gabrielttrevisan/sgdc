@@ -54,6 +54,11 @@ export const SelectInStockProducts = WithAuthGuard(function SelectInStockProduct
           title: "Disponível",
           id: "count",
         },
+        {
+          DataGridCell: ({ roomName }) => <span>{roomName}</span>,
+          title: "Sala",
+          id: "roomName",
+        },
       ]}
       paginatableService={InStockBatchesService}
       singularName="lote"
@@ -68,7 +73,7 @@ export const SelectInStockProducts = WithAuthGuard(function SelectInStockProduct
       <button
         type="button"
         onClick={() => navigate(state.from, { state: { ...state, listId } })}
-        className="button-block --solid"
+        className="button-block --solid --primary"
       >
         <AddLargeIcon />
         <span>Selecionar</span>
