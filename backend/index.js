@@ -24,6 +24,7 @@ import inStockProductsRouter from "./routes/inStockProducts.route.js";
 import InStockProductModel from "./models/InStockProduct.model.js";
 import attendanceRouter from "./routes/attendance.route.js";
 import donationsRouter from "./routes/donations.route.js";
+import discardsRouter from "./routes/discards.route.js";
 
 const app = express();
 
@@ -51,6 +52,7 @@ protectedRoutes.use("/measuring-units", measuringUnitsRouter);
 protectedRoutes.use("/families", familyRouter);
 protectedRoutes.use("/attendances", attendanceRouter);
 protectedRoutes.use("/donations", donationsRouter);
+protectedRoutes.use("/discards", discardsRouter);
 protectedRoutes.use("/volunteers", volunteersRouter);
 protectedRoutes.use("/donors", router);
 protectedRoutes.use("/products", productsRouter);

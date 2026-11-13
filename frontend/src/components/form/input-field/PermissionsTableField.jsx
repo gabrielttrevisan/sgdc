@@ -82,6 +82,15 @@ const PERMISSION_GROUPS = [
     ],
   },
   {
+    resource: "discard",
+    label: "Descartes",
+    actions: [
+      PermissionGroupAction.CREATE,
+      PermissionGroupAction.VIEW,
+      PermissionGroupAction.LIST,
+    ],
+  },
+  {
     resource: "measuring_unit",
     label: "Unidades de medida",
     actions: COMMON_RESOURCE_ACTIONS,

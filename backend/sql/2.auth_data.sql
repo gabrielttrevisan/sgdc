@@ -11,6 +11,7 @@ VALUES
             'city', JSON_ARRAY('create', 'edit', 'delete', 'list'),
             'donor', JSON_ARRAY('create', 'edit', 'delete', 'view', 'list'),
             'product', JSON_ARRAY('create', 'edit', 'delete', 'view', 'list'),
+            'discard', JSON_ARRAY('create', 'view', 'list'),
             'sala', JSON_ARRAY('create', 'edit', 'delete', 'view', 'list'),
             'volunteer', JSON_ARRAY('create', 'edit', 'delete', 'view', 'list')
         )
@@ -25,6 +26,7 @@ VALUES
             'city', JSON_ARRAY('create', 'list'),
             'donor', JSON_ARRAY('create', 'edit', 'view', 'list'),
             'product', JSON_ARRAY('create', 'edit', 'view', 'list'),
+            'discard', JSON_ARRAY('create', 'view', 'list'),
             'sala', JSON_ARRAY('create', 'edit', 'view', 'list'),
             'volunteer', JSON_ARRAY('create', 'edit', 'view', 'list')
         )
@@ -39,6 +41,7 @@ VALUES
             'city', JSON_ARRAY('list'),
             'donor', JSON_ARRAY('view', 'list'),
             'product', JSON_ARRAY('view', 'list'),
+            'discard', JSON_ARRAY('view', 'list'),
             'sala', JSON_ARRAY('view', 'list'),
             'volunteer', JSON_ARRAY('view', 'list')
         )

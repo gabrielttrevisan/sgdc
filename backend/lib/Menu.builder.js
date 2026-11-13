@@ -60,7 +60,7 @@ export class MenuBuilder {
               title: "Descartes",
               path: "/descartes",
             },
-            "product",
+            "discard",
           )
           .pushByCategory(
             {
