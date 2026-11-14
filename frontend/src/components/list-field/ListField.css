@@ -1,13 +1,21 @@
-.products-field {
+.list-field {
   margin-top: 1.5rem;
 
-  &.products-field--readonly {
+  &.list-field--combined {
+    .list-field__add-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+  }
+
+  &.list-field--readonly {
     margin-top: 0;
   }
 
   header,
-  .products-field__list > div,
-  .products-field__list-item-left {
+  .list-field__list > div,
+  .list-field__list-item-left {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -19,7 +27,7 @@
     margin-bottom: 1rem;
   }
 
-  .products-field__list-item {
+  .list-field__list-item {
     padding: 8px;
     background-color: rgb(242 242 242 / 40%);
 

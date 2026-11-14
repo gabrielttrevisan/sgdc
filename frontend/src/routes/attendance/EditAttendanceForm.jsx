@@ -11,7 +11,7 @@ import { TextAreaField } from "../../components/form/input-field/TextAreaField";
 import { ProductQuantitiesProvider } from "../families/components/product-quantity/provider.jsx";
 import { useProductQuantities } from "../families/components/product-quantity/useProductQuantities";
 import { useFormController } from "../../components/form/context/useFormController";
-import ProductsField from "../../components/form/input-field/products-field/ProductsField.jsx";
+import ListField from "../../components/list-field/ListField.jsx";
 import ProductQuantity from "../families/components/product-quantity/ProductQuantity.jsx";
 import AttendanceService from "../../service/AttendanceService.js";
 import Toast from "../../components/toast/ToastStorage";
@@ -127,8 +127,9 @@ function EditAttendanceFormContent() {
           }
         />
 
-        <ProductsField
+        <ListField
           label="Produtos Desejados"
+          buttonLabel="Selecionar produtos"
           listId={listId}
           ExtraFields={ProductQuantity}
           onAddProduct={onAddProduct}

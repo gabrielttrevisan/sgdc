@@ -2,7 +2,7 @@ import { InputField } from "../../../components/form/input-field/InputField";
 import { TextAreaField } from "../../../components/form/input-field/TextAreaField";
 import { useResourceFormContext } from "../../../components/resource-form/context";
 import { useEffect, useRef } from "react";
-import ProductsFieldReadOnly from "../../../components/form/input-field/products-field/ProductsFieldReadOnly";
+import ListFieldReadOnly from "../../../components/list-field/ListFieldReadOnly";
 import ReadOnlyResourceFormSection from "../../../components/resource-form/read-only/ReadOnlyResourceFormSection";
 
 export default function DonationDetailsContent() {
@@ -67,7 +67,7 @@ export default function DonationDetailsContent() {
       <ReadOnlyResourceFormSection>
         <h3>Produtos doados</h3>
 
-        <ProductsFieldReadOnly ref={productsFieldRef} />
+        <ListFieldReadOnly ref={productsFieldRef} />
       </ReadOnlyResourceFormSection>
 
       <ReadOnlyResourceFormSection hidden={!resource?.cancelledBy}>

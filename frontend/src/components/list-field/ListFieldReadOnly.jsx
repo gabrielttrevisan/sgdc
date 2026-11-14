@@ -1,6 +1,6 @@
 import { useImperativeHandle, useState } from "react";
 
-import "./ProductsField.css";
+import "./ListField.css";
 
 /**
  * @typedef {Object} ProductsFieldRef
@@ -16,7 +16,7 @@ import "./ProductsField.css";
 /**
  * @param {ProductsFieldProps} props
  */
-export default function ProductsFieldReadOnly({ ref, ExtraFields }) {
+export default function ListFieldReadOnly({ ref, ExtraFields }) {
   const [products, setProducts] = useState([]);
 
   useImperativeHandle(
@@ -30,14 +30,14 @@ export default function ProductsFieldReadOnly({ ref, ExtraFields }) {
   );
 
   return (
-    <div className="products-field products-field--readonly">
-      <div className="products-field__list">
+    <div className="list-field list-field--readonly">
+      <div className="list-field__list">
         {products.length ? (
           products.map((item) => (
-            <div className="products-field__list-item" key={item.id}>
+            <div className="list-field__list-item" key={item.id}>
               <div>{item.name}</div>
 
-              <div className="products-field__list-item-left">
+              <div className="list-field__list-item-left">
                 {ExtraFields && <ExtraFields {...item} />}
               </div>
             </div>

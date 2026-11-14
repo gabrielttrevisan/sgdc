@@ -93,6 +93,7 @@ import sql, { transaction } from "./core/sql.js";
 /**
  * @typedef {object} PersistedInStockProductBatch
  * @property {string} id
+ * @property {number} ispInRoomId
  * @property {number} ispId
  * @property {number} roomId
  * @property {string} roomName
@@ -207,6 +208,7 @@ export default class InStockProductModel {
         sql.query`
           SELECT
             CONCAT(ISP.ID, ':', S.ID) AS ID,
+            MIN(IR.ID) AS ISP_IN_ROOM_ID,
             ISP.ID AS ISP_ID,
             S.ID AS ROOM_ID,
             S.NOME AS ROOM_NAME,
@@ -239,6 +241,7 @@ export default class InStockProductModel {
         {
           items: data.map((row) => ({
             id: row.ID,
+            ispInRoomId: row.ISP_IN_ROOM_ID,
             ispId: row.ISP_ID,
             roomId: row.ROOM_ID,
             roomName: row.ROOM_NAME,

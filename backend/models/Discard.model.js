@@ -13,7 +13,8 @@ export default class DiscardModel {
     try {
       const likeQuery = `%${query ?? ""}%`;
       const whereClause = query
-        ? sql`WHERE EXISTS (
+        ? sql`WHERE D.DETAILS LIKE ${likeQuery}
+            OR EXISTS (
               SELECT 1
               FROM ISPD_PRODUCTS DP
                 INNER JOIN ISP_IN_ROOM IR ON IR.ID = DP.IN_STOCK_PRODUCT_ID
