@@ -64,6 +64,9 @@ import DiscardForm from "./routes/discards/DiscardForm.jsx";
 import { Discards } from "./routes/discards/Discards.jsx";
 import DiscardDetails from "./routes/discards/DiscardDetails.jsx";
 import { SelectVolunteers } from "./routes/discards/SelectVolunteers.jsx";
+import { Goals } from "./routes/goals/Goals.jsx";
+import GoalForm from "./routes/goals/GoalForm.jsx";
+import GoalDetails from "./routes/goals/GoalDetails.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -131,7 +134,9 @@ createRoot(document.getElementById("root")).render(
               element={<ProductDetails />}
             />
             <Route path="/produtos/:id" element={<ProductForm />} />
-            <Route path="/metas" element={<AuthGuard />} />
+            <Route path="/metas" element={<Goals />} />
+            <Route path="/metas/cadastrar" element={<GoalForm />} />
+            <Route path="/metas/:id/visualizar" element={<GoalDetails />} />
 
             <Route path="/unidades-de-medida" element={<MeasuringUnits />} />
             <Route
