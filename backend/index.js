@@ -25,6 +25,7 @@ import InStockProductModel from "./models/InStockProduct.model.js";
 import attendanceRouter from "./routes/attendance.route.js";
 import donationsRouter from "./routes/donations.route.js";
 import discardsRouter from "./routes/discards.route.js";
+import goalsRouter from "./routes/goals.route.js";
 
 const app = express();
 
@@ -61,6 +62,7 @@ protectedRoutes.use("/roles", rolesRouter);
 protectedRoutes.use("/arrecadacoes", arrecadacaoRouter);
 protectedRoutes.use("/bills", billsRouter);
 protectedRoutes.use("/in-stock-products", inStockProductsRouter);
+protectedRoutes.use("/goals", goalsRouter);
 
 app.use("/", protectedRoutes);
 app.use(notFoundHandler);

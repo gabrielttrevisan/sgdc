@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { Form } from "../../../components/form/Form.jsx";
 import { FormControllerProvider } from "../../../components/form/context/FormControllerProvider.jsx";
@@ -183,7 +183,6 @@ export default function DiscardFormContent() {
               label="Voluntários"
               buttonLabel="Selecionar voluntários"
               listId={safeVolunteerListId}
-              ExtraFields={Fragment}
               onAddProduct={() =>
                 navigateToSelection(
                   "/voluntarios/selecionar",
