@@ -2,7 +2,7 @@ import { useResourceFormContext } from "../../../../components/resource-form/con
 import ReadOnlyResourceFormSection from "../../../../components/resource-form/read-only/ReadOnlyResourceFormSection";
 import { InputField } from "../../../../components/form/input-field/InputField";
 import { TextAreaField } from "../../../../components/form/input-field/TextAreaField";
-import ProductsFieldReadOnly from "../../../../components/form/input-field/products-field/ProductsFieldReadOnly";
+import ListFieldReadOnly from "../../../../components/list-field/ListFieldReadOnly";
 import { useEffect, useRef } from "react";
 
 export default function AttendanceDetailsContent() {
@@ -38,7 +38,7 @@ export default function AttendanceDetailsContent() {
       <ReadOnlyResourceFormSection>
         <h3>Produtos solicitados</h3>
 
-        <ProductsFieldReadOnly ref={productFieldRef} />
+        <ListFieldReadOnly ref={productFieldRef} />
       </ReadOnlyResourceFormSection>
 
       <ReadOnlyResourceFormSection hidden={!resource?.cancelledBy}>

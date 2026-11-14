@@ -89,6 +89,7 @@ dialog {
   background-color: var(--colors-primary);
   text-transform: uppercase;
   border-radius: 50vw;
+  border: 0;
 
   &.pill--purple-label {
     white-space: nowrap;

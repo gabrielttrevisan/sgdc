@@ -52,6 +52,7 @@ type Resource =
   | "city"
   | "donor"
   | "product"
+  | "discard"
   | "sala"
   | "volunteer"
   | "attendance"

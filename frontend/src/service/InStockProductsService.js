@@ -64,6 +64,7 @@ class InStockProductsService extends Service {
 /**
  * @typedef {object} InStockProductBatch
  * @property {string} id
+ * @property {number} ispInRoomId
  * @property {number} ispId
  * @property {number} roomId
  * @property {string} roomName

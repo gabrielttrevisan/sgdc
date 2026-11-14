@@ -16,6 +16,7 @@ export const SelectInStockProducts = WithAuthGuard(function SelectInStockProduct
   const { state } = useLocation();
   const navigate = useNavigate();
   const listId = getSafeListId(state?.listId);
+  const isDiscardSelection = state?.selectionType === "discard";
 
   if (!listId || !state?.from) return <></>;
 
@@ -68,11 +69,19 @@ export const SelectInStockProducts = WithAuthGuard(function SelectInStockProduct
       sortTypeDefault="asc"
       searchBoxPlaceholder="Buscar produtos em estoque..."
       listId={listId}
-      title="Selecionar produtos para doação"
+      title={
+        isDiscardSelection
+          ? "Selecionar produtos danificados"
+          : "Selecionar produtos para doação"
+      }
     >
       <button
         type="button"
-        onClick={() => navigate(state.from, { state: { ...state, listId } })}
+        onClick={() => {
+          const returnState = { ...state, listId };
+          delete returnState.selectionType;
+          navigate(state.from, { state: returnState });
+        }}
         className="button-block --solid --primary"
       >
         <AddLargeIcon />

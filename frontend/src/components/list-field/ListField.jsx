@@ -1,9 +1,9 @@
 import { useImperativeHandle } from "react";
-import { AddLargeIcon } from "../../../../components/icons/AddLargeIcon";
-import { useListStorage } from "../../../../store/list/useListStorage";
-import { LargeCloseIcon } from "../../../../components/icons/LargeCloseIcon";
+import { AddLargeIcon } from "../icons/AddLargeIcon";
+import { useListStorage } from "../../store/list/useListStorage";
+import { LargeCloseIcon } from "../icons/LargeCloseIcon";
 
-import "./ProductsField.css";
+import "./ListField.css";
 
 /**
  * @typedef {Object} ProductsFieldRef
@@ -19,19 +19,23 @@ import "./ProductsField.css";
  * @prop {import("react").ReactNode} [buttonLabel]
  * @prop {import("react").ComponentType} [ExtraFields]
  * @prop {import("react").ComponentType} [ProductLabel]
+ * @prop {"normal"|"combined"} [variant]
+ * @prop {string} [noItemSelectedMessage]
  */
 
 /**
  * @param {ProductsFieldProps} props
  */
-export default function ProductsField({
+export default function ListField({
   ref,
-  label = "Produtos",
-  buttonLabel = "Adicionar Produtos",
   listId,
   ExtraFields,
   onAddProduct,
   ProductLabel,
+  variant = "normal",
+  buttonLabel,
+  label,
+  noItemSelectedMessage = "Nenhum item selecionado",
 }) {
   const { items, remove } = useListStorage(listId);
 
@@ -45,16 +49,20 @@ export default function ProductsField({
     [items],
   );
 
+  const isNormal = variant === "normal";
+
   return (
-    <div className="products-field">
+    <div className={`list-field list-field--${variant}`}>
       <header>
-        <label className="input-field pill pill--purple-label pill--small">
-          {label}
-        </label>
+        {isNormal && (
+          <label className="input-field pill pill--purple-label pill--small">
+            {label}
+          </label>
+        )}
 
         <button
           type="button"
-          className="button-block --solid --primary"
+          className="list-field__add-button button-block --solid --primary"
           onClick={onAddProduct}
         >
           <AddLargeIcon />
@@ -62,17 +70,17 @@ export default function ProductsField({
         </button>
       </header>
 
-      <div className="products-field__list">
+      <div className="list-field__list">
         {items.length ? (
           items.map((item) => (
-            <div className="products-field__list-item" key={item.id}>
+            <div className="list-field__list-item" key={item.id}>
               {ProductLabel ? (
                 <ProductLabel {...item} />
               ) : (
                 <div>{item.name}</div>
               )}
 
-              <div className="products-field__list-item-left">
+              <div className="list-field__list-item-left">
                 {ExtraFields && <ExtraFields {...item} />}
 
                 <button
@@ -86,7 +94,7 @@ export default function ProductsField({
             </div>
           ))
         ) : (
-          <>Nenhum produto selecionado</>
+          <>{noItemSelectedMessage}</>
         )}
       </div>
     </div>

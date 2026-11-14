@@ -13,7 +13,7 @@ import { TextAreaField } from "../../../../components/form/input-field/TextAreaF
 import { FormModalCancelButton } from "../../../../components/form/modal/button/FormModalCancelButton";
 import { FormModalSubmitButton } from "../../../../components/form/modal/button/FormModalSubmitButton";
 import { FormBreadcrumbs } from "../../../../components/resource-form/FormBreadcrumbs";
-import ProductsField from "../../../../components/form/input-field/products-field/ProductsField.jsx";
+import ListField from "../../../../components/list-field/ListField.jsx";
 import ProductQuantity from "../product-quantity/ProductQuantity.jsx";
 import { getStateFromHistory } from "../../../../hooks/useStateFromHistory/index.js";
 
@@ -164,8 +164,9 @@ export function AttendanceForm() {
           defaultValue={defaultDetails}
         />
 
-        <ProductsField
+        <ListField
           label="Produtos Desejados"
+          buttonLabel="Selecionar produtos"
           listId={listId}
           ExtraFields={ProductQuantity}
           onAddProduct={onAddProduct}

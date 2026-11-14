@@ -7,7 +7,7 @@ import { TextAreaField } from "../../../components/form/input-field/TextAreaFiel
 import { FormModalCancelButton } from "../../../components/form/modal/button/FormModalCancelButton.jsx";
 import { FormModalSubmitButton } from "../../../components/form/modal/button/FormModalSubmitButton.jsx";
 import { FormBreadcrumbs } from "../../../components/resource-form/FormBreadcrumbs.jsx";
-import ProductsField from "../../../components/form/input-field/products-field/ProductsField.jsx";
+import ListField from "../../../components/list-field/ListField.jsx";
 import Toast from "../../../components/toast/ToastStorage.js";
 import DonationsService from "../../../service/DonationsService.js";
 import { useListStorage } from "../../../store/list/useListStorage.js";
@@ -271,8 +271,9 @@ export default function DonationFormContent() {
                 />
               )}
 
-              <ProductsField
+              <ListField
                 label="Doações"
+                buttonLabel="Selecionar produtos"
                 listId={listId}
                 ExtraFields={DonationProductFields}
                 onAddProduct={onAddProduct}

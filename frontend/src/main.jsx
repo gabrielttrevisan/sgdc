@@ -60,6 +60,10 @@ import DonationForm from "./routes/donations/DonationForm.jsx";
 import { SelectInStockProducts } from "./routes/in-stock-products/SelectInStockProducts.jsx";
 import { Donations } from "./routes/donations/Donations.jsx";
 import DonationDetails from "./routes/donations/DonationDetails.jsx";
+import DiscardForm from "./routes/discards/DiscardForm.jsx";
+import { Discards } from "./routes/discards/Discards.jsx";
+import DiscardDetails from "./routes/discards/DiscardDetails.jsx";
+import { SelectVolunteers } from "./routes/discards/SelectVolunteers.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -96,6 +100,20 @@ createRoot(document.getElementById("root")).render(
             <Route
               path="/produtos-em-estoque/selecionar"
               element={<SelectInStockProducts />}
+            />
+            <Route
+              path="/produtos-em-estoque/selecionar-descarte"
+              element={<SelectInStockProducts />}
+            />
+            <Route path="/descartes/cadastrar" element={<DiscardForm />} />
+            <Route path="/descartes" element={<Discards />} />
+            <Route
+              path="/descartes/:id/visualizar"
+              element={<DiscardDetails />}
+            />
+            <Route
+              path="/voluntarios/selecionar"
+              element={<SelectVolunteers />}
             />
 
             <Route path="/" element={<AuthGuard />} />
