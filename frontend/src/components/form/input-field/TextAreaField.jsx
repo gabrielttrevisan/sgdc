@@ -18,6 +18,7 @@ export const TextAreaField = ({
   required,
   id,
   variant = "full",
+  defaultValue,
   ...props
 }) => {
   return (
@@ -35,6 +36,7 @@ export const TextAreaField = ({
           mask,
           validate,
           required,
+          defaultValue,
         })}
       ></textarea>
 

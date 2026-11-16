@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router";
 import { InputField } from "../../components/form/input-field/InputField";
-import { ReadOnlyResourceForm } from "../../components/resource-form/ReadOnlyResourceForm";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import FamiliesService from "../../service/FamiliesService";
 import { FamilyParticipantsField } from "./components/family-form-modal/FamilyParticipantsField";
+import { ReadOnlyResourceForm } from "../../components/resource-form/read-only/ReadOnlyResourceForm.jsx";
 
 export default WithAuthGuard(function FamilyDetails() {
   const navigate = useNavigate();

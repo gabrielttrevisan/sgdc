@@ -65,6 +65,16 @@ export function BillTimeline() {
               {resource.paid.details}
             </p>
           )}
+          {resource.paid.paidValue && (
+            <p className="bill-timeline-card__details">
+              <strong>Valor do Pagamento: </strong>
+              {resource.paid.paidValue.toLocaleString("pt-br", {
+                currency: "BRL",
+                style: "currency",
+                maximumFractionDigits: 2,
+              })}
+            </p>
+          )}
         </BillTimelineCard>
       )}
     </div>

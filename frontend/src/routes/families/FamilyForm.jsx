@@ -34,7 +34,10 @@ export default WithAuthGuard(function FamilyForm() {
         }
 
         Toast.error(
-          response.error?.issues?.[0]?.description ??
+          response.error?.issues?.find(
+            ({ code }) => code === "FAMILY_HAS_OPEN_ATTENDANCE",
+          )?.description ??
+            response.error?.issues?.[0]?.description ??
             `Falha ao ${isEditing ? "editar" : "cadastrar"} família`,
         );
         return false;

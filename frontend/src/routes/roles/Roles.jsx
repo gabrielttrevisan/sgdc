@@ -137,7 +137,7 @@ export const Roles = WithAuthGuard(() => {
               </>
             ),
             onAction: async (_, target) => {
-              const confirmed = await modalRef.current?.open();
+              const confirmed = await modalRef.current?.openAsync();
 
               if (!confirmed) return;
 

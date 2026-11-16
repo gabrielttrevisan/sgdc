@@ -1,13 +1,11 @@
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
-import { FormControllerProvider } from "../form/context/FormControllerProvider";
-import { Form } from "../form/Form";
-import { FormModalCancelButton } from "../form/modal/button/FormModalCancelButton";
-import { useFormController } from "../form/context/useFormController";
-import { ResourceFormContext } from "./context";
-import { FormBreadcrumbs } from "./FormBreadcrumbs";
-import Toast from "../toast/ToastStorage";
-import "./ReadOnlyResourceForm.css";
+import { Form } from "../../form/Form";
+import { FormModalCancelButton } from "../../form/modal/button/FormModalCancelButton";
+import { useFormController } from "../../form/context/useFormController";
+import { ResourceFormContext } from "../context";
+import { FormBreadcrumbs } from "../FormBreadcrumbs";
+import Toast from "../../toast/ToastStorage";
 
 /**
  * @param {Object} props
@@ -20,7 +18,7 @@ import "./ReadOnlyResourceForm.css";
  * @param {string} [props.gridColumns]
  * @param {import("react").MouseEventHandler<HTMLButtonElement>} props.onCancel
  */
-function ReadOnlyResourceFormContent({
+export default function ReadOnlyResourceFormContent({
   fetchResource,
   children,
   actions,
@@ -79,15 +77,5 @@ function ReadOnlyResourceFormContent({
         </footer>
       </Form>
     </ResourceFormContext>
-  );
-}
-
-export function ReadOnlyResourceForm({ children, ...props }) {
-  return (
-    <FormControllerProvider>
-      <ReadOnlyResourceFormContent {...props}>
-        {children}
-      </ReadOnlyResourceFormContent>
-    </FormControllerProvider>
   );
 }

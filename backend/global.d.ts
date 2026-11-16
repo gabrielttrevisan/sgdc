@@ -52,14 +52,17 @@ type Resource =
   | "city"
   | "donor"
   | "product"
+  | "discard"
   | "sala"
   | "volunteer"
+  | "attendance"
   | (string & {});
 
 type ResourceAction =
   | "list"
   | "view"
   | "create"
+  | "update"
   | "delete"
   | "restore"
   | "pay"

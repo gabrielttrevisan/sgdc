@@ -6,6 +6,7 @@ import beneficiariesRouter from "./routes/beneficiaries.route.js";
 import citiesRouter from "./routes/cities.route.js";
 import salasRouter from "./routes/sala.route.js";
 import allocationTypesRouter from "./routes/allocationTypes.route.js";
+import allocationsRouter from "./routes/allocations.route.js";
 import measuringUnitsRouter from "./routes/measuringUnits.route.js";
 import familyRouter from "./routes/family.route.js";
 import volunteersRouter from "./routes/volunteers.route.js";
@@ -19,6 +20,12 @@ import rolesRouter from "./routes/roles.route.js";
 import arrecadacaoRouter from "./routes/arrecadacao.route.js";
 
 import billsRouter from "./routes/bill.route.js";
+import inStockProductsRouter from "./routes/inStockProducts.route.js";
+import InStockProductModel from "./models/InStockProduct.model.js";
+import attendanceRouter from "./routes/attendance.route.js";
+import donationsRouter from "./routes/donations.route.js";
+import discardsRouter from "./routes/discards.route.js";
+import goalsRouter from "./routes/goals.route.js";
 
 const app = express();
 
@@ -41,17 +48,21 @@ protectedRoutes.use("/beneficiaries", beneficiariesRouter);
 protectedRoutes.use("/cities", citiesRouter);
 protectedRoutes.use("/salas", salasRouter);
 protectedRoutes.use("/allocation-types", allocationTypesRouter);
+protectedRoutes.use("/allocations", allocationsRouter);
 protectedRoutes.use("/measuring-units", measuringUnitsRouter);
 protectedRoutes.use("/families", familyRouter);
+protectedRoutes.use("/attendances", attendanceRouter);
+protectedRoutes.use("/donations", donationsRouter);
+protectedRoutes.use("/discards", discardsRouter);
 protectedRoutes.use("/volunteers", volunteersRouter);
 protectedRoutes.use("/donors", router);
 protectedRoutes.use("/products", productsRouter);
 protectedRoutes.use("/users", userRouter);
 protectedRoutes.use("/roles", rolesRouter);
-
 protectedRoutes.use("/arrecadacoes", arrecadacaoRouter);
-
 protectedRoutes.use("/bills", billsRouter);
+protectedRoutes.use("/in-stock-products", inStockProductsRouter);
+protectedRoutes.use("/goals", goalsRouter);
 
 app.use("/", protectedRoutes);
 app.use(notFoundHandler);
@@ -59,4 +70,13 @@ app.use(notFoundHandler);
 app.listen(env.PORT, () => {
   console.log("Allowed origins: ", env.FRONTEND_URL);
   console.log(`APi rodando na porta ${env.PORT}...`);
+
+  /* InStockProductModel.updateStock([
+    {
+      expiresAt: "2026-12-01",
+      productId: 9,
+      total: 12,
+      rooms: [{ count: 12, id: 2 }],
+    },
+  ]).then(console.log); */
 });

@@ -89,6 +89,10 @@ class FamiliesService extends Service {
       return this.internal("Erro inesperado");
     }
   }
+
+  invalidate() {
+    this.#client.invalidate();
+  }
 }
 
 export default new FamiliesService();
@@ -105,4 +109,5 @@ export default new FamiliesService();
  * @prop {int} id
  * @prop {string} name
  * @prop {FamilyParticipant[]} participants
+ * @prop {boolean} hasOpenAttendance
  */

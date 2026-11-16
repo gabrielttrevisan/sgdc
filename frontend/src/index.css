@@ -89,12 +89,17 @@ dialog {
   background-color: var(--colors-primary);
   text-transform: uppercase;
   border-radius: 50vw;
+  border: 0;
 
   &.pill--purple-label {
     white-space: nowrap;
     color: var(--colors-text-white);
     background-color: var(--colors-primary);
     width: fit-content;
+  }
+
+  &.pill--small {
+    font-size: 0.8rem;
   }
 }
 
@@ -203,6 +208,20 @@ dialog {
     }
   }
 
+  &.--link {
+    border: 0;
+    padding: 0;
+    --bb-base-bg: none;
+    --bb-base-color: var(--colors-primary-dark);
+    cursor: pointer;
+    font: inherit;
+    text-decoration: underline;
+  }
+
+  .loading-label {
+    display: none;
+  }
+
   &.--loading {
     &::before {
       content: " ";
@@ -216,9 +235,24 @@ dialog {
       border-radius: 16px;
     }
 
-    > span,
+    .loading-label {
+      display: block;
+    }
+
+    > span:not(.loading-label),
     > svg {
       display: none;
+    }
+  }
+
+  &.--danger {
+    padding: 8px;
+    --bb-base-bg: rgb(var(--colors-state-error) / 10%);
+    --bb-base-color: var(--colors-state-error-light);
+
+    &:hover:not([disabled]) {
+      --bb-base-bg: var(--colors-state-error-light);
+      --bb-base-color: var(--colors-text-white);
     }
   }
 }

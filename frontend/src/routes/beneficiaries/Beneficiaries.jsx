@@ -133,10 +133,9 @@ export const Beneficiaries = WithAuthGuard(() => {
                 <span>Doar</span>
               </>
             ),
-            onAction: async () => {
-              Toast.warn("Função não implementada!");
+            onAction: (_type, target) => {
+              navigate(`/doacoes/cadastrar/${target.id}`);
             },
-            buttonProps: { disabled: true },
           },
           {
             type: "delete",
@@ -147,7 +146,7 @@ export const Beneficiaries = WithAuthGuard(() => {
               </>
             ),
             onAction: async (_type, target) => {
-              const confirmed = await modalRef.current?.open();
+              const confirmed = await modalRef.current?.openAsync();
 
               if (confirmed) {
                 const { data, error } = await BeneficiariesService.delete(

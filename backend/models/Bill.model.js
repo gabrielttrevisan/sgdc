@@ -147,6 +147,7 @@ export default class BillModel {
                 at: bill.PAID_AT.toISOString(),
                 byUser: { id: bill.PAID_BY, name: bill.PAID_BY_NAME },
                 details: bill.PAYMENT_DETAILS,
+                paidValue: bill.PAID_VALUE,
               }
             : null,
       };
@@ -159,6 +160,21 @@ export default class BillModel {
   }
 
   /**
+   * @param {string} date
+   */
+  static dateFromString(date) {
+    const match = date.match(/^(\d{4})-(\d{2})-(\d{2})/i);
+
+    if (!match) return null;
+
+    const [, year, month, day] = match;
+
+    const iso8601 = `${year}-${month}-${day}T00:00:01.001Z`;
+
+    return new Date(iso8601);
+  }
+
+  /**
    * @param {Bill} bill
    * @param {User} auth
    * @returns {Promise<BooleanTuple>}
@@ -167,7 +183,7 @@ export default class BillModel {
     try {
       const created = await sql.exec`
             INSERT INTO BILLS (DUE_DATE, VALUE, DESCRIPTION, CREATED_BY) 
-            VALUES (${dueDate}, ${value}, ${description}, ${id})
+            VALUES (${BillModel.dateFromString(dueDate)}, ${value}, ${description}, ${id})
           `.run();
 
       if (created.affectedRows < 1) return [false, null];
@@ -204,7 +220,7 @@ export default class BillModel {
 
         const created = await tsql.exec`
             INSERT INTO BILLS (DUE_DATE, VALUE, DESCRIPTION, CREATED_BY) 
-            VALUES (${bill.dueDate}, ${bill.value}, ${bill.description}, ${user.id})
+            VALUES (${BillModel.dateFromString(dueDate)}, ${bill.value}, ${bill.description}, ${user.id})
           `.run();
 
         if (created.affectedRows < 1) return [false, null];
@@ -229,7 +245,8 @@ export default class BillModel {
             SET
               PAID_AT = CURRENT_TIMESTAMP,
               PAID_BY = ${user.id},
-              PAYMENT_DETAILS = ${bill.details}
+              PAYMENT_DETAILS = ${bill.details},
+              PAID_VALUE = ${bill.paidValue}
             WHERE 
               ID = ${bill.id} AND
               PAID_AT IS NULL AND
@@ -277,7 +294,7 @@ export default class BillModel {
               EXTENDED_BY = ${user.id},
               EXTENDED_DETAILS = ${bill.details},
               EXTENDED_FROM = ${oldDueDate},
-              DUE_DATE = ${bill.newDueDate}
+              DUE_DATE = ${BillModel.dateFromString(bill.newDueDate)}
             WHERE 
               ID = ${bill.id} AND 
               PAID_AT IS NULL AND
@@ -460,6 +477,7 @@ export default class BillModel {
  * @typedef {Object} PayBill
  * @prop {number} id
  * @prop {string} details
+ * @prop {number} paidValue
  */
 
 /**

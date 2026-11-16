@@ -33,8 +33,8 @@ export class MenuBuilder {
           .pushByCategory(
             {
               id: new RandID(),
-              title: "Donativos",
-              path: "/donativos",
+              title: "Donativos/Estoque",
+              path: "/produtos-em-estoque",
             },
             "product",
           )
@@ -52,7 +52,7 @@ export class MenuBuilder {
               title: "Doações",
               path: "/doacoes",
             },
-            "product",
+            "donation",
           )
           .pushByCategory(
             {
@@ -60,7 +60,7 @@ export class MenuBuilder {
               title: "Descartes",
               path: "/descartes",
             },
-            "product",
+            "discard",
           )
           .pushByCategory(
             {
@@ -113,6 +113,10 @@ export class MenuBuilder {
           .pushByCategory(
             { id: new RandID(), title: "Famílias", path: "/familias" },
             "family",
+          )
+          .pushByCategory(
+            { id: new RandID(), title: "Atendimentos", path: "/atendimentos" },
+            "attendance",
           )
           .pushByCategory(
             { id: new RandID(), title: "Doadores", path: "/doadores" },

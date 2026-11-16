@@ -55,6 +55,12 @@ Antes de executar os arquivos SQLs, deve-se criar um banco de dados com o nome c
 6. Rode `families.sql`
 7. Rode `measuring_units.sql`
 8. Rode `products.sql`
+<<<<<<< HEAD
 9. Rode `migration_products_current_schema.sql` para alinhar produtos em bancos existentes
 10. Rode `sala.sql`
 11. Rode `volunteers.sql`
+=======
+9. Rode `sala.sql`
+10. Rode `volunteers.sql`
+11. Rode `allocations.sql`
+>>>>>>> 0559b7ca2bfff2be245c2a59c6fe44e12765d51a

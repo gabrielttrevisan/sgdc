@@ -1,0 +1,33 @@
+.uint-field {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+
+  > * {
+    display: block;
+  }
+
+  input {
+    width: 4rem;
+    text-align: center;
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background-color: rgb(var(--colors-primary-base) / 10%);
+    color: rgb(var(--colors-primary-base) / 90%);
+    padding: 6px;
+
+    &:first-of-type {
+      border-radius: 6px 0 0 6px;
+    }
+
+    &:last-of-type {
+      border-radius: 0 6px 6px 0;
+    }
+  }
+}

@@ -5,6 +5,7 @@ import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import { ResourceForm } from "../../components/resource-form/ResourceForm.jsx";
 import BillsService from "../../service/BillsService.js";
 import { Fragment } from "react";
+import { InputField } from "../../components/form/input-field/InputField.jsx";
 
 export default WithAuthGuard(function PayBillForm() {
   const navigate = useNavigate();
@@ -24,19 +25,19 @@ export default WithAuthGuard(function PayBillForm() {
       onCancel={goToResourceListing}
       onSubmit={async (data, hasId) => {
         if (!hasId) {
-          Toast.error(
+          return Toast.error(
             <>
               Erro inesperado
               <br />
               Por favor, atualize a página
             </>,
           );
-          return;
         }
 
         const [response] = await BillsService.pay({
           details: data.details,
           id: data.id,
+          paidValue: parseFloat(data.paidValue),
         });
 
         if (response.data?.success) {
@@ -46,9 +47,9 @@ export default WithAuthGuard(function PayBillForm() {
           return true;
         } else if (response.error) {
           if (response.error.issues.length) {
-            Toast.error(
+            return Toast.error(
               <>
-                Falha ao cancelar conta a pagar
+                Falha ao dar baixa em conta a pagar
                 <br />
                 {response.error.issues.map((issue) => (
                   <Fragment key={issue.code}>{issue.description}</Fragment>
@@ -63,6 +64,24 @@ export default WithAuthGuard(function PayBillForm() {
         return false;
       }}
     >
+      <InputField
+        name="paidValue"
+        required
+        id="paidValue"
+        label="Valor Pago"
+        type="number"
+        variant="full"
+        step="0.5"
+        validate={(value) => {
+          const parsed = parseFloat(value);
+
+          if (isNaN(parsed) || parsed <= 0.1)
+            return "Valor pago inválido. Deve ser numérico e maior que 0.1";
+
+          return true;
+        }}
+      />
+
       <TextAreaField
         name="details"
         required

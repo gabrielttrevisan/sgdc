@@ -141,6 +141,8 @@ class SqlFragment {
     } catch (e) {
       await connection.rollback();
       return [false, e];
+    } finally {
+      connection.release();
     }
   }
 }
@@ -156,16 +158,15 @@ class SqlExecutable extends SqlFragment {
   }
 
   async run() {
-    const conn = this.connection ?? (await database.connect());
+    const connection = this.connection;
+    const conn = connection ?? (await database.connect());
 
     try {
       const [result] = await conn.execute(this.sql, this.params);
 
-      conn.release();
-
       return result;
     } finally {
-      conn.release();
+      if (!connection) conn.release();
     }
   }
 }
@@ -181,16 +182,15 @@ class SqlQuery extends SqlFragment {
   }
 
   async run() {
-    const conn = this.connection ?? (await database.connect());
+    const connection = this.connection;
+    const conn = connection ?? (await database.connect());
 
     try {
       const [result] = await conn.query(this.sql, this.params);
 
-      conn.release();
-
       return result;
     } finally {
-      conn.release();
+      if (!connection) conn.release();
     }
   }
 }

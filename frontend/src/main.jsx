@@ -21,6 +21,7 @@ import FamilyDetails from "./routes/families/FamilyDetails.jsx";
 import MeasuringUnitsForm from "./routes/measuring-units/MeasuringUnitsForm.jsx";
 import MeasuringUnitsDetails from "./routes/measuring-units/MeasuringUnitsDetails.jsx";
 import SignInForm from "./routes/auth/SignIn.jsx";
+import ResetPasswordForm from "./routes/auth/ResetPassword.jsx";
 import { AuthGuard } from "./components/auth/AuthGuard.jsx";
 import { NotFoundPage } from "./routes/not-found/NotFoundPage.jsx";
 import { Users } from "./routes/users/Users.jsx";
@@ -37,13 +38,35 @@ import VolunteerDetailsForm from "./routes/Volunteers/VolunteersDetails.jsx";
 import { Arrecadacoes } from "./routes/arrecadacoes/Arrecadacoes.jsx";
 import { Bills } from "./routes/bills/Bills.jsx";
 import CreateBillForm from "./routes/bills/CreateBillForm.jsx";
-import ExtendBillForm from "./routes/bills/ExtendBillForm.jsx";
 import CancelBillForm from "./routes/bills/CancelBillForm.jsx";
-import CancelAndCopyBillForm from "./routes/bills/CancelAndCopyBillForm.jsx";
 import ShowBillForm from "./routes/bills/ShowBillForm.jsx";
+import { Allocations } from "./routes/allocations/Allocations.jsx";
+import AllocationForm from "./routes/allocations/AllocationForm.jsx";
+import AllocationDetails from "./routes/allocations/AllocationDetails.jsx";
 
-import "./index.css";
 import PayBillForm from "./routes/bills/PayBillForm.jsx";
+import { InStockProducts } from "./routes/in-stock-products/InStockProducts.jsx";
+import { InStockProductDetails } from "./routes/in-stock-products/InStockProductDetails.jsx";
+
+import { ToastTray } from "./components/toast/ToastTray.jsx";
+import "./index.css";
+import { SelectProducts } from "./routes/products/SelectProducts.jsx";
+import AttendanceForm from "./routes/attendance/AttendanceForm.jsx";
+import { Attendances } from "./routes/attendance/Attendances.jsx";
+import AttendanceDetails from "./routes/attendance/AttendanceDetails.jsx";
+import EditAttendanceForm from "./routes/attendance/EditAttendanceForm.jsx";
+import CancelAttendanceForm from "./routes/attendance/CancelAttendanceForm.jsx";
+import DonationForm from "./routes/donations/DonationForm.jsx";
+import { SelectInStockProducts } from "./routes/in-stock-products/SelectInStockProducts.jsx";
+import { Donations } from "./routes/donations/Donations.jsx";
+import DonationDetails from "./routes/donations/DonationDetails.jsx";
+import DiscardForm from "./routes/discards/DiscardForm.jsx";
+import { Discards } from "./routes/discards/Discards.jsx";
+import DiscardDetails from "./routes/discards/DiscardDetails.jsx";
+import { SelectVolunteers } from "./routes/discards/SelectVolunteers.jsx";
+import { Goals } from "./routes/goals/Goals.jsx";
+import GoalForm from "./routes/goals/GoalForm.jsx";
+import GoalDetails from "./routes/goals/GoalDetails.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -51,12 +74,50 @@ createRoot(document.getElementById("root")).render(
       <BrowserRouter>
         <Routes>
           <Route path="/sign-in" element={<SignInForm />} />
+          <Route
+            path="/reset-password"
+            element={<ResetPasswordForm />}
+          />
           <Route ErrorBoundary={ErrorBoundary} />
 
           <Route element={<Layout />}>
-            <Route path="/donativos" element={<AuthGuard />} />
+            <Route
+              path="/produtos-em-estoque/:id/visualizar"
+              element={<InStockProductDetails />}
+            />
+            <Route
+              path="/produtos-em-estoque"
+              element={<InStockProducts />}
+            />
+
             <Route path="/arrecadacoes" element={<Arrecadacoes />} />
-            <Route path="/doacoes" element={<AuthGuard />} />
+            <Route
+              path="/doacoes/cadastrar/:beneficiaryId"
+              element={<DonationForm />}
+            />
+            <Route
+              path="/doacoes/:id/visualizar"
+              element={<DonationDetails />}
+            />
+            <Route path="/doacoes" element={<Donations />} />
+            <Route
+              path="/produtos-em-estoque/selecionar"
+              element={<SelectInStockProducts />}
+            />
+            <Route
+              path="/produtos-em-estoque/selecionar-descarte"
+              element={<SelectInStockProducts />}
+            />
+            <Route path="/descartes/cadastrar" element={<DiscardForm />} />
+            <Route path="/descartes" element={<Discards />} />
+            <Route
+              path="/descartes/:id/visualizar"
+              element={<DiscardDetails />}
+            />
+            <Route
+              path="/voluntarios/selecionar"
+              element={<SelectVolunteers />}
+            />
 
             <Route path="/" element={<AuthGuard />} />
             <Route path="/locais-de-armazenamento" element={<Armaz />} />
@@ -67,12 +128,15 @@ createRoot(document.getElementById("root")).render(
 
             <Route path="/produtos" element={<Products />} />
             <Route path="/produtos/cadastrar" element={<ProductForm />} />
+            <Route path="/produtos/selecionar" element={<SelectProducts />} />
             <Route
               path="/produtos/:id/visualizar"
               element={<ProductDetails />}
             />
             <Route path="/produtos/:id" element={<ProductForm />} />
-            <Route path="/metas" element={<AuthGuard />} />
+            <Route path="/metas" element={<Goals />} />
+            <Route path="/metas/cadastrar" element={<GoalForm />} />
+            <Route path="/metas/:id/visualizar" element={<GoalDetails />} />
 
             <Route path="/unidades-de-medida" element={<MeasuringUnits />} />
             <Route
@@ -100,20 +164,12 @@ createRoot(document.getElementById("root")).render(
             <Route path="/contas-a-pagar" element={<Bills />} />
             <Route path="/contas-a-pagar/lancar" element={<CreateBillForm />} />
             <Route
-              path="/contas-a-pagar/:id/adiar"
-              element={<ExtendBillForm />}
-            />
-            <Route
               path="/contas-a-pagar/:id/baixa"
               element={<PayBillForm />}
             />
             <Route
               path="/contas-a-pagar/:id/cancelar"
               element={<CancelBillForm />}
-            />
-            <Route
-              path="/contas-a-pagar/:id/cancelar-e-copiar"
-              element={<CancelAndCopyBillForm />}
             />
             <Route
               path="/contas-a-pagar/:id/visualizar"
@@ -133,6 +189,26 @@ createRoot(document.getElementById("root")).render(
             <Route path="/familias" element={<Families />} />
             <Route path="/familias/cadastrar" element={<FamilyForm />} />
             <Route
+              path="/atendimentos"
+              element={<Attendances />}
+            />
+            <Route
+              path="/atendimentos/cadastrar/:id"
+              element={<AttendanceForm />}
+            />
+            <Route
+              path="/atendimentos/cancelar"
+              element={<CancelAttendanceForm />}
+            />
+            <Route
+              path="/atendimentos/:id/visualizar"
+              element={<AttendanceDetails />}
+            />
+            <Route
+              path="/atendimento/:id"
+              element={<EditAttendanceForm />}
+            />
+            <Route
               path="/familias/:id/visualizar"
               element={<FamilyDetails />}
             />
@@ -150,6 +226,18 @@ createRoot(document.getElementById("root")).render(
             />
             <Route path="/voluntarios/:id" element={<EditVolunteerForm />} />
 
+            <Route path="/alocacoes" element={<Allocations />} />
+            <Route path="/alocacoes/cadastrar" element={<AllocationForm />} />
+            <Route
+              path="/alocacoes/voluntario/:volunteerId"
+              element={<AllocationForm />}
+            />
+            <Route
+              path="/alocacoes/:id/visualizar"
+              element={<AllocationDetails />}
+            />
+            <Route path="/alocacoes/:id" element={<AllocationForm />} />
+
             <Route path="/usuarios" element={<Users />} />
             <Route path="/usuarios/cadastrar" element={<CreateUsersForm />} />
             <Route
@@ -162,6 +250,8 @@ createRoot(document.getElementById("root")).render(
           </Route>
         </Routes>
       </BrowserRouter>
+      
+      <ToastTray />
     </MatchMediaProvider>
   </StrictMode>,
 );

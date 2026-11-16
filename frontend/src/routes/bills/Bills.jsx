@@ -7,7 +7,6 @@ import { AddLargeIcon } from "../../components/icons/AddLargeIcon.jsx";
 import { useNavigate } from "react-router";
 import { HandMoneyIcon } from "../../components/icons/HandMoneyIcon.jsx";
 import { useRef } from "react";
-import { ScheduleCalendarIcon } from "../../components/icons/ScheduleCalendarIcon.jsx";
 import { LargeCloseIcon } from "../../components/icons/LargeCloseIcon.jsx";
 import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal.jsx";
 
@@ -124,19 +123,6 @@ export const Bills = WithAuthGuard(function Bills() {
             },
           },
           {
-            type: "extend",
-            content: (
-              <>
-                <ScheduleCalendarIcon />
-                <span>Adiar</span>
-              </>
-            ),
-            shouldRender: (target) => target.status === "UNPAID",
-            onAction: (_, target) => {
-              navigate("/contas-a-pagar/" + target.id + "/adiar");
-            },
-          },
-          {
             type: "cancel",
             content: (
               <>
@@ -150,9 +136,6 @@ export const Bills = WithAuthGuard(function Bills() {
               switch (confirm) {
                 case BillCancelModalActions.CANCEL:
                   navigate(`/contas-a-pagar/${target.id}/cancelar`);
-                  break;
-                case BillCancelModalActions.CANCEL_AND_COPY:
-                  navigate(`/contas-a-pagar/${target.id}/cancelar-e-copiar`);
                   break;
               }
             },
@@ -185,14 +168,6 @@ export const Bills = WithAuthGuard(function Bills() {
               data-modal-action={BillCancelModalActions.CANCEL}
             >
               Cancelar a Conta
-            </button>
-
-            <button
-              type="button"
-              className="sensitive-modal__action --delete"
-              data-modal-action={BillCancelModalActions.CANCEL_AND_COPY}
-            >
-              Cancelar a Conta e Criar Cópia
             </button>
 
             <button

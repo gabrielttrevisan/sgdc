@@ -3,6 +3,7 @@ import { useSyncExternalStore } from "react";
 class ToastStorage {
   /** @type {import("../../global").ToastMessage[]} */
   #toasts = [];
+  #timeouts = new WeakMap();
   /** @type {Array<VoidFunction>} */
   #subscribers = [];
 
@@ -25,18 +26,16 @@ class ToastStorage {
   show(type, message, options = undefined) {
     const key = `toast:${Date.now()}:${this.#slug(message)}`;
 
-    const removeToast = () => {
-      this.#toasts = this.#toasts.filter((toasty) => toasty.key !== key);
-      this.#emit();
-    };
-
+    const duration = options?.customTimeout ?? 4000;
     const toast = {
       ...options,
       type,
       message,
       key,
-      timeout: setTimeout(() => removeToast(), options?.customTimeout ?? 4000),
+      timeout: undefined,
     };
+    this.#timeouts.set(toast, { remaining: duration });
+    this.#startTimeout(toast);
 
     const theOnesToPop = this.#toasts.splice(6);
 
@@ -49,6 +48,19 @@ class ToastStorage {
 
   #pop(toast) {
     clearTimeout(toast.timeout);
+    this.#timeouts.delete(toast);
+  }
+
+  #startTimeout(toast) {
+    const timeoutState = this.#timeouts.get(toast);
+    if (!timeoutState) return;
+
+    timeoutState.startedAt = Date.now();
+    toast.timeout = setTimeout(() => {
+      this.#timeouts.delete(toast);
+      this.#toasts = this.#toasts.filter((toasty) => toasty.key !== toast.key);
+      this.#emit();
+    }, timeoutState.remaining);
   }
 
   pop(key) {
@@ -56,13 +68,34 @@ class ToastStorage {
 
     this.#toasts = this.#toasts.filter((toast) => {
       if (toast.key === key) {
-        this.#pop(toast.timeout);
+        this.#pop(toast);
         return false;
       }
 
       return true;
     });
     this.#emit();
+  }
+
+  pause(key) {
+    const toast = this.#toasts.find((toasty) => toasty.key === key);
+    const timeoutState = toast && this.#timeouts.get(toast);
+    if (!toast || !timeoutState || toast.timeout === undefined) return;
+
+    clearTimeout(toast.timeout);
+    toast.timeout = undefined;
+    timeoutState.remaining = Math.max(
+      0,
+      timeoutState.remaining - (Date.now() - timeoutState.startedAt),
+    );
+    timeoutState.startedAt = undefined;
+  }
+
+  resume(key) {
+    const toast = this.#toasts.find((toasty) => toasty.key === key);
+    if (!toast || toast.timeout !== undefined) return;
+
+    this.#startTimeout(toast);
   }
 
   #emit() {

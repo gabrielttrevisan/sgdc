@@ -3,7 +3,6 @@ import { useState } from "react";
 import { NavSection } from "../nav/section/NavSection.jsx";
 import { Nav } from "../nav/Nav.jsx";
 import sgdcLogo from "../../assets/sgdc-logo.png";
-import { ToastTray } from "../toast/ToastTray.jsx";
 import { BoxIcon } from "./icon/BoxIcon.jsx";
 import { PeopleIcon } from "./icon/PeopleIcon.jsx";
 import { authStore } from "../../store/Auth.store.js";
@@ -73,8 +72,6 @@ export const Layout = () => {
           <Outlet />
         </main>
       </div>
-
-      <ToastTray />
     </>
   );
 };

@@ -1,3 +1,7 @@
-export const VisuallyHidden = ({ children, as: As = "span" }) => {
-  return <As className="visually-hidden">{children}</As>;
+export const VisuallyHidden = ({ children, as: As = "span", ...props }) => {
+  return (
+    <As className="visually-hidden" {...props}>
+      {children}
+    </As>
+  );
 };

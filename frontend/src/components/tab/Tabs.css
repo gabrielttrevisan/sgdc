@@ -1,0 +1,14 @@
+.tabs {
+  position: relative;
+  margin-top: 1rem;
+
+  [role="tablist"] {
+    display: flex;
+    gap: 1rem;
+  }
+
+  [role="tab"][aria-selected="false"] {
+    background-color: rgb(var(--colors-primary-base) / 10%);
+    color: var(--colors-primary);
+  }
+}

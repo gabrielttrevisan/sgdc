@@ -1,0 +1,643 @@
+import sql, { transaction } from "./core/sql.js";
+import AttendanceModel from "./Attendance.model.js";
+import InStockProductModel from "./InStockProduct.model.js";
+
+export class DonationValidationError extends Error {}
+export class DonationNotFoundError extends Error {}
+export class InsufficientDonationStockError extends Error {}
+
+export default class DonationModel {
+  /**
+   * @param {{query?:string,page?:number,perPage?:number}} filter
+   * @returns {Promise<[object|null, Error|null]>}
+   */
+  static async findAll({ query, page = 1, perPage = 10 }) {
+    try {
+      const likeQuery = `%${query ?? ""}%`;
+      const whereClause = query
+        ? sql`WHERE B.FULL_NAME LIKE ${likeQuery}
+            OR D.DETAILS LIKE ${likeQuery}
+            OR CAST(D.ID AS CHAR) LIKE ${likeQuery}`
+        : sql.empty;
+      const limitClause = sql`LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
+      const [rows, [{ TOTAL: total }]] = await Promise.all([
+        sql.query`
+          SELECT
+            D.ID,
+            D.DETAILS,
+            D.CREATED_AT,
+            D.CANCELLED_AT,
+            B.ID AS BENEFICIARY_ID,
+            B.FULL_NAME AS BENEFICIARY_NAME
+          FROM DONATIONS D
+            INNER JOIN BENEFICIARIES B ON B.ID = D.BENEFICIARY_ID
+          ${whereClause}
+          ORDER BY D.ID DESC
+          ${limitClause}`.run(),
+        sql.query`
+          SELECT COUNT(*) AS TOTAL
+          FROM DONATIONS D
+            INNER JOIN BENEFICIARIES B ON B.ID = D.BENEFICIARY_ID
+          ${whereClause}`.run(),
+      ]);
+
+      return [
+        {
+          items: rows.map((row) => ({
+            id: row.ID,
+            details: row.DETAILS,
+            createdAt: row.CREATED_AT,
+            beneficiary: {
+              id: row.BENEFICIARY_ID,
+              name: row.BENEFICIARY_NAME,
+            },
+            isCancelled: row.CANCELLED_AT !== null,
+          })),
+          totalRecords: total,
+          page,
+          totalPages: Math.ceil(total / perPage),
+          query,
+        },
+        null,
+      ];
+    } catch (error) {
+      console.error(error);
+      return [null, error];
+    }
+  }
+
+  /**
+   * @param {number} id
+   * @returns {Promise<[object|null, Error|null]>}
+   */
+  static async findById(id) {
+    try {
+      const rows = await sql.query`
+        SELECT
+          D.ID,
+          D.DETAILS,
+          D.CREATED_AT,
+          D.CANCELLED_AT,
+          D.CANCELLATION_DETAILS,
+          B.ID AS BENEFICIARY_ID,
+          B.FULL_NAME AS BENEFICIARY_NAME,
+          F.ID AS FAMILY_ID,
+          F.NAME AS FAMILY_NAME,
+          UC.ID AS CREATED_BY_ID,
+          UC.NAME AS CREATED_BY_NAME,
+          UX.ID AS CANCELLED_BY_ID,
+          UX.NAME AS CANCELLED_BY_NAME,
+          CA.ID AS ATTENDANCE_ID,
+          CA.DETAILS AS ATTENDANCE_DETAILS,
+          CA.STATUS AS ATTENDANCE_STATUS,
+          CA.CREATED_AT AS ATTENDANCE_CREATED_AT,
+          BA.ID AS ATTENDEE_ID,
+          BA.FULL_NAME AS ATTENDEE_NAME
+        FROM DONATIONS D
+          INNER JOIN BENEFICIARIES B ON B.ID = D.BENEFICIARY_ID
+          LEFT JOIN FAMILIES F ON F.ID = D.FAMILY_ID
+          INNER JOIN USERS UC ON UC.ID = D.CREATED_BY
+          LEFT JOIN USERS UX ON UX.ID = D.CANCELLED_BY
+          LEFT JOIN CLIENT_ATTENDANCES CA ON CA.ID = D.ATTENDANCE_ID
+          LEFT JOIN BENEFICIARIES BA ON BA.ID = CA.BENEFICIARY_ID
+        WHERE D.ID = ${id}`.run();
+
+      if (rows.length === 0) return [null, null];
+
+      const row = rows[0];
+      const itemRows = await sql.query`
+        SELECT
+          P.ID AS PRODUCT_ID,
+          P.NAME AS PRODUCT_NAME,
+          SUM(DI.QUANTITY) AS QUANTITY
+        FROM DONATION_ITEMS DI
+          INNER JOIN PRODUCTS P ON P.ID = DI.PRODUCT_ID
+        WHERE DI.DONATION_ID = ${id}
+        GROUP BY P.ID, P.NAME
+        ORDER BY P.NAME`.run();
+
+      return [
+        {
+          donation: {
+            id: row.ID,
+            details: row.DETAILS,
+            createdAt: row.CREATED_AT,
+            cancelledAt: row.CANCELLED_AT,
+            cancellationDetails: row.CANCELLATION_DETAILS,
+          },
+          beneficiary: {
+            id: row.BENEFICIARY_ID,
+            name: row.BENEFICIARY_NAME,
+            family: row.FAMILY_ID
+              ? { id: row.FAMILY_ID, name: row.FAMILY_NAME }
+              : null,
+          },
+          createdBy: {
+            id: row.CREATED_BY_ID,
+            name: row.CREATED_BY_NAME,
+          },
+          cancelledBy:
+            row.CANCELLED_BY_ID && row.CANCELLED_BY_NAME
+              ? { id: row.CANCELLED_BY_ID, name: row.CANCELLED_BY_NAME }
+              : null,
+          attendance:
+            row.ATTENDANCE_ID !== null
+              ? {
+                  id: row.ATTENDANCE_ID,
+                  details: row.ATTENDANCE_DETAILS,
+                  attendedAt: row.ATTENDANCE_CREATED_AT,
+                  attendee: {
+                    id: row.ATTENDEE_ID,
+                    name: row.ATTENDEE_NAME,
+                  },
+                }
+              : null,
+          items: itemRows.map((item) => ({
+            product: { id: item.PRODUCT_ID, name: item.PRODUCT_NAME },
+            quantity: item.QUANTITY,
+          })),
+        },
+        null,
+      ];
+    } catch (error) {
+      console.error(error);
+      return [null, error];
+    }
+  }
+
+  /**
+   * @param {number} beneficiaryId
+   * @returns {Promise<[{beneficiary: object, family: object|null, representatives: object[], attendances: object[]}|null, Error|null]>}
+   */
+  static async getBeneficiaryContext(beneficiaryId) {
+    try {
+      const beneficiaryRows = await sql.query`
+        SELECT
+          B.ID,
+          B.FULL_NAME,
+          CASE WHEN F.ID IS NULL THEN NULL ELSE FP.FAM_ID END AS FAMILY_ID,
+          F.NAME AS FAMILY_NAME
+        FROM BENEFICIARIES B
+          LEFT JOIN FAMILY_PARTICIPANTS FP ON FP.BEN_ID = B.ID
+          LEFT JOIN FAMILIES F ON F.ID = FP.FAM_ID AND F.DELETED_AT IS NULL
+        WHERE B.ID = ${beneficiaryId} AND B.DELETED_AT IS NULL
+        ORDER BY FP.FAM_ID
+        LIMIT 1`.run();
+
+      if (beneficiaryRows.length === 0) return [null, null];
+
+      const beneficiary = beneficiaryRows[0];
+      let representatives = [];
+
+      if (beneficiary.FAMILY_ID) {
+        const representativeRows = await sql.query`
+          SELECT B.ID, B.FULL_NAME
+          FROM FAMILY_PARTICIPANTS FP
+            INNER JOIN BENEFICIARIES B ON B.ID = FP.BEN_ID
+          WHERE FP.FAM_ID = ${beneficiary.FAMILY_ID}
+            AND FP.IS_RESPOSIBLE = 1
+            AND B.DELETED_AT IS NULL
+          ORDER BY B.FULL_NAME`.run();
+
+        representatives = representativeRows.map((row) => ({
+          id: row.ID,
+          name: row.FULL_NAME,
+        }));
+      }
+
+      const attendanceRows = await sql.query`
+        SELECT
+          CA.ID AS ATTENDANCE_ID,
+          CA.DETAILS AS ATTENDANCE_DETAILS,
+          CA.STATUS AS ATTENDANCE_STATUS,
+          CAR.PRODUCT_ID,
+          P.NAME AS PRODUCT_NAME,
+          CAR.QUANTITY AS REQUESTED_QUANTITY,
+          CAR.PROVIDED_QUANTITY,
+          CAR.STATUS AS REQUEST_STATUS,
+          ISP.ID AS ISP_ID,
+          DATE_FORMAT(DATE(ISP.EXPIRES_AT), '%Y-%m-%d') AS EXPIRES_AT,
+          IR.ROOM_ID,
+          S.NOME AS ROOM_NAME,
+          IR.STORED_COUNT AS ROOM_COUNT
+        FROM CLIENT_ATTENDANCES CA
+          LEFT JOIN CLIENT_ATTENDANCE_REQUEST CAR
+            ON CAR.ATTENDANCE_ID = CA.ID
+          LEFT JOIN PRODUCTS P ON P.ID = CAR.PRODUCT_ID
+          LEFT JOIN IN_STOCK_PRODUCTS ISP
+            ON ISP.PRODUCT_ID = CAR.PRODUCT_ID AND ISP.COUNT > 0
+          LEFT JOIN ISP_IN_ROOM IR
+            ON IR.ISP_ID = ISP.ID AND IR.STORED_COUNT > 0
+          LEFT JOIN SALAS S ON S.ID = IR.ROOM_ID
+        WHERE CA.BENEFICIARY_ID = ${beneficiaryId}
+          AND CA.CANCELLED_AT IS NULL
+          AND CA.STATUS <> 'CLOSED'
+        ORDER BY CA.ID DESC, P.NAME, ISP.EXPIRES_AT, ISP.ID, S.NOME`.run();
+
+      const attendances = new Map();
+      for (const row of attendanceRows) {
+        if (!attendances.has(row.ATTENDANCE_ID)) {
+          attendances.set(row.ATTENDANCE_ID, {
+            id: row.ATTENDANCE_ID,
+            details: row.ATTENDANCE_DETAILS,
+            status: row.ATTENDANCE_STATUS,
+            requestedItems: [],
+          });
+        }
+
+        if (!row.PRODUCT_ID) continue;
+
+        const attendance = attendances.get(row.ATTENDANCE_ID);
+        let requestedItem = attendance.requestedItems.find(
+          (item) => item.product.id === row.PRODUCT_ID,
+        );
+
+        if (!requestedItem) {
+          requestedItem = {
+            product: { id: row.PRODUCT_ID, name: row.PRODUCT_NAME },
+            quantity: row.REQUESTED_QUANTITY,
+            providedQuantity: row.PROVIDED_QUANTITY,
+            status: row.REQUEST_STATUS,
+            stock: [],
+          };
+          attendance.requestedItems.push(requestedItem);
+        }
+
+        if (!row.ISP_ID || !row.ROOM_ID) continue;
+
+        const stockItemId = `${row.ISP_ID}:${row.ROOM_ID}`;
+        let stockItem = requestedItem.stock.find(
+          (batch) => batch.id === stockItemId,
+        );
+        if (!stockItem) {
+          stockItem = {
+            id: stockItemId,
+            ispId: row.ISP_ID,
+            roomId: row.ROOM_ID,
+            roomName: row.ROOM_NAME,
+            productId: row.PRODUCT_ID,
+            name: row.PRODUCT_NAME,
+            expiresAt: row.EXPIRES_AT,
+            count: 0,
+          };
+          requestedItem.stock.push(stockItem);
+        }
+        stockItem.count += Number(row.ROOM_COUNT);
+      }
+
+      return [
+        {
+          beneficiary: { id: beneficiary.ID, name: beneficiary.FULL_NAME },
+          family: beneficiary.FAMILY_ID
+            ? { id: beneficiary.FAMILY_ID, name: beneficiary.FAMILY_NAME }
+            : null,
+          representatives,
+          attendances: [...attendances.values()],
+        },
+        null,
+      ];
+    } catch (error) {
+      console.error(error);
+      return [null, error];
+    }
+  }
+
+  /**
+   * @param {{beneficiaryId:number, responsibleId:number, attendanceId?:number, details:string, items:{ispId:number,roomId:number,quantity:number}[]}} donation
+   * @param {number} userId
+   * @returns {Promise<[boolean, Error|null]>}
+   */
+  static async create(
+    { beneficiaryId, responsibleId, attendanceId, details, items },
+    userId,
+  ) {
+    try {
+      beneficiaryId = Number(beneficiaryId);
+      responsibleId =
+        responsibleId == null || responsibleId === ""
+          ? null
+          : Number(responsibleId);
+      attendanceId = attendanceId == null ? undefined : Number(attendanceId);
+      items = items.map(({ ispId, roomId, quantity }) => ({
+        ispId: Number(ispId),
+        roomId: Number(roomId),
+        quantity: Number(quantity),
+      }));
+
+      return await transaction(async (tx) => {
+        const familyRows = await tx.query`
+          SELECT F.ID AS FAMILY_ID
+          FROM BENEFICIARIES B
+            LEFT JOIN FAMILY_PARTICIPANTS FP ON FP.BEN_ID = B.ID
+            LEFT JOIN FAMILIES F
+              ON F.ID = FP.FAM_ID AND F.DELETED_AT IS NULL
+          WHERE B.ID = ${beneficiaryId}
+            AND B.DELETED_AT IS NULL
+          ORDER BY F.ID
+          LIMIT 1
+          FOR UPDATE`.run();
+
+        if (familyRows.length !== 1)
+          return [
+            false,
+            new DonationValidationError("Beneficiário não encontrado"),
+          ];
+
+        const familyId = familyRows[0].FAMILY_ID ?? null;
+        if (familyId) {
+          if (!Number.isSafeInteger(responsibleId) || responsibleId <= 0)
+            return [
+              false,
+              new DonationValidationError("Selecione um representante"),
+            ];
+
+          const representativeRows = await tx.query`
+            SELECT BEN_ID
+            FROM FAMILY_PARTICIPANTS
+            WHERE FAM_ID = ${familyId}
+              AND BEN_ID = ${responsibleId}
+              AND IS_RESPOSIBLE = 1
+            FOR UPDATE`.run();
+
+          if (representativeRows.length !== 1)
+            return [
+              false,
+              new DonationValidationError(
+                "O representante não pertence à família do beneficiário",
+              ),
+            ];
+        } else {
+          responsibleId = null;
+        }
+
+        if (attendanceId !== undefined) {
+          const attendanceRows = await tx.query`
+            SELECT ID
+            FROM CLIENT_ATTENDANCES
+            WHERE ID = ${attendanceId}
+              AND BENEFICIARY_ID = ${beneficiaryId}
+              AND CANCELLED_AT IS NULL
+              AND STATUS <> 'CLOSED'
+            FOR UPDATE`.run();
+
+          if (attendanceRows.length !== 1)
+            return [
+              false,
+              new DonationValidationError(
+                "O atendimento não pertence ao beneficiário ou está cancelado",
+              ),
+            ];
+        }
+
+        const ispIds = [...new Set(items.map(({ ispId }) => ispId))];
+        const stockRows = await tx.query`
+          SELECT
+            ID,
+            PRODUCT_ID,
+            COUNT,
+            DATE_FORMAT(DATE(EXPIRES_AT), '%Y-%m-%d') AS EXPIRES_AT
+          FROM IN_STOCK_PRODUCTS
+          WHERE ID IN (${tx.join(",", ...ispIds.map((id) => tx`${id}`))})
+          ORDER BY ID
+          FOR UPDATE`.run();
+        const stockById = new Map(stockRows.map((row) => [row.ID, row]));
+
+        if (stockById.size !== ispIds.length) {
+          return [
+            false,
+            new DonationValidationError(
+              "Um ou mais produtos não existem no estoque",
+            ),
+          ];
+        }
+
+        const quantityByStock = new Map();
+        for (const item of items) {
+          quantityByStock.set(
+            item.ispId,
+            (quantityByStock.get(item.ispId) ?? 0) + item.quantity,
+          );
+        }
+        for (const [stockId, quantity] of quantityByStock) {
+          if (Number(stockById.get(stockId).COUNT) < quantity)
+            return [
+              false,
+              new InsufficientDonationStockError(
+                "Estoque insuficiente para um ou mais produtos",
+              ),
+            ];
+        }
+
+        const changes = [];
+        const donationItems = [];
+
+        for (const item of items) {
+          const stock = stockById.get(item.ispId);
+
+          if (!Number.isSafeInteger(item.roomId) || item.roomId <= 0)
+            return [
+              false,
+              new DonationValidationError("Selecione uma sala para cada produto"),
+            ];
+
+          const roomRows = await tx.query`
+            SELECT ID, ROOM_ID, STORED_COUNT
+            FROM ISP_IN_ROOM
+            WHERE ISP_ID = ${stock.ID}
+              AND ROOM_ID = ${item.roomId}
+              AND STORED_COUNT > 0
+            FOR UPDATE`.run();
+          if (roomRows.length === 0)
+            return [
+              false,
+              new DonationValidationError(
+                "A sala selecionada não possui este produto em estoque",
+              ),
+            ];
+
+          const room = roomRows[0];
+          const roomCount = roomRows.reduce(
+            (total, row) => total + Number(row.STORED_COUNT),
+            0,
+          );
+          if (roomCount < item.quantity)
+            return [
+              false,
+              new InsufficientDonationStockError(
+                "Estoque insuficiente na sala selecionada",
+              ),
+            ];
+
+          changes.push({
+            stockId: stock.ID,
+            productId: stock.PRODUCT_ID,
+            expiresAt: stock.EXPIRES_AT,
+            total: -item.quantity,
+            rooms: [{ id: room.ROOM_ID, count: -item.quantity }],
+          });
+          donationItems.push({
+            stockId: stock.ID,
+            productId: stock.PRODUCT_ID,
+            quantity: item.quantity,
+            roomId: room.ROOM_ID,
+          });
+        }
+
+        const [stockUpdated, stockError] =
+          await InStockProductModel.updateStock(changes, tx);
+        if (!stockUpdated) return [false, stockError];
+
+        const result = await tx.exec`
+          INSERT INTO DONATIONS
+            (BENEFICIARY_ID, FAMILY_ID, REPRESENTATIVE_ID, ATTENDANCE_ID,
+             DETAILS, CREATED_BY)
+          VALUES
+            (${beneficiaryId}, ${familyId}, ${responsibleId},
+             ${attendanceId ?? null}, ${details.trim()}, ${userId})`.run();
+
+        if (!result.insertId)
+          return [false, new Error("Falha ao registrar doação")];
+
+        const itemValues = tx.join(
+          ",",
+          ...donationItems.map(
+            (item) =>
+              tx`(${result.insertId}, ${item.productId}, ${item.stockId},
+                  ${item.quantity}, ${item.roomId})`,
+          ),
+        );
+        const insertedItems = await tx.exec`
+          INSERT INTO DONATION_ITEMS
+            (DONATION_ID, PRODUCT_ID, ISP_ID, QUANTITY, ROOM_ID)
+          VALUES ${itemValues}`.run();
+
+        if (insertedItems.affectedRows !== donationItems.length)
+          return [false, new Error("Falha ao registrar os produtos da doação")];
+
+        if (attendanceId !== undefined)
+          await AttendanceModel.refreshFulfillmentStatus(tx, attendanceId);
+
+        return [true, null];
+      });
+    } catch (error) {
+      console.error(error);
+      return [false, error];
+    }
+  }
+
+  /**
+   * @param {number} id
+   * @param {number} userId
+   * @returns {Promise<[boolean, Error|null]>}
+   */
+  static async cancel(id, userId, details) {
+    try {
+      return await transaction(async (tx) => {
+        const donations = await tx.query`
+          SELECT ID, CANCELLED_AT, ATTENDANCE_ID
+          FROM DONATIONS
+          WHERE ID = ${id}
+          FOR UPDATE`.run();
+
+        if (donations.length === 0)
+          return [false, new DonationNotFoundError("Doação não encontrada")];
+        if (donations[0].CANCELLED_AT)
+          return [
+            false,
+            new DonationValidationError("A doação já foi cancelada"),
+          ];
+
+        const items = await tx.query`
+          SELECT
+            DI.ISP_ID,
+            DI.PRODUCT_ID,
+            DI.ROOM_ID,
+            SUM(DI.QUANTITY) AS QUANTITY,
+            DATE_FORMAT(DATE(ISP.EXPIRES_AT), '%Y-%m-%d') AS EXPIRES_AT
+          FROM DONATION_ITEMS DI
+            INNER JOIN IN_STOCK_PRODUCTS ISP ON ISP.ID = DI.ISP_ID
+          WHERE DI.DONATION_ID = ${id}
+          GROUP BY DI.ISP_ID, DI.PRODUCT_ID, DI.ROOM_ID, DATE(ISP.EXPIRES_AT)
+          `.run();
+
+        if (items.length === 0)
+          return [
+            false,
+            new DonationValidationError("A doação não possui produtos"),
+          ];
+
+        const changes = [];
+        const byStock = new Map();
+
+        for (const item of items) {
+          if (!byStock.has(item.ISP_ID)) {
+            byStock.set(item.ISP_ID, {
+              productId: item.PRODUCT_ID,
+              expiresAt: item.EXPIRES_AT,
+              roomItems: [],
+              unallocatedQuantity: 0,
+            });
+          }
+          const stock = byStock.get(item.ISP_ID);
+          if (item.ROOM_ID === null) stock.unallocatedQuantity += item.QUANTITY;
+          else
+            stock.roomItems.push({
+              id: item.ROOM_ID,
+              count: Number(item.QUANTITY),
+            });
+        }
+
+        for (const [stockId, stock] of byStock) {
+          if (stock.roomItems.length > 0) {
+            const roomTotal = stock.roomItems.reduce(
+              (total, room) => total + Number(room.count),
+              0,
+            );
+            changes.push({
+              stockId,
+              productId: stock.productId,
+              expiresAt: stock.expiresAt,
+              total: Number(roomTotal),
+              rooms: stock.roomItems,
+            });
+          }
+
+          if (stock.unallocatedQuantity > 0) {
+            changes.push({
+              stockId,
+              productId: stock.productId,
+              expiresAt: stock.expiresAt,
+              total: Number(stock.unallocatedQuantity),
+              rooms: [],
+            });
+          }
+        }
+
+        const [stockUpdated, stockError] =
+          await InStockProductModel.updateStock(changes, tx);
+        if (!stockUpdated) return [false, stockError];
+
+        const cancelled = await tx.exec`
+          UPDATE DONATIONS
+          SET CANCELLED_AT = CURRENT_TIMESTAMP,
+              CANCELLED_BY = ${userId},
+              CANCELLATION_DETAILS = ${details.trim()}
+          WHERE ID = ${id} AND CANCELLED_AT IS NULL`.run();
+
+        if (cancelled.affectedRows !== 1)
+          return [false, new Error("Falha ao cancelar doação")];
+
+        if (donations[0].ATTENDANCE_ID !== null)
+          await AttendanceModel.refreshFulfillmentStatus(
+            tx,
+            donations[0].ATTENDANCE_ID,
+          );
+
+        return [true, null];
+      });
+    } catch (error) {
+      console.error(error);
+      return [false, error];
+    }
+  }
+}

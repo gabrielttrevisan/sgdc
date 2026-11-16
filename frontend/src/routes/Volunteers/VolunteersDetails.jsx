@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router";
-import { ReadOnlyResourceForm } from "../../components/resource-form/ReadOnlyResourceForm.jsx";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import VolunteerService from "../../service/VolunteerService";
 import { VolunteerFields } from "./components/VolunteerFields";
+import { ReadOnlyResourceForm } from "../../components/resource-form/read-only/ReadOnlyResourceForm.jsx";
 
 export default WithAuthGuard(function VolunteerDetails() {
   const navigate = useNavigate();

@@ -3,8 +3,8 @@ import { InputField } from "../../components/form/input-field/InputField.jsx";
 import { TextAreaField } from "../../components/form/input-field/TextAreaField.jsx";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import BillsService from "../../service/BillsService.js";
-import { ReadOnlyResourceForm } from "../../components/resource-form/ReadOnlyResourceForm.jsx";
 import { BillTimeline } from "./components/BillTimeline.jsx";
+import { ReadOnlyResourceForm } from "../../components/resource-form/read-only/ReadOnlyResourceForm.jsx";
 
 export default WithAuthGuard(function ShowBillForm() {
   const navigate = useNavigate();

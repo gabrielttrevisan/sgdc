@@ -10,9 +10,20 @@ import { useFormRegistry } from "./context/useFormRegistry";
  * @param {FromProps & Omit<import("react").HTMLProps<"form">, "onSubmit">} param0
  * @returns {import("react").JSX.Element}
  */
-export function Form({ children, onSubmit, ...props }) {
+export function Form({ children, onSubmit, ref, ...props }) {
+  const registry = useFormRegistry(onSubmit);
   return (
-    <form {...props} {...useFormRegistry(onSubmit)}>
+    <form
+      {...props}
+      {...registry}
+      ref={(instance) => {
+        typeof registry.ref === "function" && registry.ref(instance);
+        if (ref) {
+          if (typeof ref === "function") ref(instance);
+          else ref.current = instance;
+        }
+      }}
+    >
       {children}
     </form>
   );

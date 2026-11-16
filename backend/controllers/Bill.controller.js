@@ -90,12 +90,13 @@ export default class BillController {
     const response = APIResponse.from(res);
 
     const { id } = req.params;
-    const { details } = req.body;
+    const { details, paidValue } = req.body;
 
     const [isUpdated, error] = await BillModel.pay(
       {
         id,
         details,
+        paidValue,
       },
       req.auth.user,
     );

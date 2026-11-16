@@ -27,6 +27,37 @@ class AuthService extends Service {
       return this.internal("Erro inesperado\n" + (e.message ?? ""));
     }
   }
+
+  /**
+   * @param {{ user: string }} data
+   * @returns {Promise<import("../global").APIResponse<{message: string}>>}
+   */
+  async requestRecoveryToken({ user }) {
+    try {
+      const client = new APIClient();
+      return await client.post("auth/recovery-token", { user });
+    } catch (e) {
+      return this.internal("Erro inesperado\n" + (e.message ?? ""));
+    }
+  }
+
+  /**
+   * @param {{ cpf: string; token: string; pass: string; confirmPass: string }} data
+   * @returns {Promise<import("../global").APIResponse<{message: string}>>}
+   */
+  async resetPassword({ cpf, token, pass, confirmPass }) {
+    try {
+      const client = new APIClient();
+      return await client.post("auth/reset-password", {
+        cpf,
+        token,
+        pass,
+        confirmPass,
+      });
+    } catch (e) {
+      return this.internal("Erro inesperado\n" + (e.message ?? ""));
+    }
+  }
 }
 
 export default new AuthService();

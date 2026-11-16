@@ -1,10 +1,17 @@
 import useIsDataGridMobile from "../context/useIsDataGridMobile";
 
 /** @type {import("react").FC<import("react").HTMLProps<"tr">>} */
-export const DataGridItem = ({ children, className = "", ...props }) => {
+export const DataGridItem = ({
+  children,
+  className = "",
+  isSelectable = false,
+  ...props
+}) => {
   const isMobile = useIsDataGridMobile();
 
-  const itemClassName = `data-grid__item ${className}`;
+  const selectableClass = isSelectable ? ` data-grid__item--selectable` : "";
+  const clazzName = className ? ` ${className} ` : "";
+  const itemClassName = `data-grid__item${selectableClass}${clazzName}`;
 
   if (isMobile) {
     return (
