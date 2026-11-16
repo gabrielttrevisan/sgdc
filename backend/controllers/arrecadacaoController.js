@@ -1,98 +1,271 @@
-import {
-  atualizarArrecadacao,
-  criarArrecadacao,
-  excluirArrecadacao,
-  listarArrecadacoes,
-} from "../models/arrecadacao.model.js";
 
-function validateArrecadacao(data) {
-  const tipoArrecadacao = data.tipoArrecadacao;
-  if (
-    typeof tipoArrecadacao !== "string" ||
-    !tipoArrecadacao.trim() ||
-    tipoArrecadacao.length > 80
-  ) {
-    return "Informe uma categoria válida para a arrecadação.";
-  }
+import promisePool from "../config/database.js";
 
-  const exigeValor = /dinheiro|pix/i.test(tipoArrecadacao);
-  const valor = Number(data.valor);
+// ============================================
+// RF_F1 - LANÇAR ARRECADAÇÃO
+// ============================================
 
-  if (
-    data.valor === null ||
-    data.valor === undefined ||
-    data.valor === "" ||
-    !Number.isFinite(valor) ||
-    valor < 0 ||
-    (exigeValor && valor <= 0)
-  ) {
-    return "Informe um valor maior que zero.";
-  }
-
-  if (!data.dataArrecadacao || Number.isNaN(Date.parse(data.dataArrecadacao))) {
-    return "Informe uma data válida para a arrecadação.";
-  }
-
-  if (data.descricao != null && String(data.descricao).length > 255) {
-    return "A descrição deve ter no máximo 255 caracteres.";
-  }
-
-  return null;
-}
-
-function parseId(id) {
-  const parsedId = Number(id);
-  return Number.isSafeInteger(parsedId) && parsedId > 0 ? parsedId : null;
-}
-
-export async function list(req, res) {
-  try {
-    const arrecadacoes = await listarArrecadacoes();
-    return res.json(arrecadacoes);
-  } catch (error) {
-    console.error("Erro ao listar arrecadações:", error);
-    return res.status(500).json({
-      message: "Falha ao consultar arrecadações no banco. Verifique o log do backend.",
-    });
-  }
-}
-
-export async function create(req, res) {
+export async function criarArrecadacao(req, res) {
+  let conexao;
 
   try {
+    const { doadorId, itens } = req.body ?? {};
 
-    const {
-      valor,
-      dataArrecadacao,
-      tipoArrecadacao,
-      descricao
-    } = req.body;
+    const usuarioId = req.auth?.user?.id;
 
-    const validationError = validateArrecadacao({
-      valor,
-      dataArrecadacao,
-      tipoArrecadacao,
-      descricao,
-    });
-    if (validationError) {
+    // ========================================
+    // 1. VALIDAR DOADOR
+    // ========================================
+
+    const idDoador = Number(doadorId);
+    const idUsuario = Number(usuarioId);
+
+    if (
+      !Number.isSafeInteger(idDoador) ||
+      idDoador <= 0
+    ) {
       return res.status(400).json({
-        message: validationError
+        message: "Selecione um doador válido.",
       });
     }
 
-    const arrecadacao = await criarArrecadacao({
-      valor,
-      dataArrecadacao,
-      tipoArrecadacao,
-      descricao
-    });
+    if (
+      !Number.isSafeInteger(idUsuario) ||
+      idUsuario <= 0
+    ) {
+      return res.status(401).json({
+        message: "Usuário não autenticado ou inválido.",
+      });
+    }
+
+    // ========================================
+    // 2. VALIDAR LISTA DE PRODUTOS
+    // ========================================
+
+    if (!Array.isArray(itens) || itens.length === 0) {
+      return res.status(400).json({
+        message: "Adicione pelo menos um produto à arrecadação.",
+      });
+    }
+
+    const itensValidados = [];
+
+    for (const item of itens) {
+      if (!item || typeof item !== "object" || Array.isArray(item)) {
+        return res.status(400).json({
+          message: "Os dados de um dos produtos são inválidos.",
+        });
+      }
+
+      const productId = Number(item.productId);
+      const quantidade = Number(item.quantidade);
+      const salaId = Number(item.salaId);
+      const dataVencimento = item.dataVencimento;
+
+      if (
+        !Number.isSafeInteger(productId) ||
+        productId <= 0
+      ) {
+        return res.status(400).json({
+          message: "Produto inválido.",
+        });
+      }
+
+      if (
+        !Number.isSafeInteger(quantidade) ||
+        quantidade <= 0
+      ) {
+        return res.status(400).json({
+          message: "A quantidade deve ser um número inteiro maior que zero.",
+        });
+      }
+
+      if (
+        !Number.isSafeInteger(salaId) ||
+        salaId <= 0
+      ) {
+        return res.status(400).json({
+          message: "Selecione um local de armazenamento válido.",
+        });
+      }
+
+      // Validar formato e existência da data
+      if (
+        typeof dataVencimento !== "string" ||
+        !/^\d{4}-\d{2}-\d{2}$/.test(dataVencimento)
+      ) {
+        return res.status(400).json({
+          message: "Informe uma data de vencimento válida.",
+        });
+      }
+
+      const [ano, mes, dia] = dataVencimento
+        .split("-")
+        .map(Number);
+
+      const data = new Date(Date.UTC(ano, mes - 1, dia));
+
+      if (
+        data.getUTCFullYear() !== ano ||
+        data.getUTCMonth() !== mes - 1 ||
+        data.getUTCDate() !== dia
+      ) {
+        return res.status(400).json({
+          message: "A data de vencimento informada não existe.",
+        });
+      }
+
+      itensValidados.push({
+        productId,
+        quantidade,
+        salaId,
+        dataVencimento,
+      });
+    }
+
+    // ========================================
+    // 3. INICIAR TRANSAÇÃO
+    // ========================================
+
+    conexao = await promisePool.getConnection();
+
+    await conexao.beginTransaction();
+
+    // ========================================
+    // 4. VERIFICAR SE O DOADOR EXISTE
+    // ========================================
+
+    const [doadores] = await conexao.execute(
+      `
+        SELECT ID
+        FROM DONORS
+        WHERE ID = ?
+      `,
+      [idDoador]
+    );
+
+    if (doadores.length === 0) {
+      await conexao.rollback();
+
+      return res.status(404).json({
+        message: "Doador não encontrado.",
+      });
+    }
+
+    // ========================================
+    // 5. CRIAR REGISTRO DA ARRECADAÇÃO
+    // ========================================
+
+    const [resultado] = await conexao.execute(
+      `
+        INSERT INTO COLLECTIONS (
+          COLLECTED_BY,
+          CREATED_BY
+        )
+        VALUES (?, ?)
+      `,
+      [idDoador, idUsuario]
+    );
+
+    const collectionId = resultado.insertId;
+
+    // ========================================
+    // 6. REGISTRAR CADA PRODUTO ARRECADADO
+    // ========================================
+
+    for (const item of itensValidados) {
+
+      // Verificar se o produto existe
+      const [produtos] = await conexao.execute(
+        `
+          SELECT ID
+          FROM PRODUCTS
+          WHERE ID = ? AND DELETED_AT IS NULL
+        `,
+        [item.productId]
+      );
+
+      if (produtos.length === 0) {
+        await conexao.rollback();
+
+        return res.status(404).json({
+          message: `Produto ${item.productId} não encontrado.`,
+        });
+      }
+
+      // Verificar se a sala existe
+      const [salas] = await conexao.execute(
+        `
+          SELECT ID
+          FROM SALAS
+          WHERE ID = ?
+        `,
+        [item.salaId]
+      );
+
+      if (salas.length === 0) {
+        await conexao.rollback();
+
+        return res.status(404).json({
+          message: `Local de armazenamento ${item.salaId} não encontrado.`,
+        });
+      }
+
+      // Inserir item da arrecadação
+      await conexao.execute(
+        `
+          INSERT INTO COLLECTED_ITEMS (
+            PRODUCT_ID,
+            COLLECTION_ID,
+            \`COUNT\`,
+            SALA_ID,
+            EXPIRES_AT
+          )
+          VALUES (?, ?, ?, ?, ?)
+        `,
+        [
+          item.productId,
+          collectionId,
+          item.quantidade,
+          item.salaId,
+          `${item.dataVencimento} 00:00:00`,
+        ]
+      );
+    }
+
+    // ========================================
+    // 7. CONFIRMAR TRANSAÇÃO
+    // ========================================
+
+    await conexao.commit();
 
     return res.status(201).json({
       message: "Arrecadação lançada com sucesso!",
-      arrecadacao
+      arrecadacao: {
+        id: collectionId,
+        doadorId: idDoador,
+        usuarioId: idUsuario,
+        totalProdutos: itensValidados.length,
+        itens: itensValidados,
+      },
     });
 
   } catch (error) {
+
+    // ========================================
+    // 8. DESFAZER TRANSAÇÃO EM CASO DE ERRO
+    // ========================================
+
+    if (conexao) {
+      try {
+        await conexao.rollback();
+      } catch (rollbackError) {
+        console.error(
+          "Erro ao desfazer transação:",
+          rollbackError
+        );
+      }
+    }
 
     console.error(
       "Erro ao lançar arrecadação:",
@@ -100,66 +273,15 @@ export async function create(req, res) {
     );
 
     return res.status(500).json({
-      message: "Falha ao gravar arrecadação no banco. Verifique o log do backend."
-    });
-  }
-}
-
-export async function update(req, res) {
-  const id = parseId(req.params.id);
-  if (!id) {
-    return res.status(400).json({ message: "Identificador de arrecadação inválido." });
-  }
-
-  const { valor, dataArrecadacao, tipoArrecadacao, descricao } = req.body;
-  const validationError = validateArrecadacao({
-    valor,
-    dataArrecadacao,
-    tipoArrecadacao,
-    descricao,
-  });
-  if (validationError) {
-    return res.status(400).json({ message: validationError });
-  }
-
-  try {
-    const updated = await atualizarArrecadacao(id, {
-      valor: Number(valor),
-      dataArrecadacao,
-      tipoArrecadacao,
-      descricao: descricao?.trim() || null,
+      message: "Erro ao registrar arrecadação.",
     });
 
-    if (!updated) {
-      return res.status(404).json({ message: "Arrecadação não encontrada." });
+  } finally {
+
+    // Liberar conexão com o MySQL
+    if (conexao) {
+      conexao.release();
     }
 
-    return res.json({ message: "Arrecadação atualizada com sucesso." });
-  } catch (error) {
-    console.error("Erro ao atualizar arrecadação:", error);
-    return res.status(500).json({
-      message: "Falha ao atualizar arrecadação no banco. Verifique o log do backend.",
-    });
-  }
-}
-
-export async function remove(req, res) {
-  const id = parseId(req.params.id);
-  if (!id) {
-    return res.status(400).json({ message: "Identificador de arrecadação inválido." });
-  }
-
-  try {
-    const deleted = await excluirArrecadacao(id);
-    if (!deleted) {
-      return res.status(404).json({ message: "Arrecadação não encontrada." });
-    }
-
-    return res.json({ message: "Arrecadação excluída com sucesso." });
-  } catch (error) {
-    console.error("Erro ao excluir arrecadação:", error);
-    return res.status(500).json({
-      message: "Falha ao excluir arrecadação no banco. Verifique o log do backend.",
-    });
   }
 }

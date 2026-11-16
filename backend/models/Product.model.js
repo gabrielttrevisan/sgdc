@@ -50,7 +50,7 @@ export default class ProductModel {
             P.NEEDS_REFRIGERATION, P.IS_PERISHABLE,
             M.NAME AS MEASURING_UNIT_NAME, M.SYMBOL AS MEASURING_UNIT_SYMBOL
           FROM PRODUCTS P
-            INNER JOIN MEASURING_UNITS M ON M.ID = P.MEASURING_UNIT_ID
+            LEFT JOIN MEASURING_UNITS M ON M.ID = P.MEASURING_UNIT_ID
           ${whereClause}
           ${orderByClause}
           ${limitClause}`.run(),
@@ -91,7 +91,7 @@ export default class ProductModel {
           P.NEEDS_REFRIGERATION, P.IS_PERISHABLE,
           M.NAME AS MEASURING_UNIT_NAME, M.SYMBOL AS MEASURING_UNIT_SYMBOL
         FROM PRODUCTS P
-          INNER JOIN MEASURING_UNITS M ON M.ID = P.MEASURING_UNIT_ID
+          LEFT JOIN MEASURING_UNITS M ON M.ID = P.MEASURING_UNIT_ID
         WHERE P.ID = ${id} AND P.DELETED_AT IS NULL`.run();
 
       return [data.length ? parseProduct(data[0]) : null, null];
@@ -221,11 +221,14 @@ function parseProduct(product) {
     description: product.DESCRIPTION,
     needRefrigeration: Boolean(product.NEEDS_REFRIGERATION),
     isPerishable: Boolean(product.IS_PERISHABLE),
-    measuringUnit: {
-      id: product.MEASURING_UNIT_ID,
-      name: product.MEASURING_UNIT_NAME,
-      symbol: product.MEASURING_UNIT_SYMBOL,
-    },
+    measuringUnit:
+      product.MEASURING_UNIT_ID == null
+        ? null
+        : {
+            id: product.MEASURING_UNIT_ID,
+            name: product.MEASURING_UNIT_NAME,
+            symbol: product.MEASURING_UNIT_SYMBOL,
+          },
   };
 }
 
@@ -255,7 +258,7 @@ function parseProduct(product) {
  * @prop {string|null} description Product description.
  * @prop {boolean} needRefrigeration Whether refrigeration is required.
  * @prop {boolean} isPerishable Whether the product is perishable.
- * @prop {PersistedMeasuringUnit} measuringUnit Product measuring unit.
+ * @prop {PersistedMeasuringUnit|null} measuringUnit Product measuring unit.
  */
 
 /**

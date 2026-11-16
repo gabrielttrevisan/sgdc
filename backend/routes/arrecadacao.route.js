@@ -1,17 +1,8 @@
 import express from "express";
-
-import {
-  create,
-  list,
-  remove,
-  update,
-} from "../controllers/arrecadacaoController.js";
+import { criarArrecadacao } from "../controllers/arrecadacaoController.js";
 
 const router = express.Router();
 
-router.get("/", list);
-router.post("/", create);
-router.put("/:id", update);
-router.delete("/:id", remove);
+router.post("/", criarArrecadacao);
 
 export default router;

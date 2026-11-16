@@ -6,6 +6,19 @@ import { authStore } from "../../store/Auth.store";
 
 import "./css/cadastro.css";
 
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL || "http://localhost:3004/"
+).replace(/\/+$/, "");
+
+function getApiError(payload, fallback) {
+  return (
+    payload?.error?.issues?.[0]?.description ||
+    payload?.error?.message ||
+    payload?.message ||
+    fallback
+  );
+}
+
 const CadastroRFB5 = WithAuthGuard(function CadastroRFB5() {
   const navigate = useNavigate();
 
@@ -21,17 +34,22 @@ const CadastroRFB5 = WithAuthGuard(function CadastroRFB5() {
     async function carregarSala() {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/salas/${id}`,
+          `${API_BASE_URL}/salas/${id}`,
           {
             headers: authStore.getHeaders(),
           },
         );
 
-        const json = await response.json();
+        const json = await response.json().catch(() => null);
 
-        setSalaEditando(json.data);
-      } catch {
-        setErro("Erro ao carregar sala");
+        if (!response.ok) {
+          throw new Error(getApiError(json, "Erro ao carregar sala."));
+        }
+
+        setSalaEditando(json?.data ?? json);
+      } catch (error) {
+        console.error("Erro ao carregar sala:", error);
+        setErro(error.message || "Erro ao carregar sala.");
       }
     }
 
@@ -41,7 +59,7 @@ const CadastroRFB5 = WithAuthGuard(function CadastroRFB5() {
   async function salvarSala(sala) {
     const cap = Number(sala.capacidade);
 
-    if (!sala.nome.trim() || !cap || cap <= 0) {
+    if (!sala.nome.trim() || !Number.isSafeInteger(cap) || cap <= 0) {
       setErro("Preencha os campos corretamente");
 
       return;
@@ -49,9 +67,7 @@ const CadastroRFB5 = WithAuthGuard(function CadastroRFB5() {
 
     try {
       const response = await fetch(
-        id
-          ? `${import.meta.env.VITE_API_URL}salas/${id}`
-          : "${import.meta.env.VITE_API_URL}salas",
+        `${API_BASE_URL}/salas${id ? `/${id}` : ""}`,
 
         {
           method: id ? "PUT" : "POST",
@@ -62,22 +78,22 @@ const CadastroRFB5 = WithAuthGuard(function CadastroRFB5() {
           },
 
           body: JSON.stringify({
-            nome: sala.nome,
-
-            capacidade: Number(sala.capacidade),
-
+            nome: sala.nome.trim(),
+            capacidade: cap,
             descricao: sala.descricao,
           }),
         },
       );
 
-      if (!response.ok) throw new Error("Falha ao salvar");
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(getApiError(payload, "Falha ao salvar a sala."));
+      }
 
       navigate("/locais-de-armazenamento");
     } catch (error) {
-      console.error(error);
-
-      setErro("Erro ao salvar sala");
+      console.error("Erro ao salvar sala:", error);
+      setErro(error.message || "Erro ao salvar sala.");
     }
   }
 
