@@ -38,6 +38,7 @@
   --colors-status-safe: rgba(61, 174, 118, 1);
   --colors-status-safe-90: rgba(61, 174, 118, 0.9);
   --colors-status-safe-60: rgba(61, 174, 118, 0.6);
+  --colors-status-safe-base: 61 174 118;
   --transitions-calm: all 200ms ease-out;
 
   font-size: 16px;
@@ -182,19 +183,28 @@ dialog {
     --bbo-color-normal: var(--colors-foreground-black);
     --bbo-color-hover: var(--colors-foreground-black);
     --bbo-thickness: 1px;
+    --bbo-bg: transparent;
+    --bbo-bg-hover: var(--bbo-bg);
 
     border: var(--bbo-thickness) solid var(--bbo-color-normal);
-    background: transparent;
+    background: var(--bbo-bg);
     color: var(--bbo-color-normal);
 
-    &:hover {
+    &:hover:not(:disabled) {
       border-color: var(--bbo-color-hover);
       color: var(--bbo-color-hover);
+      background-color: var(--bbo-bg-hover);
     }
 
     &.--primary {
       --bbo-color-normal: var(--colors-primary);
       --bbo-color-hover: var(--colors-primary-1);
+    }
+
+    &.--btn-safe {
+      --bbo-color-normal: var(--colors-status-safe);
+      --bbo-color-hover: var(--colors-status-safe);
+      --bbo-bg-hover: rgb(var(--colors-status-safe-base) / 20%);
     }
   }
 
@@ -269,4 +279,21 @@ dialog {
 
 *[hidden] {
   display: none !important;
+}
+
+.action-tooltip {
+  background-color: rgb(var(--colors-primary-dark-base) / 90%);
+  border: 0;
+  border-radius: 4px;
+  text-transform: none;
+  padding: 8px 16px;
+  box-shadow:
+    0 4px 20px rgb(0 0 0 / 15%),
+    0 4px 6px rgb(0 0 0 / 15%);
+  backdrop-filter: blur(1px);
+  color: var(--colors-text-white);
+  font-size: 14px;
+  margin: 0;
+  inset: 0;
+  transform: translate(-50%);
 }

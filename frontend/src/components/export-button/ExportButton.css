@@ -1,0 +1,38 @@
+.export-button {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+
+  .export-button__format-icon {
+    padding-inline: 8px;
+    width: min-content !important;
+  }
+
+  .button-block {
+    height: 100%;
+
+    &:first-of-type {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      border-right: 0;
+    }
+
+    &:last-of-type {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+
+  .export-button__excel-icon,
+  .export-button__csv-icon {
+    display: none;
+  }
+
+  [data-format="xls"] .export-button__excel-icon {
+    display: block;
+  }
+
+  [data-format="csv"] .export-button__csv-icon {
+    display: block;
+  }
+}

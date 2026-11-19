@@ -67,6 +67,8 @@ import { SelectVolunteers } from "./routes/discards/SelectVolunteers.jsx";
 import { Goals } from "./routes/goals/Goals.jsx";
 import GoalForm from "./routes/goals/GoalForm.jsx";
 import GoalDetails from "./routes/goals/GoalDetails.jsx";
+import { ReportDiscards } from "./routes/report-discards/ReportDiscards.jsx";
+import { ReportDiscardsFilterForm } from "./routes/report-discards/ReportDiscardsFilterForm.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
@@ -74,10 +76,7 @@ createRoot(document.getElementById("root")).render(
       <BrowserRouter>
         <Routes>
           <Route path="/sign-in" element={<SignInForm />} />
-          <Route
-            path="/reset-password"
-            element={<ResetPasswordForm />}
-          />
+          <Route path="/reset-password" element={<ResetPasswordForm />} />
           <Route ErrorBoundary={ErrorBoundary} />
 
           <Route element={<Layout />}>
@@ -85,10 +84,7 @@ createRoot(document.getElementById("root")).render(
               path="/produtos-em-estoque/:id/visualizar"
               element={<InStockProductDetails />}
             />
-            <Route
-              path="/produtos-em-estoque"
-              element={<InStockProducts />}
-            />
+            <Route path="/produtos-em-estoque" element={<InStockProducts />} />
 
             <Route path="/arrecadacoes" element={<Arrecadacoes />} />
             <Route
@@ -114,6 +110,11 @@ createRoot(document.getElementById("root")).render(
               path="/descartes/:id/visualizar"
               element={<DiscardDetails />}
             />
+            <Route
+              path="/relatorios/descartes/filtro"
+              element={<ReportDiscardsFilterForm />}
+            />
+            <Route path="/relatorios/descartes" element={<ReportDiscards />} />
             <Route
               path="/voluntarios/selecionar"
               element={<SelectVolunteers />}
@@ -163,10 +164,7 @@ createRoot(document.getElementById("root")).render(
 
             <Route path="/contas-a-pagar" element={<Bills />} />
             <Route path="/contas-a-pagar/lancar" element={<CreateBillForm />} />
-            <Route
-              path="/contas-a-pagar/:id/baixa"
-              element={<PayBillForm />}
-            />
+            <Route path="/contas-a-pagar/:id/baixa" element={<PayBillForm />} />
             <Route
               path="/contas-a-pagar/:id/cancelar"
               element={<CancelBillForm />}
@@ -188,10 +186,7 @@ createRoot(document.getElementById("root")).render(
             <Route path="/beneficiarios/:id" element={<BeneficiaryForm />} />
             <Route path="/familias" element={<Families />} />
             <Route path="/familias/cadastrar" element={<FamilyForm />} />
-            <Route
-              path="/atendimentos"
-              element={<Attendances />}
-            />
+            <Route path="/atendimentos" element={<Attendances />} />
             <Route
               path="/atendimentos/cadastrar/:id"
               element={<AttendanceForm />}
@@ -204,10 +199,7 @@ createRoot(document.getElementById("root")).render(
               path="/atendimentos/:id/visualizar"
               element={<AttendanceDetails />}
             />
-            <Route
-              path="/atendimento/:id"
-              element={<EditAttendanceForm />}
-            />
+            <Route path="/atendimento/:id" element={<EditAttendanceForm />} />
             <Route
               path="/familias/:id/visualizar"
               element={<FamilyDetails />}
@@ -250,7 +242,7 @@ createRoot(document.getElementById("root")).render(
           </Route>
         </Routes>
       </BrowserRouter>
-      
+
       <ToastTray />
     </MatchMediaProvider>
   </StrictMode>,

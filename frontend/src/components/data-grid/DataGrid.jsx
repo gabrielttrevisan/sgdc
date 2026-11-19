@@ -53,6 +53,7 @@ import { DataGridWrapper } from "./grid/DataGridWrapper";
  * @typedef {Object} DataGridRef
  * @prop {VoidFunction} update
  */
+
 /**
  * @template T
  * @typedef {Object} DataGridProps
@@ -96,6 +97,8 @@ export function DataGrid({
   sortTypeDefault,
   breakpoint,
   matchMedia,
+  noSearch = false,
+  getCustomFilter,
 }) {
   /** @type {[import("../../global").AsyncPageData<T>, import("react").Dispatch<import("react").SetStateAction<import("../../global").AsyncPageData<T>>>]} */
   const [page, setPage] = useState({
@@ -123,9 +126,17 @@ export function DataGrid({
       const actualSortType = noSorting
         ? undefined
         : (sortType ?? sortTypeDefault);
+      const customFilter =
+        getCustomFilter?.({
+          sortKey: actualSortKey,
+          sortType: actualSortType,
+          query,
+          page: count,
+        }) ?? {};
 
       paginatableService
         .list({
+          ...customFilter,
           page: count,
           sortKey: actualSortKey,
           sortType: actualSortType,
@@ -157,7 +168,7 @@ export function DataGrid({
           });
         });
     },
-    [paginatableService],
+    [paginatableService, getCustomFilter],
   );
 
   useEffect(() => {
@@ -183,18 +194,22 @@ export function DataGrid({
           </h2>
 
           <DataGridHeaderActions>
-            <SearchBox
-              onSearch={(query) =>
-                getPage(1, page.sortKey, query, page.sortType)
-              }
-              onReset={() => getPage(1, page.sortKey, undefined, page.sortType)}
-              placeholder={
-                searchBoxPlaceholder
-                  ? searchBoxPlaceholder
-                  : `Buscar ${pluralName?.toLocaleLowerCase() ?? "registros"}...`
-              }
-              gridId={`data-grid-${pluralName}`}
-            />
+            {!noSearch && (
+              <SearchBox
+                onSearch={(query) =>
+                  getPage(1, page.sortKey, query, page.sortType)
+                }
+                onReset={() =>
+                  getPage(1, page.sortKey, undefined, page.sortType)
+                }
+                placeholder={
+                  searchBoxPlaceholder
+                    ? searchBoxPlaceholder
+                    : `Buscar ${pluralName?.toLocaleLowerCase() ?? "registros"}...`
+                }
+                gridId={`data-grid-${pluralName}`}
+              />
+            )}
 
             {children}
           </DataGridHeaderActions>
@@ -208,7 +223,7 @@ export function DataGrid({
             aria-rowcount={page.items.length}
             aria-labelledby={`data-grid-title-${pluralName}`}
           >
-            <DataGridFilterList>
+            <DataGridFilterList hasActions={Boolean(actionsConfig)}>
               {columns.map((column) => (
                 <DataGridFilter
                   key={column.id}
