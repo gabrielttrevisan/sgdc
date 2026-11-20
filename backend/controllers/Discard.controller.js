@@ -3,6 +3,7 @@ import DiscardModel, {
   DiscardValidationError,
   InsufficientDiscardStockError,
 } from "../models/Discard.model.js";
+import createDiscardReportFile from "../lib/DiscardReportExport.js";
 
 export default class DiscardController {
   /**
@@ -28,7 +29,7 @@ export default class DiscardController {
    */
   static async findForReport(req, res) {
     const response = APIResponse.from(res);
-    const { startAt, endAt, products, page, perPage } = req.query;
+    const { startAt, endAt, products, page, perPage, format } = req.query;
     const [discards, error] = await DiscardModel.findForReport({
       startAt,
       endAt,
@@ -38,9 +39,25 @@ export default class DiscardController {
           : undefined,
       page: page ? parseInt(page, 10) : 1,
       perPage: perPage ? parseInt(perPage, 10) : 10,
+      all: Boolean(format),
     });
 
     if (error) return response.internalError();
+
+    if (format) {
+      try {
+        const file = await createDiscardReportFile(discards.items, format);
+
+        res.set("Content-Type", file.contentType);
+        res.set("Content-Disposition", `attachment; filename="${file.filename}"`);
+
+        return res.status(200).send(file.buffer);
+      } catch (exportError) {
+        console.error(exportError);
+        return response.internalError("Não foi possível gerar o arquivo do relatório");
+      }
+    }
+
     return response.success(discards);
   }
 

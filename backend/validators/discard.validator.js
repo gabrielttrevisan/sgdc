@@ -120,4 +120,12 @@ export const REPORT_DISCARDS_FILTER_RULES = [
     validate: (value) =>
       isProductIdList(value) ? true : "Lista de produtos inválida",
   },
+  {
+    property: "format",
+    required: false,
+    validate: (value) =>
+      value === "csv" || value === "xls"
+        ? true
+        : "Formato de exportação inválido",
+  },
 ];

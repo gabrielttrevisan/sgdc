@@ -21,7 +21,7 @@ function addDays(date, days) {
 
 export default class DiscardModel {
   /**
-   * @param {{query?: string, page?: number, perPage?: number, startAt?: string, endAt?: string, products?: number[]}} filter
+   * @param {{query?: string, page?: number, perPage?: number, startAt?: string, endAt?: string, products?: number[], all?: boolean}} filter
    * @returns {Promise<[object|null, Error|null]>}
    */
   static async findAll({
@@ -31,6 +31,7 @@ export default class DiscardModel {
     startAt,
     endAt,
     products,
+    all = false,
   }) {
     try {
       const likeQuery = `%${query ?? ""}%`;
@@ -75,7 +76,9 @@ export default class DiscardModel {
       const whereClause = whereClauses.length
         ? sql`WHERE ${sql.join(" AND ", ...whereClauses)}`
         : sql.empty;
-      const limitClause = sql`LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
+      const limitClause = all
+        ? sql.empty
+        : sql`LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
       const [rows, [{ TOTAL: total }]] = await Promise.all([
         sql.query`
           SELECT
@@ -113,7 +116,7 @@ export default class DiscardModel {
           })),
           totalRecords: total,
           page,
-          totalPages: Math.ceil(total / perPage),
+          totalPages: all ? 1 : Math.ceil(total / perPage),
           query,
         },
         null,
@@ -124,7 +127,7 @@ export default class DiscardModel {
   }
 
   /**
-   * @param {{page?: number, perPage?: number, startAt?: string, endAt?: string, products?: number[]}} filter
+   * @param {{page?: number, perPage?: number, startAt?: string, endAt?: string, products?: number[], all?: boolean}} filter
    * @returns {Promise<[object|null, Error|null]>}
    */
   static async findForReport({
@@ -133,6 +136,7 @@ export default class DiscardModel {
     startAt,
     endAt,
     products,
+    all = false,
   }) {
     const resolvedStartAt = startAt ?? getTodayDate();
     const resolvedEndAt = endAt ?? addDays(resolvedStartAt, 30);
@@ -143,6 +147,7 @@ export default class DiscardModel {
       startAt: resolvedStartAt,
       endAt: resolvedEndAt,
       products,
+      all,
     });
   }
 

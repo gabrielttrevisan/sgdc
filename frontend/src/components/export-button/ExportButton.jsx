@@ -7,7 +7,13 @@ import { FORMAT } from "./export-format";
 
 import "./ExportButton.css";
 
-export default function ExportButton({ ref, exportProps, formatProps, ...props }) {
+export default function ExportButton({
+  ref,
+  exportProps,
+  formatProps,
+  onClick,
+  ...props
+}) {
   const [format, setFormat] = useState(FORMAT.XLS);
   const tooltip = format === FORMAT.XLS ? "Planilha do Excel" : "Arquivo CSV";
   const { tooltipRef, triggerRef, tooltipProps, triggerProps } =
@@ -51,7 +57,14 @@ export default function ExportButton({ ref, exportProps, formatProps, ...props }
         {tooltip}
       </div>
 
-      <button type="button" className="button-block --solid --btn-safe" {...exportProps}>
+      <button
+        type="button"
+        className="button-block --solid --btn-safe"
+        {...exportProps}
+        onClick={(e) => {
+          onClick?.(format, e);
+        }}
+      >
         <span>Exportar como {tooltip}</span>
       </button>
     </div>

@@ -11,6 +11,7 @@ import useTourGuide from "../../hooks/useTourGuide.js";
 import HelpButton from "../../components/help-button/HelpButton.jsx";
 import { ShowIcon } from "../../components/icons/ShowIcon.jsx";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden.jsx";
+import Toast from "../../components/toast/ToastStorage.js";
 
 const reportDiscardsService = {
   list: (filters) => DiscardsService.listReport(filters),
@@ -33,7 +34,6 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
       getSafeListId(historyState?.listId) ||
       `report-discard-products:${crypto.randomUUID()}`,
   );
-  const formatRef = useRef(null);
   const actionsButtonRef = useRef(null);
   const { start, registerStepEl } = useTourGuide("report-discards", {
     onBeforeStart() {
@@ -89,6 +89,24 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
     }),
     [filters],
   );
+
+  const exportReport = async (format) => {
+    const response = await DiscardsService.exportReport({
+      ...getCustomFilter(),
+      format,
+    });
+    if (!response.data) {
+      Toast.error(response.error.message);
+      return;
+    }
+
+    const url = URL.createObjectURL(response.data);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `relatorio-descartes.${format === "xls" ? "xlsx" : "csv"}`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+  };
 
   return (
     <DataGrid
@@ -150,7 +168,6 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
       </button>
 
       <ExportButton
-        ref={formatRef}
         formatProps={registerStepEl({
           order: 4,
           title: "Exportação",
@@ -163,6 +180,7 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
           content:
             "Clique no botão verde para exportar os descartes no formato selecionado.<br/>Todo resultados serão exportados em um único arquivo.",
         })}
+        onClick={exportReport}
       />
     </DataGrid>
   );
