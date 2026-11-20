@@ -5,8 +5,10 @@ import { DataGrid } from "../../components/data-grid/DataGrid.jsx";
 import DiscardsService from "../../service/DiscardsService.js";
 import formatDate from "../../lib/format/date.js";
 import ExportButton from "../../components/export-button/ExportButton.jsx";
-import { FilterIcon } from "lucide-react";
 import getSafeListId from "../../store/list/getSafeListId.js";
+import { FilterIcon } from "../../components/icons/FilterIcon.jsx";
+import useTourGuide from "../../hooks/useTourGuide.js";
+import HelpButton from "../../components/help-button/HelpButton.jsx";
 
 export const ReportDiscards = WithAuthGuard(function Discards() {
   const dataGridRef = useRef(null);
@@ -26,6 +28,34 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
       `report-discard-products:${crypto.randomUUID()}`,
   );
   const formatRef = useRef(null);
+  const actionsButtonRef = useRef(null);
+  const { start, registerStepEl } = useTourGuide("report-discards", {
+    onBeforeStart() {
+      const isMobile = matchMedia("(max-width: 768px)").matches;
+
+      if (isMobile && actionsButtonRef.current) {
+        actionsButtonRef.current.open();
+      }
+    },
+    onBeforeStepChange(from, to) {
+      if (actionsButtonRef.current) {
+        const isMobile = matchMedia("(max-width: 768px)").matches;
+
+        if (isMobile) {
+          if ((from === 0 && to === 1) || (from === 3 && to === 2)) {
+            actionsButtonRef.current.close();
+          } else if (from === 2) {
+            actionsButtonRef.current.open();
+          }
+        }
+      }
+    },
+    onFinish() {
+      if (actionsButtonRef.current) {
+        actionsButtonRef.current.close();
+      }
+    },
+  });
 
   const columns = [
     {
@@ -49,7 +79,9 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
     () => ({
       startAt: encodeURIComponent(filters.startAt),
       endAt: encodeURIComponent(filters.endAt),
-      products: encodeURIComponent(filters.products.map((product) => product.id)),
+      products: encodeURIComponent(
+        filters.products.map((product) => product.id),
+      ),
     }),
     [filters],
   );
@@ -65,10 +97,30 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
       noSearch
       searchBoxPlaceholder="Buscar por motivo, produto ou voluntário..."
       getCustomFilter={getCustomFilter}
+      afterLabel={<HelpButton onClick={start} />}
+      paginationInfoProps={registerStepEl({
+        content:
+          "Aqui estão exibidos a quantidade de registros mostrados e o total de registros do relatório",
+        order: 2,
+        title: "Pré-visualização de Resultados",
+      })}
+      paginationProps={registerStepEl({
+        content:
+          "Utilize a paginação para pré-visualizar os resultados do relatório",
+        order: 3,
+        title: "Pré-visualização de Resultados",
+      })}
+      actionsButtonRef={actionsButtonRef}
     >
       <button
         type="button"
         className="button-block --outline --primary"
+        {...registerStepEl({
+          content:
+            "Clique em 'Filtrar' para configurar o período de ocorrência dos descartes e quais produtos foram descartados",
+          order: 1,
+          title: "Filtro",
+        })}
         onClick={() =>
           navigate("/relatorios/descartes/filtro", {
             state: { ...filters, listId },
@@ -79,7 +131,21 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
         <span>Filtrar</span>
       </button>
 
-      <ExportButton ref={formatRef} />
+      <ExportButton
+        ref={formatRef}
+        formatProps={registerStepEl({
+          order: 4,
+          title: "Exportação",
+          content:
+            "Clique no botão branco para selecionar o formato de exportação desejado",
+        })}
+        exportProps={registerStepEl({
+          order: 5,
+          title: "Exportação",
+          content:
+            "Clique no botão verde para exportar os descartes no formato selecionado.<br/>Todo resultados serão exportados em um único arquivo.",
+        })}
+      />
     </DataGrid>
   );
 });

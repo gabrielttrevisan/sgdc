@@ -5,8 +5,8 @@ export function DataGridWrapper({ children, loading }) {
 
   const xlClassName = isMobile ? "" : " --xl";
   const wrapperClassName =
-    "data-grid__table-wrapper data-grid__has-overlay" + xlClassName;
-  const overlayClassName = "data-grid__loading-overlay" + xlClassName;
+    "data-grid__table-wrapper has-overlay" + xlClassName;
+  const overlayClassName = "has-overlay__loading-overlay" + xlClassName;
 
   return (
     <div className={wrapperClassName} aria-busy={loading}>

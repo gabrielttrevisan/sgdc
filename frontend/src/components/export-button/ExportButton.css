@@ -9,7 +9,7 @@
   }
 
   .button-block {
-    height: 100%;
+    height: 32.8px;
 
     &:first-of-type {
       border-top-right-radius: 0;

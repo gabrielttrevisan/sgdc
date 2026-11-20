@@ -99,6 +99,10 @@ export function DataGrid({
   matchMedia,
   noSearch = false,
   getCustomFilter,
+  afterLabel,
+  paginationProps,
+  paginationInfoProps,
+  actionsButtonRef,
 }) {
   /** @type {[import("../../global").AsyncPageData<T>, import("react").Dispatch<import("react").SetStateAction<import("../../global").AsyncPageData<T>>>]} */
   const [page, setPage] = useState({
@@ -189,11 +193,18 @@ export function DataGrid({
     <IsDataGridMobileProvider breakpoint={breakpoint} matchMedia={matchMedia}>
       <section className="data-grid">
         <DataGridHeader>
-          <h2 className="data-grid__title" id={`data-grid-title-${pluralName}`}>
-            {title ?? pluralName}
-          </h2>
+          <div className="data-grid__header-title">
+            <h2
+              className="data-grid__title"
+              id={`data-grid-title-${pluralName}`}
+            >
+              {title ?? pluralName}
+            </h2>
 
-          <DataGridHeaderActions>
+            {afterLabel}
+          </div>
+
+          <DataGridHeaderActions ref={actionsButtonRef}>
             {!noSearch && (
               <SearchBox
                 onSearch={(query) =>
@@ -337,6 +348,7 @@ export function DataGrid({
             pluralName={pluralName}
             singularName={singularName}
             className="data-grid__pagination-info"
+            {...paginationInfoProps}
           />
 
           <PaginationLinks
@@ -347,6 +359,7 @@ export function DataGrid({
             totalPages={page.totalPages}
             className="data-grid__pagination-links"
             buttonClassName="data-grid__pagination-link"
+            {...paginationProps}
           />
         </div>
       </section>
