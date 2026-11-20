@@ -14,6 +14,7 @@
     "start:local": "dotenv -e .env -- node server.js"
   },
   "dependencies": {
+    "@sjmc11/tourguidejs": "^0.0.27",
     "express": "^5.2.1",
     "lucide-react": "^1.16.0",
     "react": "^19.2.5",
