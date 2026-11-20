@@ -38,6 +38,7 @@
   --colors-status-safe: rgba(61, 174, 118, 1);
   --colors-status-safe-90: rgba(61, 174, 118, 0.9);
   --colors-status-safe-60: rgba(61, 174, 118, 0.6);
+  --colors-status-safe-base: 61 174 118;
   --transitions-calm: all 200ms ease-out;
 
   font-size: 16px;
@@ -138,6 +139,32 @@ dialog {
   overflow: hidden;
 }
 
+.tg-dialog {
+  border: 1px solid rgb(var(--colors-primary-base) / 90%);
+
+  .tg-dialog-footer .tg-dialog-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem 0.8rem !important;
+    border: 0 !important;
+    background: var(--colors-primary);
+    color: var(--colors-background-light) !important;
+    border-radius: 0.4rem !important;
+    font-weight: 500;
+    gap: 0.4rem;
+
+    &:hover:not(.disabled, :disabled) {
+      background: rgb(var(--colors-primary-base) / 90%);
+    }
+
+    &.disabled,
+    &:disabled {
+      opacity: 0.3 !important;
+    }
+  }
+}
+
 .button-block {
   --bb-base-bg: var(--colors-primary-4);
   --bb-base-color: var(--colors-foreground-black);
@@ -152,6 +179,26 @@ dialog {
   border-radius: 0.4rem;
   font-weight: 500;
   gap: 0.4rem;
+
+  &.--help {
+    --bb-base-bg: rgb(var(--colors-primary-base) / 5%);
+    --bb-base-color: rgb(var(--colors-primary-base));
+
+    border: 0;
+    padding: 8px;
+    border-radius: 50%;
+    aspect-ratio: 1 / 1;
+
+    &.--help-with-label {
+      aspect-ratio: unset;
+      border-radius: 64px;
+      padding: 8px 16px;
+    }
+
+    &:hover:not(:disabled) {
+      --bb-base-bg: rgb(var(--colors-primary-base) / 15%);
+    }
+  }
 
   &.--solid {
     &.--primary {
@@ -182,19 +229,28 @@ dialog {
     --bbo-color-normal: var(--colors-foreground-black);
     --bbo-color-hover: var(--colors-foreground-black);
     --bbo-thickness: 1px;
+    --bbo-bg: transparent;
+    --bbo-bg-hover: var(--bbo-bg);
 
     border: var(--bbo-thickness) solid var(--bbo-color-normal);
-    background: transparent;
+    background: var(--bbo-bg);
     color: var(--bbo-color-normal);
 
-    &:hover {
+    &:hover:not(:disabled) {
       border-color: var(--bbo-color-hover);
       color: var(--bbo-color-hover);
+      background-color: var(--bbo-bg-hover);
     }
 
     &.--primary {
       --bbo-color-normal: var(--colors-primary);
       --bbo-color-hover: var(--colors-primary-1);
+    }
+
+    &.--btn-safe {
+      --bbo-color-normal: var(--colors-status-safe);
+      --bbo-color-hover: var(--colors-status-safe);
+      --bbo-bg-hover: rgb(var(--colors-status-safe-base) / 20%);
     }
   }
 
@@ -269,4 +325,67 @@ dialog {
 
 *[hidden] {
   display: none !important;
+}
+
+.action-tooltip {
+  background-color: rgb(var(--colors-primary-dark-base) / 90%);
+  border: 0;
+  border-radius: 4px;
+  text-transform: none;
+  padding: 8px 16px;
+  box-shadow:
+    0 4px 20px rgb(0 0 0 / 15%),
+    0 4px 6px rgb(0 0 0 / 15%);
+  backdrop-filter: blur(1px);
+  color: var(--colors-text-white);
+  font-size: 14px;
+  margin: 0;
+  inset: 0;
+  transform: translate(-50%);
+}
+
+.has-overlay {
+  .has-overlay__loading-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-image: linear-gradient(
+      to right,
+      var(--colors-primary-5) 0%,
+      rgb(var(--colors-status-warning) / 15%) 10%,
+      var(--colors-primary-5) 20%,
+      var(--colors-primary-5) 100%
+    );
+    background-size: 200% 100%;
+    animation: skelly 1.5s infinite;
+    backdrop-filter: blur(4px);
+    border-radius: 0.34rem;
+    z-index: 8;
+
+    &::before {
+      content: " ";
+      width: 2rem;
+      height: 2rem;
+      min-width: 2rem;
+      min-height: 2rem;
+      border: 4px solid var(--colors-primary);
+      border-right-color: transparent;
+      background-color: transparent;
+      display: block;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    p {
+      display: block;
+      color: var(--colors-primary);
+    }
+
+    &.--xl {
+      border-radius: 0;
+    }
+  }
 }

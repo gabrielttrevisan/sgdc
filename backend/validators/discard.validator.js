@@ -15,6 +15,23 @@ function isNullableDetails(value, maxLength) {
   );
 }
 
+function isDateOnly(value) {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value))
+    return false;
+
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+function isProductIdList(value) {
+  if (typeof value !== "string" || !/^[1-9]\d*(,[1-9]\d*)*$/.test(value))
+    return false;
+
+  return value
+    .split(",")
+    .every((id) => Number.isSafeInteger(Number(id)) && Number(id) > 0);
+}
+
 /** @type {import("../middlewares/validator/validator.js").ValidationRule[]} */
 export const CREATE_DISCARD_RULES = [
   {
@@ -80,5 +97,35 @@ export const FILTER_DISCARDS_RULES = [
       typeof value === "string" && value.trim().length > 0
         ? true
         : "Texto buscado inválido",
+  },
+];
+
+/** @type {import("../middlewares/validator/validator.js").ValidationRule[]} */
+export const REPORT_DISCARDS_FILTER_RULES = [
+  {
+    property: "startAt",
+    required: false,
+    validate: (value) =>
+      isDateOnly(value) ? true : "Data inicial inválida",
+  },
+  {
+    property: "endAt",
+    required: false,
+    validate: (value) =>
+      isDateOnly(value) ? true : "Data final inválida",
+  },
+  {
+    property: "products",
+    required: false,
+    validate: (value) =>
+      isProductIdList(value) ? true : "Lista de produtos inválida",
+  },
+  {
+    property: "format",
+    required: false,
+    validate: (value) =>
+      value === "csv" || value === "xls"
+        ? true
+        : "Formato de exportação inválido",
   },
 ];

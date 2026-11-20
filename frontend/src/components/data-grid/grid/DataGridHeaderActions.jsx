@@ -5,15 +5,15 @@ import { DataGridHeaderActionsMobile } from "./DataGridHeaderActionsMobile";
 export const DataGridHeaderActions = ({
   children,
   className = "",
+  ref,
   ...props
 }) => {
   const isMobile = useMatchMedia("(max-width: 768px)");
-
   const headerActionsClassName = `data-grid__header-actions ${className}`;
 
   if (isMobile) {
     return (
-      <DataGridHeaderActionsMobile className={headerActionsClassName}>
+      <DataGridHeaderActionsMobile ref={ref} className={headerActionsClassName}>
         {children}
       </DataGridHeaderActionsMobile>
     );

@@ -53,6 +53,7 @@ import { DataGridWrapper } from "./grid/DataGridWrapper";
  * @typedef {Object} DataGridRef
  * @prop {VoidFunction} update
  */
+
 /**
  * @template T
  * @typedef {Object} DataGridProps
@@ -96,6 +97,12 @@ export function DataGrid({
   sortTypeDefault,
   breakpoint,
   matchMedia,
+  noSearch = false,
+  getCustomFilter,
+  afterLabel,
+  paginationProps,
+  paginationInfoProps,
+  actionsButtonRef,
 }) {
   /** @type {[import("../../global").AsyncPageData<T>, import("react").Dispatch<import("react").SetStateAction<import("../../global").AsyncPageData<T>>>]} */
   const [page, setPage] = useState({
@@ -123,9 +130,17 @@ export function DataGrid({
       const actualSortType = noSorting
         ? undefined
         : (sortType ?? sortTypeDefault);
+      const customFilter =
+        getCustomFilter?.({
+          sortKey: actualSortKey,
+          sortType: actualSortType,
+          query,
+          page: count,
+        }) ?? {};
 
       paginatableService
         .list({
+          ...customFilter,
           page: count,
           sortKey: actualSortKey,
           sortType: actualSortType,
@@ -157,7 +172,7 @@ export function DataGrid({
           });
         });
     },
-    [paginatableService],
+    [paginatableService, getCustomFilter],
   );
 
   useEffect(() => {
@@ -178,23 +193,34 @@ export function DataGrid({
     <IsDataGridMobileProvider breakpoint={breakpoint} matchMedia={matchMedia}>
       <section className="data-grid">
         <DataGridHeader>
-          <h2 className="data-grid__title" id={`data-grid-title-${pluralName}`}>
-            {title ?? pluralName}
-          </h2>
+          <div className="data-grid__header-title">
+            <h2
+              className="data-grid__title"
+              id={`data-grid-title-${pluralName}`}
+            >
+              {title ?? pluralName}
+            </h2>
 
-          <DataGridHeaderActions>
-            <SearchBox
-              onSearch={(query) =>
-                getPage(1, page.sortKey, query, page.sortType)
-              }
-              onReset={() => getPage(1, page.sortKey, undefined, page.sortType)}
-              placeholder={
-                searchBoxPlaceholder
-                  ? searchBoxPlaceholder
-                  : `Buscar ${pluralName?.toLocaleLowerCase() ?? "registros"}...`
-              }
-              gridId={`data-grid-${pluralName}`}
-            />
+            {afterLabel}
+          </div>
+
+          <DataGridHeaderActions ref={actionsButtonRef}>
+            {!noSearch && (
+              <SearchBox
+                onSearch={(query) =>
+                  getPage(1, page.sortKey, query, page.sortType)
+                }
+                onReset={() =>
+                  getPage(1, page.sortKey, undefined, page.sortType)
+                }
+                placeholder={
+                  searchBoxPlaceholder
+                    ? searchBoxPlaceholder
+                    : `Buscar ${pluralName?.toLocaleLowerCase() ?? "registros"}...`
+                }
+                gridId={`data-grid-${pluralName}`}
+              />
+            )}
 
             {children}
           </DataGridHeaderActions>
@@ -208,7 +234,7 @@ export function DataGrid({
             aria-rowcount={page.items.length}
             aria-labelledby={`data-grid-title-${pluralName}`}
           >
-            <DataGridFilterList>
+            <DataGridFilterList hasActions={Boolean(actionsConfig)}>
               {columns.map((column) => (
                 <DataGridFilter
                   key={column.id}
@@ -322,6 +348,7 @@ export function DataGrid({
             pluralName={pluralName}
             singularName={singularName}
             className="data-grid__pagination-info"
+            {...paginationInfoProps}
           />
 
           <PaginationLinks
@@ -332,6 +359,7 @@ export function DataGrid({
             totalPages={page.totalPages}
             className="data-grid__pagination-links"
             buttonClassName="data-grid__pagination-link"
+            {...paginationProps}
           />
         </div>
       </section>

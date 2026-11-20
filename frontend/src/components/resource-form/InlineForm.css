@@ -29,6 +29,9 @@
     .form-inline__breadcrumb-path-current {
         margin-top: -4px;
         color: var(--colros-text-dark);
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 }
 

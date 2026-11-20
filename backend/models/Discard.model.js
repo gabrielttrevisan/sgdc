@@ -4,16 +4,42 @@ import InStockProductModel from "./InStockProduct.model.js";
 export class DiscardValidationError extends Error {}
 export class InsufficientDiscardStockError extends Error {}
 
+function getTodayDate() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function addDays(date, days) {
+  const [year, month, day] = date.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day + days))
+    .toISOString()
+    .slice(0, 10);
+}
+
 export default class DiscardModel {
   /**
-   * @param {{query?: string, page?: number, perPage?: number}} filter
+   * @param {{query?: string, page?: number, perPage?: number, startAt?: string, endAt?: string, products?: number[], all?: boolean}} filter
    * @returns {Promise<[object|null, Error|null]>}
    */
-  static async findAll({ query, page = 1, perPage = 10 }) {
+  static async findAll({
+    query,
+    page = 1,
+    perPage = 10,
+    startAt,
+    endAt,
+    products,
+    all = false,
+  }) {
     try {
       const likeQuery = `%${query ?? ""}%`;
-      const whereClause = query
-        ? sql`WHERE D.DETAILS LIKE ${likeQuery}
+      const whereClauses = [];
+
+      if (query) {
+        whereClauses.push(sql`(
+            D.DETAILS LIKE ${likeQuery}
             OR EXISTS (
               SELECT 1
               FROM ISPD_PRODUCTS DP
@@ -27,9 +53,32 @@ export default class DiscardModel {
               FROM DISCARD_VOLUNTEERS DV
                 INNER JOIN VOLUNTEERS V ON V.ID = DV.VOLUNTEER_ID
               WHERE DV.DISCARD_ID = D.ID AND V.NAME LIKE ${likeQuery}
-            )`
+            )`);
+      }
+
+      if (startAt && endAt) {
+        whereClauses.push(sql`D.CREATED_AT >= ${startAt}
+          AND D.CREATED_AT < DATE_ADD(${endAt}, INTERVAL 1 DAY)`);
+      }
+
+      if (products?.length) {
+        const productIds = sql.join(",", ...products.map((id) => sql`${id}`));
+        whereClauses.push(sql`EXISTS (
+          SELECT 1
+          FROM ISPD_PRODUCTS DP
+            INNER JOIN ISP_IN_ROOM IR ON IR.ID = DP.IN_STOCK_PRODUCT_ID
+            INNER JOIN IN_STOCK_PRODUCTS ISP ON ISP.ID = IR.ISP_ID
+          WHERE DP.DISCARD_ID = D.ID
+            AND ISP.PRODUCT_ID IN (${productIds})
+        )`);
+      }
+
+      const whereClause = whereClauses.length
+        ? sql`WHERE ${sql.join(" AND ", ...whereClauses)}`
         : sql.empty;
-      const limitClause = sql`LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
+      const limitClause = all
+        ? sql.empty
+        : sql`LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
       const [rows, [{ TOTAL: total }]] = await Promise.all([
         sql.query`
           SELECT
@@ -67,7 +116,7 @@ export default class DiscardModel {
           })),
           totalRecords: total,
           page,
-          totalPages: Math.ceil(total / perPage),
+          totalPages: all ? 1 : Math.ceil(total / perPage),
           query,
         },
         null,
@@ -75,6 +124,31 @@ export default class DiscardModel {
     } catch (error) {
       return [null, error];
     }
+  }
+
+  /**
+   * @param {{page?: number, perPage?: number, startAt?: string, endAt?: string, products?: number[], all?: boolean}} filter
+   * @returns {Promise<[object|null, Error|null]>}
+   */
+  static async findForReport({
+    page = 1,
+    perPage = 10,
+    startAt,
+    endAt,
+    products,
+    all = false,
+  }) {
+    const resolvedStartAt = startAt ?? getTodayDate();
+    const resolvedEndAt = endAt ?? addDays(resolvedStartAt, 30);
+
+    return this.findAll({
+      page,
+      perPage,
+      startAt: resolvedStartAt,
+      endAt: resolvedEndAt,
+      products,
+      all,
+    });
   }
 
   /**
