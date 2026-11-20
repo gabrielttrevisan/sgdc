@@ -9,6 +9,12 @@ import getSafeListId from "../../store/list/getSafeListId.js";
 import { FilterIcon } from "../../components/icons/FilterIcon.jsx";
 import useTourGuide from "../../hooks/useTourGuide.js";
 import HelpButton from "../../components/help-button/HelpButton.jsx";
+import { ShowIcon } from "../../components/icons/ShowIcon.jsx";
+import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden.jsx";
+
+const reportDiscardsService = {
+  list: (filters) => DiscardsService.listReport(filters),
+};
 
 export const ReportDiscards = WithAuthGuard(function Discards() {
   const dataGridRef = useRef(null);
@@ -77,11 +83,9 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
 
   const getCustomFilter = useCallback(
     () => ({
-      startAt: encodeURIComponent(filters.startAt),
-      endAt: encodeURIComponent(filters.endAt),
-      products: encodeURIComponent(
-        filters.products.map((product) => product.id),
-      ),
+      startAt: filters.startAt,
+      endAt: filters.endAt,
+      products: filters.products.map((product) => product.id).join(","),
     }),
     [filters],
   );
@@ -90,7 +94,7 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
     <DataGrid
       ref={dataGridRef}
       columns={columns}
-      paginatableService={DiscardsService}
+      paginatableService={reportDiscardsService}
       singularName="descarte"
       pluralName="descartes"
       keyProp="id"
@@ -111,6 +115,20 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
         title: "Pré-visualização de Resultados",
       })}
       actionsButtonRef={actionsButtonRef}
+      actionsConfig={[
+        {
+          type: "show",
+          content: (
+            <>
+              <ShowIcon />
+              <VisuallyHidden>Ver descarte</VisuallyHidden>
+            </>
+          ),
+          onAction: (_, target) =>
+            navigate(`/descartes/${target.id}/visualizar`),
+          tooltip: "Visualizar descarte",
+        },
+      ]}
     >
       <button
         type="button"

@@ -7,6 +7,7 @@ import DiscardController from "../controllers/Discard.controller.js";
 import {
   CREATE_DISCARD_RULES,
   FILTER_DISCARDS_RULES,
+  REPORT_DISCARDS_FILTER_RULES,
 } from "../validators/discard.validator.js";
 
 const discardsRouter = Router();
@@ -17,6 +18,13 @@ discardsRouter.get(
   canManageDiscards.withAction("list"),
   pagination(FILTER_DISCARDS_RULES),
   DiscardController.findAll,
+);
+
+discardsRouter.get(
+  "/report",
+  canManageDiscards.withAction("list"),
+  pagination(REPORT_DISCARDS_FILTER_RULES),
+  DiscardController.findForReport,
 );
 
 discardsRouter.post(

@@ -17,6 +17,14 @@ class DiscardsService extends Service {
     }
   }
 
+  async listReport({ ...rest } = { page: 1, perPage: 10 }) {
+    try {
+      return await this.#client.get("discards/report", rest);
+    } catch {
+      return this.internal("Não foi possível carregar o relatório de descartes");
+    }
+  }
+
   /**
    * @param {number|string} id
    * @returns {Promise<import("../global").APIResponse<DiscardDetails>>}

@@ -6,7 +6,6 @@ import { FormModalCancelButton } from "../../../components/form/modal/button/For
 import { FormModalSubmitButton } from "../../../components/form/modal/button/FormModalSubmitButton.jsx";
 import ListField from "../../../components/list-field/ListField.jsx";
 import { FormBreadcrumbs } from "../../../components/resource-form/FormBreadcrumbs.jsx";
-import Toast from "../../../components/toast/ToastStorage.js";
 import getSafeListId from "../../../store/list/getSafeListId.js";
 import { useListStorage } from "../../../store/list/useListStorage.js";
 import { ReportDiscardsDatePresets } from "./ReportDiscardsDatePresets.jsx";
@@ -86,15 +85,10 @@ export function ReportDiscardsFilterFormContent() {
         ref={formRef}
         className="form-inline"
         onSubmit={async (data) => {
-          if (products.items.length === 0) {
-            Toast.error("Selecione ao menos um produto");
-            return false;
-          }
-
           navigateToReport({
             startAt: data.startAt,
             endAt: data.endAt,
-            products: products.items,
+            products: products.items ?? [],
           });
           return true;
         }}
