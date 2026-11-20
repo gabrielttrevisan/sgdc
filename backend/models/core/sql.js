@@ -208,7 +208,7 @@ class SqlQuery extends SqlFragment {
 /**
  * @param {import("mysql2").Connection} [conn]
  */
-function createSQLFunctor(conn = null) {
+export function createSQLFunctor(conn = null) {
   const sqlFunctor = function sql(strings, ...values) {
     return conn
       ? SqlFragment.fromWithConnection(conn, strings, values)
