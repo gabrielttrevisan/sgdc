@@ -25,7 +25,7 @@ export default function ReadOnlyResourceFormContent({
   title,
   breadcrumbs,
   idParamKey = "id",
-  gridColumns,
+  gridColumns = 2,
   onCancel,
 }) {
   const { [idParamKey]: id } = useParams();
