@@ -116,6 +116,7 @@ import sql, { transaction } from "./core/sql.js";
 /**
  * @typedef {object} ExpiringProductReportItem
  * @property {string} id
+ * @property {number} stockId
  * @property {number} productId
  * @property {string} name
  * @property {string} expiresAt
@@ -309,6 +310,7 @@ export default class InStockProductModel {
       const [data, [{ TOTAL: total }]] = await Promise.all([
         sql.query`
           SELECT
+            ISP.ID AS STOCK_ID,
             P.ID AS PRODUCT_ID,
             P.NAME,
             DATE_FORMAT(DATE(ISP.EXPIRES_AT), '%d/%m/%Y') AS EXPIRES_AT,
@@ -321,6 +323,7 @@ export default class InStockProductModel {
             INNER JOIN SALAS S ON S.ID = IR.ROOM_ID
           ${whereClause}
           GROUP BY
+            ISP.ID,
             P.ID,
             P.NAME,
             DATE_FORMAT(DATE(ISP.EXPIRES_AT), '%d/%m/%Y'),
@@ -332,8 +335,7 @@ export default class InStockProductModel {
           SELECT COUNT(*) AS TOTAL
           FROM (
             SELECT DISTINCT
-              ISP.PRODUCT_ID,
-              DATE_FORMAT(DATE(ISP.EXPIRES_AT), '%Y-%m-%d') AS EXPIRATION_DATE,
+              ISP.ID AS STOCK_ID,
               S.ID AS ROOM_ID
             FROM IN_STOCK_PRODUCTS ISP
               INNER JOIN PRODUCTS P ON P.ID = ISP.PRODUCT_ID
@@ -346,7 +348,8 @@ export default class InStockProductModel {
       return [
         {
           items: data.map((row) => ({
-            id: `${row.PRODUCT_ID}:${row.EXPIRES_AT}:${row.ROOM_ID}`,
+            id: `${row.STOCK_ID}:${row.ROOM_ID}`,
+            stockId: row.STOCK_ID,
             productId: row.PRODUCT_ID,
             name: row.NAME,
             expiresAt: row.EXPIRES_AT,

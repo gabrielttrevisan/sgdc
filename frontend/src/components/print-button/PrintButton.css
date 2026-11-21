@@ -1,0 +1,9 @@
+.print-button__label {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .print-button__label {
+    display: inline;
+  }
+}
