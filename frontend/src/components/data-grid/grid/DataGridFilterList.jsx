@@ -24,7 +24,9 @@ export const DataGridFilterList = ({
       <tr role="row">
         {children}
 
-        {hasActions && <th>Ações</th>}
+        {hasActions && (
+          <th className="data-grid__actions-heading">Ações</th>
+        )}
       </tr>
     </thead>
   );
