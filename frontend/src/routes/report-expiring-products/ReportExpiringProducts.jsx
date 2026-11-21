@@ -2,10 +2,11 @@ import { useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import { DataGrid } from "../../components/data-grid/DataGrid.jsx";
-import { FilterIcon } from "../../components/icons/FilterIcon.jsx";
 import { ShowIcon } from "../../components/icons/ShowIcon.jsx";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden.jsx";
 import ExportButton from "../../components/export-button/ExportButton.jsx";
+import PrintButton from "../../components/print-button/PrintButton.jsx";
+import FilterButton from "../../components/filter-button/FilterButton.jsx";
 import HelpButton from "../../components/help-button/HelpButton.jsx";
 import useTourGuide from "../../hooks/useTourGuide.js";
 import InStockProductsService from "../../service/InStockProductsService.js";
@@ -145,9 +146,7 @@ export const ReportExpiringProducts = WithAuthGuard(function () {
         },
       ]}
     >
-      <button
-        type="button"
-        className="button-block --outline --primary"
+      <FilterButton
         {...registerStepEl({
           content:
             "Defina por quantos dias a partir de hoje deseja consultar os produtos que vencem.",
@@ -159,10 +158,7 @@ export const ReportExpiringProducts = WithAuthGuard(function () {
             state: filters,
           })
         }
-      >
-        <FilterIcon size={16} />
-        <span>Filtrar</span>
-      </button>
+      />
 
       <ExportButton
         formatProps={registerStepEl({
@@ -178,6 +174,7 @@ export const ReportExpiringProducts = WithAuthGuard(function () {
         })}
         onClick={exportReport}
       />
+      <PrintButton />
     </DataGrid>
   );
 });

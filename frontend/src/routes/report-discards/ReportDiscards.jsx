@@ -5,8 +5,9 @@ import { DataGrid } from "../../components/data-grid/DataGrid.jsx";
 import DiscardsService from "../../service/DiscardsService.js";
 import formatDate from "../../lib/format/date.js";
 import ExportButton from "../../components/export-button/ExportButton.jsx";
+import PrintButton from "../../components/print-button/PrintButton.jsx";
 import getSafeListId from "../../store/list/getSafeListId.js";
-import { FilterIcon } from "../../components/icons/FilterIcon.jsx";
+import FilterButton from "../../components/filter-button/FilterButton.jsx";
 import useTourGuide from "../../hooks/useTourGuide.js";
 import HelpButton from "../../components/help-button/HelpButton.jsx";
 import { ShowIcon } from "../../components/icons/ShowIcon.jsx";
@@ -180,9 +181,7 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
         },
       ]}
     >
-      <button
-        type="button"
-        className="button-block --outline --primary"
+      <FilterButton
         {...registerStepEl({
           content:
             "Clique em 'Filtrar' para configurar o período de ocorrência dos descartes e quais produtos foram descartados",
@@ -194,10 +193,7 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
             state: { ...filters, listId },
           })
         }
-      >
-        <FilterIcon size={16} />
-        <span>Filtrar</span>
-      </button>
+      />
 
       <ExportButton
         formatProps={registerStepEl({
@@ -214,6 +210,7 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
         })}
         onClick={exportReport}
       />
+      <PrintButton />
     </DataGrid>
   );
 });
