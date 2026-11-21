@@ -104,6 +104,7 @@ export function DataGrid({
   paginationInfoProps,
   actionsButtonRef,
   emptyMessage = "Nenhum resultado encontrado",
+  firstActionButtonProps,
 }) {
   /** @type {[import("../../global").AsyncPageData<T>, import("react").Dispatch<import("react").SetStateAction<import("../../global").AsyncPageData<T>>>]} */
   const [page, setPage] = useState({
@@ -309,7 +310,7 @@ export function DataGrid({
                 </DataGridEmptyMessage>
               )}
 
-              {page.items.map((item) => (
+              {page.items.map((item, index) => (
                 <DataGridItem
                   key={
                     typeof keyProp === "function"
@@ -334,6 +335,9 @@ export function DataGrid({
                       className={actionsCellClassName}
                       target={item}
                       actions={actionsConfig}
+                      buttonProps={
+                        index === 0 ? firstActionButtonProps : undefined
+                      }
                     />
                   )}
                 </DataGridItem>

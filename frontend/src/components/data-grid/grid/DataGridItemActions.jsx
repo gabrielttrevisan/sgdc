@@ -6,6 +6,7 @@ export const DataGridItemActions = ({
   className = "",
   target,
   actions,
+  buttonProps,
   ...props
 }) => {
   const isMobile = useIsDataGridMobile();
@@ -14,14 +15,14 @@ export const DataGridItemActions = ({
 
   if (isMobile) {
     return (
-      <div className={itemActionsClassName} {...props}>
+      <div className={itemActionsClassName} {...props} {...buttonProps}>
         <ActionList target={target} actions={actions} isXL={!isMobile} />
       </div>
     );
   }
 
   return (
-    <td className={itemActionsClassName} {...props}>
+    <td className={itemActionsClassName} {...props} {...buttonProps}>
       <ActionList target={target} actions={actions} isXL={!isMobile} />
     </td>
   );

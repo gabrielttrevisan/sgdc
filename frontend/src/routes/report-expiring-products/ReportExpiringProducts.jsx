@@ -30,32 +30,32 @@ export const ReportExpiringProducts = WithAuthGuard(function () {
   const { state } = useLocation();
   const [filters] = useState(() => ({ days: getDays(state?.days) }));
   const actionsButtonRef = useRef(null);
-  const { start, registerStepEl } = useTourGuide(
-    "report-expiring-products",
-    {
-      onBeforeStart() {
-        if (
-          matchMedia("(max-width: 768px)").matches &&
-          actionsButtonRef.current
-        ) {
-          actionsButtonRef.current.open();
-        }
-      },
-      onBeforeStepChange(from, to) {
-        if (!actionsButtonRef.current || !matchMedia("(max-width: 768px)").matches)
-          return;
-
-        if ((from === 0 && to === 1) || (from === 4 && to === 3)) {
-          actionsButtonRef.current.close();
-        } else if (from === 3 && to === 4) {
-          actionsButtonRef.current.open();
-        }
-      },
-      onFinish() {
-        actionsButtonRef.current?.close();
-      },
+  const { start, registerStepEl } = useTourGuide("report-expiring-products", {
+    onBeforeStart() {
+      if (
+        matchMedia("(max-width: 768px)").matches &&
+        actionsButtonRef.current
+      ) {
+        actionsButtonRef.current.open();
+      }
     },
-  );
+    onBeforeStepChange(from, to) {
+      if (
+        !actionsButtonRef.current ||
+        !matchMedia("(max-width: 768px)").matches
+      )
+        return;
+
+      if ((from === 0 && to === 1) || (from === 4 && to === 3)) {
+        actionsButtonRef.current.close();
+      } else if (from === 3 && to === 4) {
+        actionsButtonRef.current.open();
+      }
+    },
+    onFinish() {
+      actionsButtonRef.current?.close();
+    },
+  });
 
   const columns = [
     {
@@ -124,6 +124,12 @@ export const ReportExpiringProducts = WithAuthGuard(function () {
         title: "Pré-visualização dos resultados",
       })}
       actionsButtonRef={actionsButtonRef}
+      firstActionButtonProps={registerStepEl({
+        content:
+          "Clique aqui para ver os detalhes do produto em estoque e suas quantidades por sala.",
+        order: 4,
+        title: "Visualização do produto",
+      })}
       actionsConfig={[
         {
           type: "show",
@@ -136,12 +142,6 @@ export const ReportExpiringProducts = WithAuthGuard(function () {
           onAction: (_, target) =>
             navigate(`/produtos-em-estoque/${target.stockId}/visualizar`),
           tooltip: "Visualizar produto em estoque",
-          buttonProps: registerStepEl({
-            content:
-              "Clique aqui para ver os detalhes do produto em estoque e suas quantidades por sala.",
-            order: 4,
-            title: "Visualização do produto",
-          }),
         },
       ]}
     >
@@ -163,6 +163,7 @@ export const ReportExpiringProducts = WithAuthGuard(function () {
         <FilterIcon size={16} />
         <span>Filtrar</span>
       </button>
+
       <ExportButton
         formatProps={registerStepEl({
           content: "Escolha entre exportar o relatório em Excel ou CSV.",
