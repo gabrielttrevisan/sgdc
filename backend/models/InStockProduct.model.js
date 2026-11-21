@@ -114,6 +114,29 @@ import sql, { transaction } from "./core/sql.js";
  */
 
 /**
+ * @typedef {object} ExpiringProductReportItem
+ * @property {string} id
+ * @property {number} productId
+ * @property {string} name
+ * @property {string} expiresAt
+ * @property {number} roomId
+ * @property {string} roomName
+ * @property {number} count
+ */
+
+/**
+ * @typedef {object} ExpiringProductsReportPage
+ * @property {ExpiringProductReportItem[]} items
+ * @property {number} totalRecords
+ * @property {number} page
+ * @property {number} totalPages
+ */
+
+/**
+ * @typedef {[ExpiringProductsReportPage, null]|[null, Error]} FindExpiringProductsReportTuple
+ */
+
+/**
  * @typedef {{TOTAL: number}[]} CountRaw
  */
 
@@ -254,6 +277,86 @@ export default class InStockProductModel {
           page,
           totalPages: Math.ceil(total / perPage),
           query,
+        },
+        null,
+      ];
+    } catch (error) {
+      return [null, error];
+    }
+  }
+
+  /**
+   * Lista os produtos armazenados em cada sala que vencem dentro do intervalo
+   * informado, incluindo o dia de hoje e o último dia do intervalo.
+   *
+   * @param {{days?: number, page?: number, perPage?: number, all?: boolean}} filter
+   * @returns {Promise<FindExpiringProductsReportTuple>}
+   */
+  static async findExpiringForReport({
+    days = 15,
+    page = 1,
+    perPage = 10,
+    all = false,
+  }) {
+    try {
+      const whereClause = sql`WHERE ISP.COUNT > 0
+        AND IR.STORED_COUNT > 0
+        AND DATE(ISP.EXPIRES_AT) BETWEEN CURDATE()
+          AND DATE_ADD(CURDATE(), INTERVAL ${days} DAY)`;
+      const limitClause = all
+        ? sql.empty
+        : sql`LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
+      const [data, [{ TOTAL: total }]] = await Promise.all([
+        sql.query`
+          SELECT
+            P.ID AS PRODUCT_ID,
+            P.NAME,
+            DATE_FORMAT(DATE(ISP.EXPIRES_AT), '%d/%m/%Y') AS EXPIRES_AT,
+            S.ID AS ROOM_ID,
+            S.NOME AS ROOM_NAME,
+            SUM(IR.STORED_COUNT) AS COUNT
+          FROM IN_STOCK_PRODUCTS ISP
+            INNER JOIN PRODUCTS P ON P.ID = ISP.PRODUCT_ID
+            INNER JOIN ISP_IN_ROOM IR ON IR.ISP_ID = ISP.ID
+            INNER JOIN SALAS S ON S.ID = IR.ROOM_ID
+          ${whereClause}
+          GROUP BY
+            P.ID,
+            P.NAME,
+            DATE_FORMAT(DATE(ISP.EXPIRES_AT), '%d/%m/%Y'),
+            S.ID,
+            S.NOME
+          ORDER BY MIN(ISP.EXPIRES_AT) ASC, P.NAME ASC, S.NOME ASC
+          ${limitClause}`.run(),
+        sql.query`
+          SELECT COUNT(*) AS TOTAL
+          FROM (
+            SELECT DISTINCT
+              ISP.PRODUCT_ID,
+              DATE_FORMAT(DATE(ISP.EXPIRES_AT), '%Y-%m-%d') AS EXPIRATION_DATE,
+              S.ID AS ROOM_ID
+            FROM IN_STOCK_PRODUCTS ISP
+              INNER JOIN PRODUCTS P ON P.ID = ISP.PRODUCT_ID
+              INNER JOIN ISP_IN_ROOM IR ON IR.ISP_ID = ISP.ID
+              INNER JOIN SALAS S ON S.ID = IR.ROOM_ID
+            ${whereClause}
+          ) STOCK_LOCATIONS`.run(),
+      ]);
+
+      return [
+        {
+          items: data.map((row) => ({
+            id: `${row.PRODUCT_ID}:${row.EXPIRES_AT}:${row.ROOM_ID}`,
+            productId: row.PRODUCT_ID,
+            name: row.NAME,
+            expiresAt: row.EXPIRES_AT,
+            roomId: row.ROOM_ID,
+            roomName: row.ROOM_NAME,
+            count: Number(row.COUNT),
+          })),
+          totalRecords: total,
+          page,
+          totalPages: all ? 1 : Math.ceil(total / perPage),
         },
         null,
       ];

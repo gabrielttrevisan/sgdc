@@ -103,6 +103,7 @@ export function DataGrid({
   paginationProps,
   paginationInfoProps,
   actionsButtonRef,
+  emptyMessage = "Nenhum resultado encontrado",
 }) {
   /** @type {[import("../../global").AsyncPageData<T>, import("react").Dispatch<import("react").SetStateAction<import("../../global").AsyncPageData<T>>>]} */
   const [page, setPage] = useState({
@@ -304,7 +305,7 @@ export function DataGrid({
                   colSpan={1 + columns.length}
                   className="data-grid__no-results"
                 >
-                  Nenhum resultado encontrado
+                  {emptyMessage}
                 </DataGridEmptyMessage>
               )}
 

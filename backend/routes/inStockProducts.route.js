@@ -3,7 +3,10 @@ import requiresPermission from "../middlewares/permission.js";
 import identifier from "../middlewares/validator/id.js";
 import { pagination } from "../middlewares/validator/pagination.js";
 import InStockProductController from "../controllers/InStockProduct.controller.js";
-import { FILTER_IN_STOCK_PRODUCT_RULES } from "../validators/inStockProduct.validator.js";
+import {
+  FILTER_EXPIRING_PRODUCTS_REPORT_RULES,
+  FILTER_IN_STOCK_PRODUCT_RULES,
+} from "../validators/inStockProduct.validator.js";
 
 const inStockProductsRouter = Router();
 const canAccessProducts = requiresPermission.forResource("product");
@@ -21,6 +24,13 @@ inStockProductsRouter.get(
   canCreateDonations.withAction("create"),
   pagination(FILTER_IN_STOCK_PRODUCT_RULES),
   InStockProductController.findAllBatches,
+);
+
+inStockProductsRouter.get(
+  "/report",
+  canAccessProducts.withAction("list"),
+  pagination(FILTER_EXPIRING_PRODUCTS_REPORT_RULES),
+  InStockProductController.findExpiringForReport,
 );
 
 inStockProductsRouter.get(

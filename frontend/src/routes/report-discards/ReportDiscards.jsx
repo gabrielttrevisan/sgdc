@@ -108,6 +108,8 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
     window.setTimeout(() => URL.revokeObjectURL(url), 0);
   };
 
+  const hasFilter = Object.values(filters).filter(Boolean).length > 0;
+
   return (
     <DataGrid
       ref={dataGridRef}
@@ -117,7 +119,11 @@ export const ReportDiscards = WithAuthGuard(function Discards() {
       pluralName="descartes"
       keyProp="id"
       noSearch
-      searchBoxPlaceholder="Buscar por motivo, produto ou voluntário..."
+      emptyMessage={
+        hasFilter
+          ? "Nenhum resultado encontrado para o filtro selecionado"
+          : "Nenhum filtro selecionado. Clique em 'Filtrar' para buscar por resultados"
+      }
       getCustomFilter={getCustomFilter}
       afterLabel={<HelpButton onClick={start} />}
       paginationInfoProps={registerStepEl({
