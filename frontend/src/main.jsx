@@ -66,6 +66,8 @@ import GoalForm from "./routes/goals/GoalForm.jsx";
 import GoalDetails from "./routes/goals/GoalDetails.jsx";
 import { ReportDiscards } from "./routes/report-discards/ReportDiscards.jsx";
 import { ReportDiscardsFilterForm } from "./routes/report-discards/ReportDiscardsFilterForm.jsx";
+import { ReportExpiringProducts } from "./routes/report-expiring-products/ReportExpiringProducts.jsx";
+import { ReportExpiringProductsFilterForm } from "./routes/report-expiring-products/ReportExpiringProductsFilterForm.jsx";
 import { TourGuideProvider } from "./components/tour-guide/TourGuideContext.jsx";
 
 import "./index.css";
@@ -117,6 +119,14 @@ createRoot(document.getElementById("root")).render(
                 element={<ReportDiscardsFilterForm />}
               />
               <Route path="/relatorios/descartes" element={<ReportDiscards />} />
+              <Route
+                path="/relatorios/produtos-a-vencer/filtro"
+                element={<ReportExpiringProductsFilterForm />}
+              />
+              <Route
+                path="/relatorios/produtos-a-vencer"
+                element={<ReportExpiringProducts />}
+              />
               <Route
                 path="/voluntarios/selecionar"
                 element={<SelectVolunteers />}
