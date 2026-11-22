@@ -12,7 +12,7 @@ export default class SalaModel {
     try {
       const likeQuery = `%${query || ""}%`;
       const whereClause = query
-        ? sql`WHERE NOME LIKE ${likeQuery}`
+        ? sql`WHERE NOME LIKE ${likeQuery} OR DESCRICAO LIKE ${likeQuery}`
         : sql.empty;
       const orderByClause =
         sortKey === "nome" && sortType === "desc"
