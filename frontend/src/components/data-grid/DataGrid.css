@@ -141,6 +141,10 @@
     background-color: var(--colors-background-light);
     transition: var(--transitions-calm);
 
+    > td {
+      background-color: transparent;
+    }
+
     &:nth-child(odd) {
       background-color: var(--colors-background-medium);
     }

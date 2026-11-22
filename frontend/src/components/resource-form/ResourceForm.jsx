@@ -31,12 +31,14 @@ import { FormBreadcrumbs } from "./FormBreadcrumbs";
  * @prop {(id: string) => Promise<any>} [fetchResource]
  * @prop {string} [className]
  * @prop {import("react").ReactNode} children
- * @prop {string} title
- * @prop {string} [editTitle]
+ * @prop {import("react").ReactNode} title
+ * @prop {import("react").ReactNode} [editTitle]
  * @prop {Breadcrumb[]} breadcrumbs
  * @prop {ResourceFormOnSubmit} onSubmit
  * @prop {import("react").MouseEventHandler<HTMLButtonElement>} onCancel
  * @prop {string} [gridColumns]
+ * @prop {import("react").ButtonHTMLAttributes<HTMLButtonElement>} [submitButtonProps]
+ * @prop {import("react").ButtonHTMLAttributes<HTMLButtonElement>} [cancelButtonProps]
  */
 
 /**
@@ -60,6 +62,8 @@ function ResourceFormContent({
   onSubmit,
   onCancel,
   gridColumns,
+  submitButtonProps,
+  cancelButtonProps,
 }) {
   const { [idParamKey]: id } = useParams();
   const form = useFormController();
@@ -123,11 +127,12 @@ function ResourceFormContent({
             type="button"
             onClick={onCancel}
             className="button-block --outline --primary"
+            {...cancelButtonProps}
           >
             Cancelar
           </FormModalCancelButton>
 
-          <FormModalSubmitButton>
+          <FormModalSubmitButton {...submitButtonProps}>
             <span>{submitLabel}</span>
           </FormModalSubmitButton>
         </footer>

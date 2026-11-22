@@ -1,152 +1,58 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-function Formulario({
-  sala,
-  onSalvar,
-  fechar,
-  erro
-}) {
+function Formulario({ sala, onSalvar, fechar, erro }) {
+  const [nome, setNome] = useState("");
+  const [descricao, setDescricao] = useState("");
 
-  const [nome,setNome] =
-    useState("");
+  useEffect(() => {
+    setNome(sala?.nome || "");
+    setDescricao(sala?.descricao || "");
+  }, [sala]);
 
-  const [capacidade,
-    setCapacidade] =
-    useState("");
+  function handleSubmit(event) {
+    event.preventDefault();
 
-  const [descricao,
-    setDescricao] =
-    useState("");
-
-  useEffect(()=>{
-
-    if(sala){
-
-      setNome(
-        sala.nome || ""
-      );
-
-      setCapacidade(
-        sala.capacidade || ""
-      );
-
-      setDescricao(
-        sala.descricao || ""
-      );
-
-    }
-
-  },[sala]);
-
-  function handleSubmit(e){
-
-    e.preventDefault();
-
-    const cap =
-      Number(capacidade);
-
-    if(
-      !nome.trim() ||
-      !capacidade ||
-      cap <= 0
-    ){
-
-      erro(
-        "Preencha Nome e Capacidade corretamente"
-      );
-
+    if (nome.trim().length < 3) {
+      erro("Informe um nome com pelo menos 3 caracteres");
       return;
     }
 
     onSalvar({
-
-      id:sala?.id,
-
-      nome,
-
-      capacidade:cap,
-
-      descricao
-
+      id: sala?.id,
+      nome: nome.trim(),
+      descricao,
     });
 
     erro("");
-
   }
 
   return (
-
-    <form
-      className="formulario"
-      onSubmit={handleSubmit}
-    >
-
+    <form className="formulario" onSubmit={handleSubmit}>
       <input
         placeholder="Nome"
         value={nome}
-        onChange={(e)=>
-          setNome(
-            e.target.value
-          )
-        }
-      />
-
-      <input
-        placeholder="Capacidade"
-        value={capacidade}
-        onChange={(e)=>
-
-          setCapacidade(
-            e.target.value.replace(
-              /\D/g,
-              ""
-            )
-          )
-
-        }
+        onChange={(event) => setNome(event.target.value)}
       />
 
       <textarea
         placeholder="Descrição"
         value={descricao}
-        onChange={(e)=>
-          setDescricao(
-            e.target.value
-          )
-        }
+        onChange={(event) => setDescricao(event.target.value)}
       />
 
       <div className="botoes">
-
         <button
           type="submit"
-          className={
-            sala
-              ? "btn-salvar editar"
-              : "btn-salvar"
-          }
+          className={sala ? "btn-salvar editar" : "btn-salvar"}
         >
-
-          {sala
-            ? "Alterar"
-            : "Salvar"}
-
+          {sala ? "Alterar" : "Salvar"}
         </button>
 
-        <button
-          type="button"
-          className="btn-cancelar"
-          onClick={fechar}
-        >
-
+        <button type="button" className="btn-cancelar" onClick={fechar}>
           Cancelar
-
         </button>
-
       </div>
-
     </form>
-
   );
 }
 

@@ -4,107 +4,64 @@ export default class SalaModel {
 
   static async findAll({
     query,
+    sortKey,
+    sortType,
     page = 1,
-    perPage = 10
+    perPage = 10,
   }) {
-
     try {
-
-      const likeQuery =
-        `%${query || ""}%`;
-
+      const likeQuery = `%${query || ""}%`;
       const whereClause = query
-
-        ? sql`
-          WHERE
-            NOME LIKE ${likeQuery}
-        `
-
+        ? sql`WHERE NOME LIKE ${likeQuery} OR DESCRICAO LIKE ${likeQuery}`
         : sql.empty;
+      const orderByClause =
+        sortKey === "nome" && sortType === "desc"
+          ? sql`ORDER BY NOME DESC`
+          : sql`ORDER BY NOME ASC`;
+      const limitClause = sql`
+        LIMIT ${perPage}
+        OFFSET ${(page - 1) * perPage}
+      `;
 
-      const limitClause =
-        sql`
-          LIMIT ${perPage}
-          OFFSET ${(page - 1) * perPage}
-        `;
-
-      const [data, [{ TOTAL: total }]]
-        = await Promise.all([
-
+      const [data, [{ TOTAL: total }]] = await Promise.all([
         sql.query`
-
           SELECT
             ID,
             NOME,
-            CAPACIDADE,
             DESCRICAO
-
           FROM SALAS
-
           ${whereClause}
-
-          ORDER BY NOME ASC
-
+          ${orderByClause}
           ${limitClause}
-
         `.run(),
-
         sql.query`
-
-          SELECT
-            COUNT(*) AS TOTAL
-
+          SELECT COUNT(*) AS TOTAL
           FROM SALAS
-
           ${whereClause}
-
-        `.run()
-
+        `.run(),
       ]);
 
-      const salas = data.map(
-        (sala)=>({
-
-          id: sala.ID,
-
-          nome: sala.NOME,
-
-          capacidade:
-            sala.CAPACIDADE,
-
-          descricao:
-            sala.DESCRICAO,
-
-        })
-      );
+      const salas = data.map((sala) => ({
+        id: sala.ID,
+        nome: sala.NOME,
+        descricao: sala.DESCRICAO,
+      }));
 
       return [
-
         {
-
           items: salas,
-
           totalRecords: total,
-
           page,
-
-          totalPages:
-            Math.ceil(
-              total / perPage
-            ),
-
+          totalPages: Math.ceil(total / perPage),
+          query,
+          sortKey,
+          sortType,
         },
-
         null,
-
       ];
-
-    } catch(error) {
-
-      return [null,error];
-
+    } catch (error) {
+      return [null, error];
     }
-
   }
 
   static async findById(id) {
@@ -113,7 +70,7 @@ export default class SalaModel {
 
       const data = await sql.query`
 
-        SELECT *
+        SELECT ID, NOME, DESCRICAO
 
         FROM SALAS
 
@@ -134,9 +91,6 @@ export default class SalaModel {
 
           nome:sala.NOME,
 
-          capacidade:
-            sala.CAPACIDADE,
-
           descricao:
             sala.DESCRICAO,
 
@@ -156,7 +110,6 @@ export default class SalaModel {
 
   static async create({
     nome,
-    capacidade,
     descricao
   }) {
 
@@ -168,14 +121,12 @@ export default class SalaModel {
         INSERT INTO SALAS
         (
           NOME,
-          CAPACIDADE,
           DESCRICAO
         )
 
         VALUES
         (
           ${nome},
-          ${capacidade},
           ${descricao}
         )
 
@@ -197,7 +148,6 @@ export default class SalaModel {
   static async edit({
     id,
     nome,
-    capacidade,
     descricao
   }) {
 
@@ -211,8 +161,6 @@ export default class SalaModel {
         SET
 
           NOME=${nome},
-
-          CAPACIDADE=${capacidade},
 
           DESCRICAO=${descricao}
 

@@ -7,12 +7,14 @@ export default class SalaController {
 
     const response = APIResponse.from(res);
 
-    const { q, page, perPage } = req.query;
+    const { q, page, perPage, sortKey, sortType } = req.query;
 
     const filter = {
       query: q,
       page: page ? parseInt(page) : 1,
       perPage: perPage ? parseInt(perPage) : 10,
+      sortKey,
+      sortType,
     };
 
     const [salas, error] =
@@ -52,14 +54,12 @@ export default class SalaController {
 
     const {
       nome,
-      capacidade,
       descricao
     } = req.body;
 
     const [created, error] =
       await SalaModel.create({
         nome,
-        capacidade,
         descricao
       });
 
@@ -89,7 +89,6 @@ export default class SalaController {
 
     const {
       nome,
-      capacidade,
       descricao
     } = req.body;
 
@@ -97,7 +96,6 @@ export default class SalaController {
       await SalaModel.edit({
         id,
         nome,
-        capacidade,
         descricao
       });
 
