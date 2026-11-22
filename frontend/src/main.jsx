@@ -68,6 +68,7 @@ import { ReportDiscards } from "./routes/report-discards/ReportDiscards.jsx";
 import { ReportDiscardsFilterForm } from "./routes/report-discards/ReportDiscardsFilterForm.jsx";
 import { ReportExpiringProducts } from "./routes/report-expiring-products/ReportExpiringProducts.jsx";
 import { ReportExpiringProductsFilterForm } from "./routes/report-expiring-products/ReportExpiringProductsFilterForm.jsx";
+import { ReportGoals } from "./routes/report-goals/ReportGoals.jsx";
 import { TourGuideProvider } from "./components/tour-guide/TourGuideContext.jsx";
 
 import "./index.css";
@@ -127,6 +128,7 @@ createRoot(document.getElementById("root")).render(
                 path="/relatorios/produtos-a-vencer"
                 element={<ReportExpiringProducts />}
               />
+              <Route path="/relatorios/metas" element={<ReportGoals />} />
               <Route
                 path="/voluntarios/selecionar"
                 element={<SelectVolunteers />}

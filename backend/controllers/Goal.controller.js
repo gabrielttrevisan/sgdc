@@ -1,5 +1,6 @@
 import APIResponse from "../lib/APIResponse.js";
 import GoalModel from "../models/Goal.model.js";
+import createGoalReportFile from "../lib/GoalReportExport.js";
 
 export default class GoalController {
   static async findAll(req, res) {
@@ -12,6 +13,34 @@ export default class GoalController {
     });
 
     if (error) return response.internalError();
+    return response.success(goals);
+  }
+
+  static async findForReport(req, res) {
+    const response = APIResponse.from(res);
+    const { page, perPage, format } = req.query;
+    const [goals, error] = await GoalModel.findForReport({
+      page: page ? parseInt(page, 10) : 1,
+      perPage: perPage ? parseInt(perPage, 10) : 10,
+      all: Boolean(format),
+    });
+
+    if (error) return response.internalError();
+
+    if (format) {
+      try {
+        const file = await createGoalReportFile(goals.items, format);
+        res.set("Content-Type", file.contentType);
+        res.set("Content-Disposition", `attachment; filename="${file.filename}"`);
+        return res.status(200).send(file.buffer);
+      } catch (exportError) {
+        console.error(exportError);
+        return response.internalError(
+          "Não foi possível gerar o arquivo do relatório",
+        );
+      }
+    }
+
     return response.success(goals);
   }
 
