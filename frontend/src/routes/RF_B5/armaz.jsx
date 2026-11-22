@@ -1,132 +1,130 @@
-import { useState, useEffect } from "react";
+import { useRef } from "react";
 import { useNavigate } from "react-router";
 
-import Cabecalho from "./componentes/Cabecalho";
-import Busca from "./componentes/Busca";
-import Lista from "./componentes/Lista";
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
-import { authStore } from "../../store/Auth.store";
-
-import "./css/armaz.css";
-import "./css/cadastro.css";
+import { DataGrid } from "../../components/data-grid/DataGrid";
+import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
+import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
+import { EditIcon } from "../../components/icons/EditIcon";
+import { DeleteIcon } from "../../components/icons/DeleteIcon";
+import { AtoZIconAsc } from "../../components/icons/AtoZIconAsc";
+import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
+import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
+import Toast from "../../components/toast/ToastStorage";
+import SalasService from "../../service/SalasService";
 
 const Armaz = WithAuthGuard(function Armaz() {
+  const dataGridRef = useRef(null);
+  const modalRef = useRef(null);
   const navigate = useNavigate();
 
-  const [salas, setSalas] = useState([]);
-  const [busca, setBusca] = useState("");
-  const [mensagem, setMensagem] = useState("");
-  const [modalExcluir, setModalExcluir] = useState(false);
-  const [salaParaExcluir, setSalaParaExcluir] = useState(null);
+  const columns = [
+    {
+      DataGridCell: ({ nome }) => <span>{nome}</span>,
+      title: "Nome",
+      id: "nome",
+      sortable: true,
+      SortIcon: ({ sortKey, state }) => {
+        const style = sortKey === "nome" ? undefined : { opacity: "0.4" };
 
-  async function carregarSalas() {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}salas?q=${busca}`,
-        {
-          headers: authStore.getHeaders(),
-        },
-      );
-
-      const json = await response.json();
-
-      const ordenadas = json.data.items.sort((a, b) =>
-        a.nome.localeCompare(b.nome, "pt-BR"),
-      );
-
-      setSalas(ordenadas);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  useEffect(() => {
-    carregarSalas();
-  }, [busca]);
-
-  function abrirModalExcluir(id) {
-    setSalaParaExcluir(id);
-    setModalExcluir(true);
-  }
-
-  function fecharModalExcluir() {
-    setModalExcluir(false);
-    setSalaParaExcluir(null);
-  }
-
-  async function excluirSala() {
-    try {
-      await fetch(`${import.meta.env.VITE_API_URL}salas/${salaParaExcluir}`, {
-        method: "DELETE",
-        headers: authStore.getHeaders(),
-      });
-
-      carregarSalas();
-
-      setMensagem("Sala excluída com sucesso.");
-
-      setTimeout(() => {
-        setMensagem("");
-      }, 2500);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      fecharModalExcluir();
-    }
-  }
+        return (
+          <>
+            {!state || state === "asc" ? (
+              <AtoZIconAsc style={style} />
+            ) : (
+              <AtoZIconDesc style={style} />
+            )}
+            <VisuallyHidden>Ordenar por nome</VisuallyHidden>
+          </>
+        );
+      },
+      sortKey: "nome",
+      sortType: ["asc", "desc"],
+    },
+    {
+      DataGridCell: ({ capacidade }) => <span>{capacidade}</span>,
+      title: "Capacidade",
+      id: "capacidade",
+    },
+    {
+      DataGridCell: ({ descricao }) => (
+        <span>{descricao || "Sem descrição cadastrada."}</span>
+      ),
+      title: "Descrição",
+      id: "descricao",
+    },
+  ];
 
   return (
-    <div className="container mt-4">
-      <div className="card shadow p-4">
-        <Cabecalho />
+    <>
+      <SensitiveModal
+        ref={modalRef}
+        title="Confirmar exclusão"
+        confirmLabel="Excluir"
+        showCloseButton
+      >
+        Tem certeza que deseja excluir esta sala?
+      </SensitiveModal>
 
-        <div className="armaz-header">
-          <div className="armaz-search">
-            <Busca setBusca={setBusca} />
-          </div>
+      <DataGrid
+        ref={dataGridRef}
+        columns={columns}
+        paginatableService={SalasService}
+        singularName="local de armazenamento"
+        pluralName="locais de armazenamento"
+        title="Locais de armazenamento"
+        emptyMessage="Nenhum local de armazenamento encontrado"
+        keyProp="id"
+        sortKeyDefault="nome"
+        sortTypeDefault="asc"
+        actionsConfig={[
+          {
+            type: "edit",
+            content: (
+              <>
+                <EditIcon />
+                <span>Editar</span>
+              </>
+            ),
+            onAction: async (_, target) => {
+              navigate(`/locais-de-armazenamento/cadastro/${target.id}`);
+            },
+          },
+          {
+            type: "delete",
+            content: (
+              <>
+                <DeleteIcon />
+                <span>Excluir</span>
+              </>
+            ),
+            onAction: async (_, target) => {
+              const confirmed = await modalRef.current?.openAsync();
 
-          <button
-            className="btn-cadastrar"
-            onClick={() => navigate("/locais-de-armazenamento/cadastro")}
-          >
-            + Cadastrar
-          </button>
-        </div>
+              if (!confirmed) return;
 
-        {mensagem && <div className="alert alert-warning mt-3">{mensagem}</div>}
+              const { data, error } = await SalasService.delete(target.id);
 
-        <Lista
-          salas={salas}
-          onExcluir={abrirModalExcluir}
-          onEditar={(sala) =>
-            navigate(`/locais-de-armazenamento/cadastro/${sala.id}`)
-          }
-        />
-      </div>
-
-      {modalExcluir && (
-        <div className="modal-overlay">
-          <div className="cadastro-card modal-card">
-            <h2 className="cadastro-title">Confirmar exclusão</h2>
-
-            <p>Tem certeza que deseja excluir esta sala?</p>
-
-            <div className="modal-botoes">
-              <button
-                className="modal-btn-cancelar"
-                onClick={fecharModalExcluir}
-              >
-                Cancelar
-              </button>
-
-              <button className="modal-btn-excluir" onClick={excluirSala}>
-                Excluir
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+              if (data?.success) {
+                Toast.success("Sala excluída com sucesso");
+                dataGridRef.current?.update();
+              } else {
+                Toast.error(error?.message ?? "Falha ao excluir sala");
+              }
+            },
+          },
+        ]}
+      >
+        <button
+          type="button"
+          onClick={() => navigate("/locais-de-armazenamento/cadastro")}
+          className="button-block --solid --btn-safe"
+        >
+          <AddLargeIcon />
+          <span>Cadastrar local de armazenamento</span>
+        </button>
+      </DataGrid>
+    </>
   );
 });
 

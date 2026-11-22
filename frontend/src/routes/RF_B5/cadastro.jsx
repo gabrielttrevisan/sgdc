@@ -70,7 +70,7 @@ const CadastroRFB5 = WithAuthGuard(function CadastroRFB5() {
         `${API_BASE_URL}/salas${id ? `/${id}` : ""}`,
 
         {
-          method: id ? "PUT" : "POST",
+          method: id ? "PATCH" : "POST",
 
           headers: {
             "Content-Type": "application/json",

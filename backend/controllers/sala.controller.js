@@ -7,12 +7,14 @@ export default class SalaController {
 
     const response = APIResponse.from(res);
 
-    const { q, page, perPage } = req.query;
+    const { q, page, perPage, sortKey, sortType } = req.query;
 
     const filter = {
       query: q,
       page: page ? parseInt(page) : 1,
       perPage: perPage ? parseInt(perPage) : 10,
+      sortKey,
+      sortType,
     };
 
     const [salas, error] =
