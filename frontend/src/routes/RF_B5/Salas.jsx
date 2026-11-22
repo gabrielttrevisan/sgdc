@@ -12,11 +12,14 @@ import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc.jsx";
 import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden.jsx";
 import Toast from "../../components/toast/ToastStorage.js";
 import SalasService from "../../service/SalasService.js";
+import useTourGuide from "../../hooks/useTourGuide.js";
+import HelpButton from "../../components/help-button/HelpButton.jsx";
 
 const Salas = WithAuthGuard(function Armaz() {
   const dataGridRef = useRef(null);
   const modalRef = useRef(null);
   const navigate = useNavigate();
+  const { start, registerStepEl } = useTourGuide("sala-list");
 
   const columns = [
     {
@@ -40,6 +43,11 @@ const Salas = WithAuthGuard(function Armaz() {
       },
       sortKey: "nome",
       sortType: ["asc", "desc"],
+      sortButtonProps: registerStepEl({
+        title: "Ordenação",
+        order: 1,
+        content: "Clique no título 'Nome' para ordenar os locais pelo nome.",
+      }),
     },
     {
       DataGridCell: ({ descricao }) => (
@@ -68,10 +76,35 @@ const Salas = WithAuthGuard(function Armaz() {
         singularName="local de armazenamento"
         pluralName="locais de armazenamento"
         title="Locais de armazenamento"
+        afterLabel={<HelpButton onClick={start} />}
         emptyMessage="Nenhum local de armazenamento encontrado"
         keyProp="id"
         sortKeyDefault="nome"
         sortTypeDefault="asc"
+        searchBoxProps={registerStepEl({
+          title: "Busca",
+          order: 4,
+          content:
+            "Pesquise os locais de armazenamento pelo nome ou pela descrição.",
+        })}
+        paginationInfoProps={registerStepEl({
+          title: "Resultados",
+          order: 2,
+          content:
+            "Veja quantos locais estão sendo exibidos nesta página e quantos estão cadastrados no sistema.",
+        })}
+        paginationProps={registerStepEl({
+          title: "Paginação",
+          order: 3,
+          content:
+            "Use os controles para navegar pelas páginas dos resultados da busca.",
+        })}
+        firstActionButtonProps={registerStepEl({
+          title: "Ações",
+          order: 5,
+          content:
+            'Clique para "Editar" para alterar os dados de um local de armazenamento ou clique em "Excluir" para deletar um local de armazenamento.',
+        })}
         actionsConfig={[
           {
             type: "edit",
@@ -114,6 +147,12 @@ const Salas = WithAuthGuard(function Armaz() {
           type="button"
           onClick={() => navigate("/locais-de-armazenamento/cadastro")}
           className="button-block --solid --btn-safe"
+          {...registerStepEl({
+            title: "Cadastro",
+            order: 7,
+            content:
+              "Clique aqui para cadastrar um novo local de armazenamento.",
+          })}
         >
           <AddLargeIcon />
           <span>Cadastrar local de armazenamento</span>

@@ -46,6 +46,7 @@ import { DataGridWrapper } from "./grid/DataGridWrapper";
  * @prop {SortIcon} [SortIcon]
  * @prop {keyof T} [sortKey]
  * @prop {string[]} [sortType]
+ * @prop {import("react").ButtonHTMLAttributes<HTMLButtonElement>} [sortButtonProps]
  */
 
 /**
@@ -68,6 +69,10 @@ import { DataGridWrapper } from "./grid/DataGridWrapper";
  * @prop {string} [actionsCellClassName]
  * @prop {import("react").ReactNode} [children]
  * @prop {string} [searchBoxPlaceholder]
+ * @prop {import("react").InputHTMLAttributes<HTMLInputElement>} [searchBoxProps]
+ * @prop {import("react").ReactNode} [afterLabel]
+ * @prop {import("react").HTMLProps<"div">} [paginationInfoProps]
+ * @prop {import("react").HTMLProps<"nav">} [paginationProps]
  * @prop {keyof T|(item: T) => string} keyProp
  * @prop {keyof T} [sortKeyDefault]
  * @prop {string} [sortTypeDefault]
@@ -92,6 +97,7 @@ export function DataGrid({
   rowClassName = "",
   children,
   searchBoxPlaceholder,
+  searchBoxProps,
   keyProp,
   sortKeyDefault,
   sortTypeDefault,
@@ -209,6 +215,7 @@ export function DataGrid({
           <DataGridHeaderActions ref={actionsButtonRef}>
             {!noSearch && (
               <SearchBox
+                {...searchBoxProps}
                 onSearch={(query) =>
                   getPage(1, page.sortKey, query, page.sortType)
                 }
@@ -247,6 +254,7 @@ export function DataGrid({
 
                   {column.sortable && (
                     <button
+                      {...column.sortButtonProps}
                       type="button"
                       onClick={() => {
                         if (column.sortType) {
@@ -335,7 +343,7 @@ export function DataGrid({
                       className={actionsCellClassName}
                       target={item}
                       actions={actionsConfig}
-                      buttonProps={
+                      wrapperProps={
                         index === 0 ? firstActionButtonProps : undefined
                       }
                     />
