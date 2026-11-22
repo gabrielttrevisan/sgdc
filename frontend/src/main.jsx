@@ -6,8 +6,8 @@ import { Volunteers } from "./routes/Volunteers/Volunteers.jsx";
 import { Beneficiaries } from "./routes/beneficiaries/Beneficiaries.jsx";
 import BeneficiaryForm from "./routes/beneficiaries/BeneficiaryForm.jsx";
 import BeneficiaryDetails from "./routes/beneficiaries/BeneficiaryDetails.jsx";
-import Armaz from "./routes/RF_B5/armaz.jsx";
-import CadastroRFB5 from "./routes/RF_B5/cadastro.jsx";
+import Salas from "./routes/RF_B5/Salas.jsx";
+import SalaForm from "./routes/RF_B5/SalaForm.jsx";
 import App from "./components/App.jsx";
 import { MatchMediaProvider } from "./components/media-query/MatchMediaProvider.jsx";
 import { AllocationTypes } from "./routes/allocation-types/AllocationTypes.jsx";
@@ -135,10 +135,10 @@ createRoot(document.getElementById("root")).render(
               />
 
               <Route path="/" element={<AuthGuard />} />
-              <Route path="/locais-de-armazenamento" element={<Armaz />} />
+              <Route path="/locais-de-armazenamento" element={<Salas />} />
               <Route
                 path="/locais-de-armazenamento/cadastro/:id?"
-                element={<CadastroRFB5 />}
+                element={<SalaForm />}
               />
 
               <Route path="/produtos" element={<Products />} />

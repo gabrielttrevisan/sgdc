@@ -1,0 +1,90 @@
+import { useNavigate } from "react-router";
+
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
+import { InputField } from "../../components/form/input-field/InputField";
+import { TextAreaField } from "../../components/form/input-field/TextAreaField";
+import { ResourceForm } from "../../components/resource-form/ResourceForm.jsx";
+import Toast from "../../components/toast/ToastStorage";
+import SalasService from "../../service/SalasService.js";
+
+const SalaForm = WithAuthGuard(function SalaForm() {
+  const navigate = useNavigate();
+
+  return (
+    <ResourceForm
+      fetchResource={(id) => SalasService.getById(id)}
+      breadcrumbs={[{ id: "salas", name: "Locais de armazenamento" }]}
+      title="Cadastrar Local de Armazenamento"
+      editTitle="Atualizar Local de Armazenamento"
+      gridColumns="1fr 1fr"
+      onCancel={() => navigate("/locais-de-armazenamento")}
+      onSubmit={async (data, isEditing) => {
+        const sala = {
+          ...data,
+          capacidade: Number(data.capacidade),
+        };
+        const response = isEditing
+          ? await SalasService.edit(sala)
+          : await SalasService.create(sala);
+
+        if (response.data?.success) {
+          Toast.success(
+            isEditing
+              ? "Local de armazenamento atualizado com sucesso"
+              : "Local de armazenamento cadastrado com sucesso",
+          );
+          navigate("/locais-de-armazenamento");
+          return true;
+        }
+
+        Toast.error(
+          response.error?.issues?.[0]?.description ??
+            response.error?.message ??
+            `Falha ao ${isEditing ? "atualizar" : "cadastrar"} local de armazenamento`,
+        );
+        return false;
+      }}
+    >
+      <InputField
+        name="nome"
+        id="nome"
+        label="Nome"
+        placeholder="Nome do local de armazenamento"
+        variant="half-left"
+        required
+        maxLength={120}
+        validate={(value) =>
+          value.trim().length >= 3
+            ? true
+            : "O nome deve conter pelo menos 3 caracteres"
+        }
+      />
+
+      <InputField
+        name="capacidade"
+        id="capacidade"
+        label="Capacidade"
+        type="number"
+        min="1"
+        step="1"
+        variant="half-right"
+        required
+        validate={(value) =>
+          Number.isSafeInteger(Number(value)) && Number(value) > 0
+            ? true
+            : "Informe uma capacidade inteira maior que zero"
+        }
+      />
+
+      <TextAreaField
+        name="descricao"
+        id="descricao"
+        label="Descrição"
+        placeholder="Descrição opcional"
+        variant="full"
+      />
+    </ResourceForm>
+  );
+});
+
+export default SalaForm;

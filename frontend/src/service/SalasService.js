@@ -28,12 +28,56 @@ class SalasService extends Service {
   }
 
   /**
+   * @param {number|string} id
+   * @returns {Promise<import("../global").APIResponse<Sala>>}
+   */
+  async getById(id) {
+    try {
+      return await this.#client.get(`salas/${id}`);
+    } catch {
+      return this.internal("Erro inesperado");
+    }
+  }
+
+  /**
    * @param {number} id
    * @returns {Promise<import("../global").APIResponse<{success: boolean}>>}
    */
   async delete(id) {
     try {
       return await this.#client.delete(`salas/${id}`);
+    } catch {
+      return this.internal("Erro inesperado");
+    }
+  }
+
+  /**
+   * @param {{nome: string, capacidade: number, descricao?: string}} sala
+   * @returns {Promise<import("../global").APIResponse<{success: boolean}>>}
+   */
+  async create({ nome, capacidade, descricao }) {
+    try {
+      return await this.#client.post("salas", {
+        nome: nome.trim(),
+        capacidade: Number(capacidade),
+        descricao: descricao?.trim() ?? "",
+      });
+    } catch {
+      return this.internal("Erro inesperado");
+    }
+  }
+
+  /**
+   * @param {{id: number|string, nome: string, capacidade: number, descricao?: string}} sala
+   * @returns {Promise<import("../global").APIResponse<{success: boolean}>>}
+   */
+  async edit({ id, nome, capacidade, descricao }) {
+    try {
+      return await this.#client.patch(`salas/${id}`, {
+        nome: nome.trim(),
+        capacidade: Number(capacidade),
+        descricao: descricao?.trim() ?? "",
+      });
     } catch {
       return this.internal("Erro inesperado");
     }

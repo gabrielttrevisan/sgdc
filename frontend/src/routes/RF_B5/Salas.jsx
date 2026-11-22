@@ -2,18 +2,18 @@ import { useRef } from "react";
 import { useNavigate } from "react-router";
 
 import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
-import { DataGrid } from "../../components/data-grid/DataGrid";
-import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal";
-import { AddLargeIcon } from "../../components/icons/AddLargeIcon";
-import { EditIcon } from "../../components/icons/EditIcon";
-import { DeleteIcon } from "../../components/icons/DeleteIcon";
-import { AtoZIconAsc } from "../../components/icons/AtoZIconAsc";
-import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc";
-import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden";
-import Toast from "../../components/toast/ToastStorage";
-import SalasService from "../../service/SalasService";
+import { DataGrid } from "../../components/data-grid/DataGrid.jsx";
+import { SensitiveModal } from "../../components/sensitive-modal/SensitiveModal.jsx";
+import { AddLargeIcon } from "../../components/icons/AddLargeIcon.jsx";
+import { EditIcon } from "../../components/icons/EditIcon.jsx";
+import { DeleteIcon } from "../../components/icons/DeleteIcon.jsx";
+import { AtoZIconAsc } from "../../components/icons/AtoZIconAsc.jsx";
+import { AtoZIconDesc } from "../../components/icons/AtoZIconDesc.jsx";
+import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden.jsx";
+import Toast from "../../components/toast/ToastStorage.js";
+import SalasService from "../../service/SalasService.js";
 
-const Armaz = WithAuthGuard(function Armaz() {
+const Salas = WithAuthGuard(function Armaz() {
   const dataGridRef = useRef(null);
   const modalRef = useRef(null);
   const navigate = useNavigate();
@@ -128,4 +128,4 @@ const Armaz = WithAuthGuard(function Armaz() {
   );
 });
 
-export default Armaz;
+export default Salas;
