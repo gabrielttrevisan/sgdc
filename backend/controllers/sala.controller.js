@@ -54,14 +54,12 @@ export default class SalaController {
 
     const {
       nome,
-      capacidade,
       descricao
     } = req.body;
 
     const [created, error] =
       await SalaModel.create({
         nome,
-        capacidade,
         descricao
       });
 
@@ -91,7 +89,6 @@ export default class SalaController {
 
     const {
       nome,
-      capacidade,
       descricao
     } = req.body;
 
@@ -99,7 +96,6 @@ export default class SalaController {
       await SalaModel.edit({
         id,
         nome,
-        capacidade,
         descricao
       });
 

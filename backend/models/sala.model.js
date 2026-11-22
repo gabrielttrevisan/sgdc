@@ -28,7 +28,6 @@ export default class SalaModel {
           SELECT
             ID,
             NOME,
-            CAPACIDADE,
             DESCRICAO
           FROM SALAS
           ${whereClause}
@@ -45,7 +44,6 @@ export default class SalaModel {
       const salas = data.map((sala) => ({
         id: sala.ID,
         nome: sala.NOME,
-        capacidade: sala.CAPACIDADE,
         descricao: sala.DESCRICAO,
       }));
 
@@ -72,7 +70,7 @@ export default class SalaModel {
 
       const data = await sql.query`
 
-        SELECT *
+        SELECT ID, NOME, DESCRICAO
 
         FROM SALAS
 
@@ -93,9 +91,6 @@ export default class SalaModel {
 
           nome:sala.NOME,
 
-          capacidade:
-            sala.CAPACIDADE,
-
           descricao:
             sala.DESCRICAO,
 
@@ -115,7 +110,6 @@ export default class SalaModel {
 
   static async create({
     nome,
-    capacidade,
     descricao
   }) {
 
@@ -127,14 +121,12 @@ export default class SalaModel {
         INSERT INTO SALAS
         (
           NOME,
-          CAPACIDADE,
           DESCRICAO
         )
 
         VALUES
         (
           ${nome},
-          ${capacidade},
           ${descricao}
         )
 
@@ -156,7 +148,6 @@ export default class SalaModel {
   static async edit({
     id,
     nome,
-    capacidade,
     descricao
   }) {
 
@@ -170,8 +161,6 @@ export default class SalaModel {
         SET
 
           NOME=${nome},
-
-          CAPACIDADE=${capacidade},
 
           DESCRICAO=${descricao}
 

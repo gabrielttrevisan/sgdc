@@ -25,7 +25,7 @@ class Busca extends Component {
           <input
             className="busca-input"
             type="text"
-            placeholder="Buscar por nome ou capacidade minima"
+            placeholder="Buscar por nome"
             value={this.state.texto}
             onChange={this.handleChange}
           />

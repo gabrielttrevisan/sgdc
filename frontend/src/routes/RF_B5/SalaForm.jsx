@@ -16,16 +16,11 @@ const SalaForm = WithAuthGuard(function SalaForm() {
       breadcrumbs={[{ id: "salas", name: "Locais de armazenamento" }]}
       title="Cadastrar Local de Armazenamento"
       editTitle="Atualizar Local de Armazenamento"
-      gridColumns="1fr 1fr"
       onCancel={() => navigate("/locais-de-armazenamento")}
       onSubmit={async (data, isEditing) => {
-        const sala = {
-          ...data,
-          capacidade: Number(data.capacidade),
-        };
         const response = isEditing
-          ? await SalasService.edit(sala)
-          : await SalasService.create(sala);
+          ? await SalasService.edit(data)
+          : await SalasService.create(data);
 
         if (response.data?.success) {
           Toast.success(
@@ -50,29 +45,12 @@ const SalaForm = WithAuthGuard(function SalaForm() {
         id="nome"
         label="Nome"
         placeholder="Nome do local de armazenamento"
-        variant="half-left"
         required
         maxLength={120}
         validate={(value) =>
           value.trim().length >= 3
             ? true
             : "O nome deve conter pelo menos 3 caracteres"
-        }
-      />
-
-      <InputField
-        name="capacidade"
-        id="capacidade"
-        label="Capacidade"
-        type="number"
-        min="1"
-        step="1"
-        variant="half-right"
-        required
-        validate={(value) =>
-          Number.isSafeInteger(Number(value)) && Number(value) > 0
-            ? true
-            : "Informe uma capacidade inteira maior que zero"
         }
       />
 

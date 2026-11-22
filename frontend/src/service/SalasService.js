@@ -4,7 +4,6 @@ import { Service } from "./Service";
 /** @typedef {Object} Sala
  * @prop {number} id
  * @prop {string} nome
- * @prop {number} capacidade
  * @prop {string|null} descricao
  */
 
@@ -52,14 +51,13 @@ class SalasService extends Service {
   }
 
   /**
-   * @param {{nome: string, capacidade: number, descricao?: string}} sala
+   * @param {{nome: string, descricao?: string}} sala
    * @returns {Promise<import("../global").APIResponse<{success: boolean}>>}
    */
-  async create({ nome, capacidade, descricao }) {
+  async create({ nome, descricao }) {
     try {
       return await this.#client.post("salas", {
         nome: nome.trim(),
-        capacidade: Number(capacidade),
         descricao: descricao?.trim() ?? "",
       });
     } catch {
@@ -68,14 +66,13 @@ class SalasService extends Service {
   }
 
   /**
-   * @param {{id: number|string, nome: string, capacidade: number, descricao?: string}} sala
+   * @param {{id: number|string, nome: string, descricao?: string}} sala
    * @returns {Promise<import("../global").APIResponse<{success: boolean}>>}
    */
-  async edit({ id, nome, capacidade, descricao }) {
+  async edit({ id, nome, descricao }) {
     try {
       return await this.#client.patch(`salas/${id}`, {
         nome: nome.trim(),
-        capacidade: Number(capacidade),
         descricao: descricao?.trim() ?? "",
       });
     } catch {

@@ -42,11 +42,6 @@ const Salas = WithAuthGuard(function Armaz() {
       sortType: ["asc", "desc"],
     },
     {
-      DataGridCell: ({ capacidade }) => <span>{capacidade}</span>,
-      title: "Capacidade",
-      id: "capacidade",
-    },
-    {
       DataGridCell: ({ descricao }) => (
         <span>{descricao || "Sem descrição cadastrada."}</span>
       ),

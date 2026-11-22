@@ -19,22 +19,6 @@ export const CREATE_SALA_RULES = [
   },
 
   {
-    property: "capacidade",
-
-    validate: (value) => {
-
-      if (
-        typeof value !== "number" ||
-        value <= 0
-      ) {
-        return "Capacidade inválida";
-      }
-
-      return true;
-    },
-  },
-
-  {
     property: "descricao",
 
     required: false,
