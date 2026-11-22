@@ -425,9 +425,16 @@ div.data-grid__filter-list {
   .data-grid {
     position: absolute !important;
     inset: 0 auto auto 0;
-    width: 100% !important;
+    width: calc(100% - 24mm) !important;
+    max-width: calc(100% - 24mm) !important;
+    box-sizing: border-box !important;
     padding: 0 !important;
     margin: 0 !important;
+
+    table {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
   }
 
   .data-grid__header {
@@ -447,6 +454,8 @@ div.data-grid__filter-list {
   }
 
   .data-grid__table-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
     overflow: visible !important;
     border-radius: 0 !important;
     box-shadow: none !important;
@@ -454,14 +463,20 @@ div.data-grid__filter-list {
 
   .data-grid__table {
     width: 100% !important;
+    max-width: 100% !important;
     border-collapse: collapse !important;
+    table-layout: fixed !important;
   }
 
   .data-grid__table thead th,
   .data-grid__table tbody td {
+    box-sizing: border-box !important;
+    padding: 4px 6px !important;
     border: 1px solid #555 !important;
     color: #000 !important;
     background: #fff !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
 
   .data-grid__item {

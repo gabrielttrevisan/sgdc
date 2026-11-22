@@ -19,7 +19,15 @@
 }
 
 li.data-grid__item.goal__row {
-  grid-template-columns: 2fr repeat(5, 1fr) auto;
+  grid-template-columns: 1fr 1fr 1fr;
+
+  :first-child {
+    grid-column: 1 / 4;
+  }
+
+  .goal__col:nth-child(4n) div span {
+    text-transform: uppercase;
+  }
 }
 
 @media (max-width: 760px) {

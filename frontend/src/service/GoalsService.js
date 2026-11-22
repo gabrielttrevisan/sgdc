@@ -16,6 +16,35 @@ class GoalsService extends Service {
     }
   }
 
+  async listReport({ page, perPage } = {}) {
+    try {
+      return await this.#client.get("goals/report", { page, perPage });
+    } catch {
+      return this.internal("Não foi possível carregar o relatório de metas");
+    }
+  }
+
+  async exportReport({ format }) {
+    try {
+      const response = await this.#client.getFile("goals/report", { format });
+
+      if (!response.ok) {
+        const result = await response.json();
+        return {
+          data: null,
+          error: result.error ?? {
+            code: "EXPORT_FAILED",
+            message: "Não foi possível exportar o relatório de metas",
+          },
+        };
+      }
+
+      return { data: await response.blob(), error: null };
+    } catch {
+      return this.internal("Não foi possível exportar o relatório de metas");
+    }
+  }
+
   /**
    * @param {number|string} id
    * @returns {Promise<import("../global").APIResponse<GoalDetails>>}
