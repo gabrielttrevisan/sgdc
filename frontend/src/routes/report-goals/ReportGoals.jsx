@@ -12,12 +12,6 @@ const reportService = {
   list: (filters) => GoalsService.listReport(filters),
 };
 
-function formatDate(value) {
-  if (!value) return "—";
-  const date = new Date(`${value.slice(0, 10)}T00:00:00`);
-  return Number.isNaN(date.getTime()) ? "—" : date.toLocaleDateString("pt-BR");
-}
-
 export const ReportGoals = WithAuthGuard(function ReportGoals() {
   const actionsButtonRef = useRef(null);
   const { start, registerStepEl } = useTourGuide("report-goals", {
@@ -52,19 +46,27 @@ export const ReportGoals = WithAuthGuard(function ReportGoals() {
       className: "goal__col --name",
     },
     {
-      DataGridCell: ({ startAt }) => <span>{formatDate(startAt)}</span>,
+      DataGridCell: ({ startAt }) => (
+        <span>{formatDate(startAt, "Não Informado")}</span>
+      ),
       title: "Início",
       id: "start",
       className: "goal__col",
     },
     {
-      DataGridCell: ({ endAt }) => <span>{formatDate(endAt)}</span>,
+      DataGridCell: ({ endAt }) => (
+        <span>{formatDate(endAt, "Não Informado")}</span>
+      ),
       title: "Término",
       id: "end",
       className: "goal__col",
     },
     {
-      DataGridCell: ({ type }) => <span>{type || "—"}</span>,
+      DataGridCell: ({ type }) => (
+        <span style={{ textTransform: "uppercase" }}>
+          {type || "Não Identificado"}
+        </span>
+      ),
       title: "Tipo",
       id: "type",
       className: "goal__col",
