@@ -23,7 +23,7 @@ app.use(
 
       res.setHeader(
         "Cache-Control",
-        `private, max-age=${process.env.CACHE_MAX_AGE ?? 31536000}`,
+        `public, max-age=${process.env.CACHE_MAX_AGE ?? 31536000}`,
       );
     },
   }),
