@@ -195,7 +195,7 @@ export default class GoalModel {
       name: row.NAME,
       startAt: GoalModel.#toDateString(row.START_AT),
       endAt: GoalModel.#toDateString(row.END_AT),
-      type: isGlobal ? "geral" : row.UNIT_NAME || "—",
+      type: isGlobal ? "geral" : row.UNIT_NAME || "Unidade Não Nomeada",
       goal: Number(row.GOAL),
       percentage: GoalModel.#percentage(row.COMPLETED, row.GOAL),
     };
@@ -213,7 +213,7 @@ export default class GoalModel {
       goal: Number(row.GOAL),
       isGlobal,
       unitName: row.UNIT_NAME,
-      type: isGlobal ? "geral" : row.UNIT_NAME || "—",
+      type: isGlobal ? "geral" : row.UNIT_NAME || "Unidade Não Nomeada",
       percentage: GoalModel.#percentage(row.COMPLETED, row.GOAL),
     };
   }
