@@ -1,0 +1,179 @@
+.donations-report {
+  display: grid;
+  gap: 1.5rem;
+  color: #28243a;
+}
+
+.donations-report__header h1 {
+  margin: 0.3rem 0;
+  font-size: clamp(1.6rem, 3vw, 2rem);
+}
+
+.donations-report__header p,
+.donations-report__results-header p {
+  color: #676477;
+}
+
+.donations-report__eyebrow {
+  color: #62568f;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.donations-report__filters,
+.donations-report__results {
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid #e4e1ed;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgb(40 36 58 / 5%);
+}
+
+.donations-report__filters fieldset {
+  display: grid;
+  gap: 1rem;
+  border: 0;
+}
+
+.donations-report__filters legend {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.donations-report__mode,
+.donations-report__date-range,
+.donations-report__downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.donations-report__mode label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.donations-report__mode input {
+  width: auto;
+}
+
+.donations-report__date-field {
+  display: grid;
+  gap: 0.4rem;
+  width: min(100%, 260px);
+  font-weight: 600;
+}
+
+.donations-report__date-field input {
+  min-height: 42px;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #c9c5d5;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.donations-report__primary-button,
+.donations-report__downloads button {
+  min-height: 42px;
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-radius: 6px;
+  background: #413a64;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.donations-report__primary-button {
+  justify-self: start;
+}
+
+.donations-report__primary-button:disabled,
+.donations-report__downloads button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.donations-report__validation,
+.donations-report__error {
+  color: #a12622;
+}
+
+.donations-report__results {
+  min-width: 0;
+}
+
+.donations-report__results-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.donations-report__results-header h2 {
+  margin-bottom: 0.25rem;
+}
+
+.donations-report__downloads button:last-child {
+  background: #28714b;
+}
+
+.donations-report__summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+
+.donations-report__summary div {
+  padding: 1rem;
+  border-radius: 8px;
+  background: #f5f3fa;
+}
+
+.donations-report__summary dt {
+  color: #676477;
+  font-size: 0.9rem;
+}
+
+.donations-report__summary dd {
+  margin-top: 0.4rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.donations-report__table-wrapper {
+  overflow-x: auto;
+}
+
+.donations-report__table-wrapper table {
+  min-width: 700px;
+  border-collapse: collapse;
+}
+
+.donations-report__table-wrapper th,
+.donations-report__table-wrapper td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e8e6ee;
+  text-align: left;
+  vertical-align: top;
+}
+
+.donations-report__table-wrapper th {
+  background: #f5f3fa;
+  color: #413a64;
+}
+
+@media (max-width: 600px) {
+  .donations-report__downloads {
+    width: 100%;
+  }
+
+  .donations-report__downloads button {
+    flex: 1;
+  }
+}

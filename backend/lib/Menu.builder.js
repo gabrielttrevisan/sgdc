@@ -171,7 +171,11 @@ export class MenuBuilder {
             title: "Descartes",
             path: "/relatorios/descartes",
           },
-        ],
+        ].filter(
+          (item) =>
+            item.path !== "/relatorios/doacoes" ||
+            helper.can("donation", "list"),
+        ),
       })
       .pushUnsafe({
         id: new RandID(),

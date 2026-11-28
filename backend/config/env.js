@@ -5,7 +5,6 @@ import * as v from "valibot";
 const DEFAULT_EXPIRES_IN = "43200000";
 
 const EnvironmentSchema = v.object({
-
   PORT: v.pipe(
     v.optional(v.string(), "3004"),
     v.toNumber()
@@ -44,23 +43,24 @@ const EnvironmentSchema = v.object({
     v.optional(v.string(), DEFAULT_EXPIRES_IN),
     v.toNumber()
   ),
-<<<<<<< HEAD
-
-=======
-  EMAIL_USER: v.pipe(v.string(), v.email()),
-  EMAIL_PASS: v.pipe(v.string(), v.length(16)),
+  EMAIL_USER: v.optional(v.pipe(v.string(), v.email())),
+  EMAIL_PASS: v.optional(v.pipe(v.string(), v.length(16))),
   EMAIL_SERVICE: v.pipe(v.optional(v.string(), "gmail")),
->>>>>>> 0559b7ca2bfff2be245c2a59c6fe44e12765d51a
 });
 
-export const env = v.parse(
-  EnvironmentSchema,
-  process.env,
-  {
-    message(issue) {
-      if (!issue.path?.[0].key) return issue.message;
+const environment = v.safeParse(EnvironmentSchema, process.env);
 
-      return `Variável de ambiente "${issue.path[0].key}" não encontrada ou com valor inesperado`;
-    },
-  }
-);
+if (!environment.success) {
+  const invalidVariables = [
+    ...new Set(
+      environment.issues.map((issue) =>
+        String(issue.path?.[0]?.key ?? "configuração de ambiente"),
+      ),
+    ),
+  ];
+  throw new Error(
+    `Variáveis de ambiente ausentes ou inválidas: ${invalidVariables.join(", ")}`,
+  );
+}
+
+export const env = environment.output;

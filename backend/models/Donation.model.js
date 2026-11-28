@@ -8,6 +8,93 @@ export class InsufficientDonationStockError extends Error {}
 
 export default class DonationModel {
   /**
+   * @param {{startDate:string,endDate:string}} period
+   * @returns {Promise<[object|null, Error|null]>}
+   */
+  static async getReport({ startDate, endDate }) {
+    try {
+      const donations = await sql.query`
+        SELECT
+          D.ID,
+          D.DETAILS,
+          D.CREATED_AT,
+          D.CANCELLED_AT,
+          B.FULL_NAME AS BENEFICIARY_NAME
+        FROM DONATIONS D
+          INNER JOIN BENEFICIARIES B ON B.ID = D.BENEFICIARY_ID
+        WHERE D.CREATED_AT >= ${`${startDate} 00:00:00`}
+          AND D.CREATED_AT < DATE_ADD(${endDate}, INTERVAL 1 DAY)
+        ORDER BY D.CREATED_AT, D.ID`.run();
+
+      const itemsByDonation = new Map(
+        donations.map((donation) => [Number(donation.ID), []]),
+      );
+
+      if (donations.length > 0) {
+        const donationIds = donations.map((donation) => Number(donation.ID));
+        const donationItems = await sql.query`
+          SELECT
+            DI.DONATION_ID,
+            P.ID AS PRODUCT_ID,
+            P.NAME AS PRODUCT_NAME,
+            SUM(DI.QUANTITY) AS QUANTITY
+          FROM DONATION_ITEMS DI
+            INNER JOIN PRODUCTS P ON P.ID = DI.PRODUCT_ID
+          WHERE DI.DONATION_ID IN (
+            ${sql.join(",", ...donationIds.map((id) => sql`${id}`))}
+          )
+          GROUP BY DI.DONATION_ID, P.ID, P.NAME
+          ORDER BY P.NAME`.run();
+
+        for (const item of donationItems) {
+          itemsByDonation.get(Number(item.DONATION_ID)).push({
+            productId: Number(item.PRODUCT_ID),
+            productName: item.PRODUCT_NAME,
+            quantity: Number(item.QUANTITY),
+          });
+        }
+      }
+
+      const reportDonations = donations.map((donation) => {
+        const items = itemsByDonation.get(Number(donation.ID));
+        return {
+          id: Number(donation.ID),
+          createdAt: donation.CREATED_AT,
+          beneficiaryName: donation.BENEFICIARY_NAME,
+          details: donation.DETAILS,
+          isCancelled: donation.CANCELLED_AT !== null,
+          items,
+          totalQuantity: items.reduce((total, item) => total + item.quantity, 0),
+        };
+      });
+
+      return [
+        {
+          startDate,
+          endDate,
+          donations: reportDonations,
+          totalDonations: reportDonations.length,
+          activeDonations: reportDonations.filter(
+            (donation) => !donation.isCancelled,
+          ).length,
+          cancelledDonations: reportDonations.filter(
+            (donation) => donation.isCancelled,
+          ).length,
+          totalQuantity: reportDonations.reduce(
+            (total, donation) =>
+              total + (donation.isCancelled ? 0 : donation.totalQuantity),
+            0,
+          ),
+        },
+        null,
+      ];
+    } catch (error) {
+      console.error(error);
+      return [null, error];
+    }
+  }
+
+  /**
    * @param {{query?:string,page?:number,perPage?:number}} filter
    * @returns {Promise<[object|null, Error|null]>}
    */

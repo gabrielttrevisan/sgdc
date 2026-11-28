@@ -5,19 +5,73 @@ import { authStore } from "../../store/Auth.store";
 
 import "./Arrecadacoes.css";
 
-const API_URL = "http://localhost:3004/arrecadacoes";
-const currencyFormatter = new Intl.NumberFormat("pt-BR", {
-  style: "currency",
-  currency: "BRL",
-});
-const dateFormatter = new Intl.DateTimeFormat("pt-BR");
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL || "http://localhost:3004/"
+).replace(/\/?$/, "/");
 
-function formatDate(value) {
-  if (!value) return "—";
-  const date = new Date(
-    typeof value === "string" ? `${value.slice(0, 10)}T00:00:00` : value,
-  );
-  return Number.isNaN(date.getTime()) ? "—" : dateFormatter.format(date);
+async function requestJson(path, options = {}) {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers: {
+      ...authStore.getHeaders(),
+      ...options.headers,
+    },
+  });
+  const payload = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const error = new Error(
+      payload?.error?.message ||
+        payload?.message ||
+        payload?.error ||
+        "Não foi possível carregar os dados necessários.",
+    );
+    error.status = response.status;
+    error.code = payload?.error?.code;
+    throw error;
+  }
+
+  return payload?.data ?? payload;
+}
+
+async function loadPaginatedItems(path) {
+  const perPage = 100;
+  const items = [];
+  let page = 1;
+  let totalPages;
+
+  do {
+    let result;
+    try {
+      result = await requestJson(`${path}?page=${page}&perPage=${perPage}`);
+    } catch (error) {
+      if (
+        path === "products" &&
+        error.status === 404 &&
+        error.code === "NOT_FOUND"
+      )
+        return [];
+      throw error;
+    }
+
+    const pageData = Array.isArray(result) ? { items: result } : result;
+    if (!Array.isArray(pageData?.items))
+      throw new Error("O servidor retornou uma lista inválida.");
+
+    items.push(...pageData.items);
+    totalPages = Number(pageData.totalPages) || 1;
+    page += 1;
+  } while (page <= totalPages);
+
+  return items;
+}
+
+function getId(record) {
+  return record.id ?? record.ID;
+}
+
+function getName(record) {
+  return record.name ?? record.NAME ?? record.nome ?? record.NOME ?? "";
 }
 
 export function Arrecadacoes() {
@@ -31,35 +85,126 @@ export function Arrecadacoes() {
   const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState("");
   const [mensagem, setMensagem] = useState("");
-  const [mensagemErro, setMensagemErro] = useState("");
-  const [modalAberto, setModalAberto] = useState(false);
-  const [arrecadacaoEmEdicao, setArrecadacaoEmEdicao] = useState(null);
-  const [arrecadacaoEmVisualizacao, setArrecadacaoEmVisualizacao] = useState(null);
+  const [buscaAberta, setBuscaAberta] = useState(false);
+  const [termoBusca, setTermoBusca] = useState("");
 
-    async function carregarOpcoes() {
-      setCarregando(true);
-      setErro("");
+  async function carregarOpcoes() {
+    setCarregando(true);
+    setErro("");
 
     try {
-      const response = await fetch(API_URL, {
-        headers: authStore.getHeaders(),
+      const [doadoresData, produtosData, salasData] = await Promise.all([
+        requestJson("donors"),
+        loadPaginatedItems("products"),
+        loadPaginatedItems("salas"),
+      ]);
+
+      if (!Array.isArray(doadoresData))
+        throw new Error("O servidor retornou uma lista de doadores inválida.");
+
+      setDoadores(doadoresData);
+      setProdutos(produtosData);
+      setSalas(salasData);
+    } catch (loadError) {
+      console.error("Erro ao carregar dados da arrecadação:", loadError);
+      setErro(
+        loadError.message || "Não foi possível carregar os dados necessários.",
+      );
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  useEffect(() => {
+    void carregarOpcoes();
+  }, []);
+
+  const produtosFiltrados = useMemo(() => {
+    const busca = termoBusca.trim().toLocaleLowerCase("pt-BR");
+
+    return produtos.filter((produto) =>
+      getName(produto).toLocaleLowerCase("pt-BR").includes(busca),
+    );
+  }, [produtos, termoBusca]);
+
+  function adicionarProduto(produto) {
+    setItens((atuais) => [
+      ...atuais,
+      {
+        productId: String(getId(produto)),
+        quantidade: 1,
+        salaId: salas.length ? String(getId(salas[0])) : "",
+        dataVencimento: "",
+      },
+    ]);
+    setTermoBusca("");
+  }
+
+  function atualizarItem(index, campo, valor) {
+    setItens((atuais) =>
+      atuais.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [campo]: valor } : item,
+      ),
+    );
+  }
+
+  function removerItem(index) {
+    setItens((atuais) => atuais.filter((_, itemIndex) => itemIndex !== index));
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    setErro("");
+    setMensagem("");
+
+    if (!doadorId) {
+      setErro("Selecione um doador.");
+      return;
+    }
+
+    if (itens.length === 0) {
+      setErro("Adicione pelo menos um produto à arrecadação.");
+      return;
+    }
+
+    if (
+      itens.some(
+        (item) =>
+          !Number.isSafeInteger(Number(item.quantidade)) ||
+          Number(item.quantidade) <= 0 ||
+          !item.salaId ||
+          !item.dataVencimento,
+      )
+    ) {
+      setErro(
+        "Informe uma quantidade válida, o armazenamento e o vencimento de todos os produtos.",
+      );
+      return;
+    }
+
+    try {
+      setEnviando(true);
+      const result = await requestJson("arrecadacoes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          doadorId: Number(doadorId),
+          itens: itens.map((item) => ({
+            productId: Number(item.productId),
+            quantidade: Number(item.quantidade),
+            salaId: Number(item.salaId),
+            dataVencimento: item.dataVencimento,
+          })),
+        }),
       });
-      const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(
-          data?.message || "Não foi possível carregar as arrecadações.",
-        );
-      }
-
-      if (!Array.isArray(data)) {
-        throw new Error("O servidor retornou uma lista de arrecadações inválida.");
-      }
-
-      setArrecadacoes(data);
-    } catch (error) {
-      console.error("Erro ao carregar arrecadações:", error);
-      setErro(error.message || "Não foi possível carregar as arrecadações.");
+      setMensagem(result?.message || "Arrecadação lançada com sucesso!");
+      setDoadorId("");
+      setItens([]);
+      setBuscaAberta(false);
+    } catch (submitError) {
+      console.error("Erro ao lançar arrecadação:", submitError);
+      setErro(submitError.message || "Não foi possível lançar a arrecadação.");
     } finally {
       setEnviando(false);
     }
@@ -95,16 +240,42 @@ export function Arrecadacoes() {
           </div>
         </header>
 
-      {mensagem && (
-        <div className="arrecadacoes-page__notice" role="status">
-          {mensagem}
-        </div>
-      )}
-      {mensagemErro && (
-        <div className="arrecadacoes-page__notice arrecadacoes-page__notice--error" role="alert">
-          {mensagemErro}
-        </div>
-      )}
+        {mensagem && (
+          <div className="arrecadacao-lancamento__notice" role="status">
+            {mensagem}
+          </div>
+        )}
+        {erro && (
+          <div
+            className="arrecadacao-lancamento__notice arrecadacao-lancamento__notice--error"
+            role="alert"
+          >
+            {erro}
+            {carregando ? null : (
+              <button type="button" onClick={carregarOpcoes}>
+                Tentar novamente
+              </button>
+            )}
+          </div>
+        )}
+        {!carregando && (!produtos.length || !salas.length) && (
+          <div className="arrecadacao-lancamento__notice" role="status">
+            {!produtos.length && (
+              <>
+                Cadastre ao menos um <Link to="/produtos">produto</Link>.{" "}
+              </>
+            )}
+            {!salas.length && (
+              <>
+                Cadastre ao menos um{" "}
+                <Link to="/locais-de-armazenamento">
+                  local de armazenamento
+                </Link>
+                .
+              </>
+            )}
+          </div>
+        )}
 
         <div className="arrecadacao-lancamento__form">
           <label htmlFor="arrecadacao-doador">
@@ -136,7 +307,9 @@ export function Arrecadacoes() {
             <button
               className="arrecadacao-lancamento__search-button"
               type="button"
-              aria-label={buscaAberta ? "Fechar busca de produtos" : "Buscar produtos"}
+              aria-label={
+                buscaAberta ? "Fechar busca de produtos" : "Buscar produtos"
+              }
               aria-expanded={buscaAberta}
               onClick={() => {
                 setBuscaAberta((open) => !open);
@@ -150,7 +323,9 @@ export function Arrecadacoes() {
 
           {buscaAberta && (
             <div className="arrecadacao-lancamento__product-search">
-              <label htmlFor="arrecadacao-busca-produto">Adicionar produto</label>
+              <label htmlFor="arrecadacao-busca-produto">
+                Adicionar produto
+              </label>
               <input
                 id="arrecadacao-busca-produto"
                 type="search"
@@ -179,99 +354,144 @@ export function Arrecadacoes() {
             </div>
           )}
 
-      <div className="arrecadacoes-page__table-wrap">
-        <table className="arrecadacoes-page__table">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Valor</th>
-              <th>Tipo de arrecadação</th>
-              <th>Descrição</th>
-              <th>Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {carregando ? (
-              <tr>
-                <td colSpan="5" className="arrecadacoes-page__state">
-                  Carregando arrecadações...
-                </td>
-              </tr>
-            ) : erro ? (
-              <tr>
-                <td colSpan="5" className="arrecadacoes-page__state arrecadacoes-page__state--error">
-                  {erro}
-                  <button type="button" onClick={carregarArrecadacoes}>
-                    Tentar novamente
-                  </button>
-                </td>
-              </tr>
-            ) : arrecadacoes.length === 0 ? (
-              <tr>
-                <td colSpan="5" className="arrecadacoes-page__state">
-                  Nenhuma arrecadação registrada.
-                </td>
-              </tr>
-            ) : (
-              arrecadacoes.map((arrecadacao) => (
-                <tr key={arrecadacao.id}>
-                  <td>{formatDate(arrecadacao.dataArrecadacao)}</td>
-                  <td className="arrecadacoes-page__amount">
-                    {currencyFormatter.format(Number(arrecadacao.valor))}
-                  </td>
-                  <td>{arrecadacao.tipoArrecadacao}</td>
-                  <td>{arrecadacao.descricao || "—"}</td>
-                  <td className="arrecadacoes-page__actions">
-                    <button
-                      type="button"
-                      className="arrecadacoes-page__edit"
-                      onClick={() => {
-                        setArrecadacaoEmEdicao(arrecadacao);
-                        setArrecadacaoEmVisualizacao(null);
-                        setModalAberto(true);
-                      }}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      type="button"
-                      className="arrecadacoes-page__show"
-                      onClick={() => {
-                        setArrecadacaoEmEdicao(null);
-                        setArrecadacaoEmVisualizacao(arrecadacao);
-                        setModalAberto(true);
-                      }}
-                      title="Visualizar arrecadação"
-                      aria-label="Visualizar arrecadação"
-                    >
-                      <ShowIcon />
-                    </button>
-                  </td>
+          <div className="arrecadacao-lancamento__table-wrap">
+            <table className="arrecadacao-lancamento__table">
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th>Quantidade</th>
+                  <th>Armazenamento</th>
+                  <th>
+                    Vencimento <span>*</span>
+                  </th>
+                  <th>
+                    <span className="visually-hidden">Remover</span>
+                  </th>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody>
+                {itens.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="arrecadacao-lancamento__empty">
+                      {carregando
+                        ? "Carregando produtos..."
+                        : produtos.length
+                          ? "Use a busca para adicionar produtos à arrecadação."
+                          : "Nenhum produto cadastrado para arrecadação."}
+                    </td>
+                  </tr>
+                ) : (
+                  itens.map((item, index) => {
+                    const produto = produtos.find(
+                      (record) => String(getId(record)) === item.productId,
+                    );
+                    const nomeProduto = produto ? getName(produto) : "produto";
 
-      <ArrecadacaoModal
-        isOpen={modalAberto}
-        editingArrecadacao={arrecadacaoEmEdicao || arrecadacaoEmVisualizacao}
-        viewMode={Boolean(arrecadacaoEmVisualizacao)}
-        categoriasArrecadacao={arrecadacoes
-          .map((arrecadacao) => arrecadacao.tipoArrecadacao)
-          .filter(Boolean)}
-        onClose={() => {
-          setModalAberto(false);
-          setArrecadacaoEmEdicao(null);
-          setArrecadacaoEmVisualizacao(null);
-        }}
-        onSuccess={(novaMensagem) => {
-          setMensagem(novaMensagem);
-          setMensagemErro("");
-          void carregarArrecadacoes();
-        }}
-      />
+                    return (
+                      <tr key={`${item.productId}-${index}`}>
+                        <td>{produto ? getName(produto) : "Produto"}</td>
+                        <td>
+                          <div className="arrecadacao-lancamento__quantity">
+                            <button
+                              type="button"
+                              aria-label="Diminuir quantidade"
+                              onClick={() =>
+                                atualizarItem(
+                                  index,
+                                  "quantidade",
+                                  Math.max(1, Number(item.quantidade) - 1),
+                                )
+                              }
+                              disabled={enviando}
+                            >
+                              −
+                            </button>
+                            <input
+                              aria-label={`Quantidade de ${nomeProduto}`}
+                              type="number"
+                              min="1"
+                              step="1"
+                              value={item.quantidade}
+                              onChange={(event) =>
+                                atualizarItem(
+                                  index,
+                                  "quantidade",
+                                  event.target.value,
+                                )
+                              }
+                              required
+                              disabled={enviando}
+                            />
+                            <button
+                              type="button"
+                              aria-label="Aumentar quantidade"
+                              onClick={() =>
+                                atualizarItem(
+                                  index,
+                                  "quantidade",
+                                  Number(item.quantidade) + 1,
+                                )
+                              }
+                              disabled={enviando}
+                            >
+                              +
+                            </button>
+                          </div>
+                        </td>
+                        <td>
+                          <select
+                            aria-label={`Armazenamento de ${nomeProduto}`}
+                            value={item.salaId}
+                            onChange={(event) =>
+                              atualizarItem(index, "salaId", event.target.value)
+                            }
+                            required
+                            disabled={enviando || salas.length === 0}
+                          >
+                            <option value="">Selecione</option>
+                            {salas.map((sala) => (
+                              <option key={getId(sala)} value={getId(sala)}>
+                                {getName(sala)}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td>
+                          <input
+                            aria-label={`Vencimento de ${nomeProduto}`}
+                            type="date"
+                            value={item.dataVencimento}
+                            onChange={(event) =>
+                              atualizarItem(
+                                index,
+                                "dataVencimento",
+                                event.target.value,
+                              )
+                            }
+                            required
+                            disabled={enviando}
+                          />
+                        </td>
+                        <td>
+                          <button
+                            className="arrecadacao-lancamento__remove"
+                            type="button"
+                            aria-label={`Remover ${nomeProduto}`}
+                            onClick={() => removerItem(index)}
+                            disabled={enviando}
+                          >
+                            ×
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </form>
     </section>
   );
 }

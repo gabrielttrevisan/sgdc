@@ -55,6 +55,15 @@ export default class AuthController {
     const response = APIResponse.from(res);
     const { user } = req.body;
 
+    if (!env.EMAIL_USER || !env.EMAIL_PASS) {
+      return response
+        .error(
+          "EMAIL_NOT_CONFIGURED",
+          "Serviço de recuperação por e-mail não está configurado",
+        )
+        .send(503);
+    }
+
     const [recovery, error] = await AuthModel.generateRecoveryToken(user.trim());
 
     if (error) {

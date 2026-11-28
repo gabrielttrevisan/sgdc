@@ -20,6 +20,12 @@ donationsRouter.get(
 );
 
 donationsRouter.get(
+  "/report",
+  canManageDonations.withAction("list"),
+  DonationController.report,
+);
+
+donationsRouter.get(
   "/context/:id",
   canManageDonations.withAction("create"),
   identifier,

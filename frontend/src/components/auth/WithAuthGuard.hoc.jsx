@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { Navigate, useLocation } from "react-router";
 import { useAuth } from "../../store/Auth.store";
 

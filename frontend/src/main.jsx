@@ -59,6 +59,8 @@ import CancelAttendanceForm from "./routes/attendance/CancelAttendanceForm.jsx";
 import DonationForm from "./routes/donations/DonationForm.jsx";
 import { SelectInStockProducts } from "./routes/in-stock-products/SelectInStockProducts.jsx";
 import { Donations } from "./routes/donations/Donations.jsx";
+import { DonationsReport } from "./routes/donations/DonationsReport.jsx";
+import { ArrecadacoesReport } from "./routes/arrecadacoes/ArrecadacoesReport.jsx";
 import DonationDetails from "./routes/donations/DonationDetails.jsx";
 import DiscardForm from "./routes/discards/DiscardForm.jsx";
 import { Discards } from "./routes/discards/Discards.jsx";
@@ -100,6 +102,14 @@ createRoot(document.getElementById("root")).render(
               element={<DonationDetails />}
             />
             <Route path="/doacoes" element={<Donations />} />
+            <Route
+              path="/relatorios/doacoes"
+              element={<DonationsReport />}
+            />
+            <Route
+              path="/relatorios/arrecadacoes"
+              element={<ArrecadacoesReport />}
+            />
             <Route
               path="/produtos-em-estoque/selecionar"
               element={<SelectInStockProducts />}
