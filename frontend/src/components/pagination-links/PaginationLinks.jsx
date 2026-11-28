@@ -18,9 +18,10 @@ export const PaginationLinks = ({
   totalPages,
   className,
   buttonClassName,
+  ...props
 }) => {
   return (
-    <nav role="navigation" className={className}>
+    <nav role="navigation" {...props} className={className}>
       {Array.from({ length: totalPages }).map((_, index) => {
         const iterPage = index + 1;
 

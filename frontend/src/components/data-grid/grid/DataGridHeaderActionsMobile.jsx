@@ -1,4 +1,4 @@
-import { Children, useCallback, useState } from "react";
+import { Children, useCallback, useImperativeHandle, useState } from "react";
 import { AppsIcon } from "../../icons/AppsIcon";
 import { VisuallyHidden } from "../../accessibility/visually-hidden/VisuallyHidden";
 
@@ -6,6 +6,7 @@ import { VisuallyHidden } from "../../accessibility/visually-hidden/VisuallyHidd
 export const DataGridHeaderActionsMobile = ({
   children,
   className,
+  ref,
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,7 +18,7 @@ export const DataGridHeaderActionsMobile = ({
     if (!dataGridActions && !dataGridActionsButton) setIsOpen(false);
   }, []);
 
-  const toggle = () => {
+  const toggle = useCallback(() => {
     setIsOpen((prev) => {
       const newIsOpen = !prev;
 
@@ -26,7 +27,23 @@ export const DataGridHeaderActionsMobile = ({
 
       return newIsOpen;
     });
-  };
+  }, []);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      open() {
+        setIsOpen(true);
+      },
+      close() {
+        setIsOpen(false);
+      },
+      toggle() {
+        toggle();
+      },
+    }),
+    [toggle],
+  );
 
   return (
     <>
@@ -50,13 +67,15 @@ export const DataGridHeaderActionsMobile = ({
         hidden={!isOpen}
         id="datagrid-actions"
       >
-        {Children.map(children, (child, index) => {
-          return (
-            <div className="data-grid__header-action" key={index}>
-              {child}
-            </div>
-          );
-        })}
+        {Children.toArray(children)
+          .filter(Boolean)
+          .map((child, index) => {
+            return (
+              <div className="data-grid__header-action" key={index}>
+                {child}
+              </div>
+            );
+          })}
       </div>
     </>
   );

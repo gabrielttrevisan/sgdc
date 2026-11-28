@@ -15,7 +15,7 @@ export const InStockProductDetails = WithAuthGuard(
         breadcrumbs={[{ id: "in-stock-products", name: "Produtos em estoque" }]}
         title="Dados do Produto em Estoque"
         gridColumns="1fr 1fr"
-        onCancel={() => navigate("/produtos-em-estoque")}
+        onCancel={() => navigate(-1)}
       >
         <InputField name="id" id="id" label="ID do estoque" readOnly />
         <InputField

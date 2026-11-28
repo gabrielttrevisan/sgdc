@@ -46,6 +46,7 @@ import { DataGridWrapper } from "./grid/DataGridWrapper";
  * @prop {SortIcon} [SortIcon]
  * @prop {keyof T} [sortKey]
  * @prop {string[]} [sortType]
+ * @prop {import("react").ButtonHTMLAttributes<HTMLButtonElement>} [sortButtonProps]
  */
 
 /**
@@ -53,6 +54,7 @@ import { DataGridWrapper } from "./grid/DataGridWrapper";
  * @typedef {Object} DataGridRef
  * @prop {VoidFunction} update
  */
+
 /**
  * @template T
  * @typedef {Object} DataGridProps
@@ -67,6 +69,10 @@ import { DataGridWrapper } from "./grid/DataGridWrapper";
  * @prop {string} [actionsCellClassName]
  * @prop {import("react").ReactNode} [children]
  * @prop {string} [searchBoxPlaceholder]
+ * @prop {import("react").InputHTMLAttributes<HTMLInputElement>} [searchBoxProps]
+ * @prop {import("react").ReactNode} [afterLabel]
+ * @prop {import("react").HTMLProps<"div">} [paginationInfoProps]
+ * @prop {import("react").HTMLProps<"nav">} [paginationProps]
  * @prop {keyof T|(item: T) => string} keyProp
  * @prop {keyof T} [sortKeyDefault]
  * @prop {string} [sortTypeDefault]
@@ -91,11 +97,20 @@ export function DataGrid({
   rowClassName = "",
   children,
   searchBoxPlaceholder,
+  searchBoxProps,
   keyProp,
   sortKeyDefault,
   sortTypeDefault,
   breakpoint,
   matchMedia,
+  noSearch = false,
+  getCustomFilter,
+  afterLabel,
+  paginationProps,
+  paginationInfoProps,
+  actionsButtonRef,
+  emptyMessage = "Nenhum resultado encontrado",
+  firstActionButtonProps,
 }) {
   /** @type {[import("../../global").AsyncPageData<T>, import("react").Dispatch<import("react").SetStateAction<import("../../global").AsyncPageData<T>>>]} */
   const [page, setPage] = useState({
@@ -123,9 +138,17 @@ export function DataGrid({
       const actualSortType = noSorting
         ? undefined
         : (sortType ?? sortTypeDefault);
+      const customFilter =
+        getCustomFilter?.({
+          sortKey: actualSortKey,
+          sortType: actualSortType,
+          query,
+          page: count,
+        }) ?? {};
 
       paginatableService
         .list({
+          ...customFilter,
           page: count,
           sortKey: actualSortKey,
           sortType: actualSortType,
@@ -157,7 +180,7 @@ export function DataGrid({
           });
         });
     },
-    [paginatableService],
+    [paginatableService, getCustomFilter],
   );
 
   useEffect(() => {
@@ -178,23 +201,35 @@ export function DataGrid({
     <IsDataGridMobileProvider breakpoint={breakpoint} matchMedia={matchMedia}>
       <section className="data-grid">
         <DataGridHeader>
-          <h2 className="data-grid__title" id={`data-grid-title-${pluralName}`}>
-            {title ?? pluralName}
-          </h2>
+          <div className="data-grid__header-title">
+            <h2
+              className="data-grid__title"
+              id={`data-grid-title-${pluralName}`}
+            >
+              {title ?? pluralName}
+            </h2>
 
-          <DataGridHeaderActions>
-            <SearchBox
-              onSearch={(query) =>
-                getPage(1, page.sortKey, query, page.sortType)
-              }
-              onReset={() => getPage(1, page.sortKey, undefined, page.sortType)}
-              placeholder={
-                searchBoxPlaceholder
-                  ? searchBoxPlaceholder
-                  : `Buscar ${pluralName?.toLocaleLowerCase() ?? "registros"}...`
-              }
-              gridId={`data-grid-${pluralName}`}
-            />
+            {afterLabel}
+          </div>
+
+          <DataGridHeaderActions ref={actionsButtonRef}>
+            {!noSearch && (
+              <SearchBox
+                {...searchBoxProps}
+                onSearch={(query) =>
+                  getPage(1, page.sortKey, query, page.sortType)
+                }
+                onReset={() =>
+                  getPage(1, page.sortKey, undefined, page.sortType)
+                }
+                placeholder={
+                  searchBoxPlaceholder
+                    ? searchBoxPlaceholder
+                    : `Buscar ${pluralName?.toLocaleLowerCase() ?? "registros"}...`
+                }
+                gridId={`data-grid-${pluralName}`}
+              />
+            )}
 
             {children}
           </DataGridHeaderActions>
@@ -208,7 +243,7 @@ export function DataGrid({
             aria-rowcount={page.items.length}
             aria-labelledby={`data-grid-title-${pluralName}`}
           >
-            <DataGridFilterList>
+            <DataGridFilterList hasActions={Boolean(actionsConfig)}>
               {columns.map((column) => (
                 <DataGridFilter
                   key={column.id}
@@ -219,6 +254,7 @@ export function DataGrid({
 
                   {column.sortable && (
                     <button
+                      {...column.sortButtonProps}
                       type="button"
                       onClick={() => {
                         if (column.sortType) {
@@ -278,11 +314,11 @@ export function DataGrid({
                   colSpan={1 + columns.length}
                   className="data-grid__no-results"
                 >
-                  Nenhum resultado encontrado
+                  {emptyMessage}
                 </DataGridEmptyMessage>
               )}
 
-              {page.items.map((item) => (
+              {page.items.map((item, index) => (
                 <DataGridItem
                   key={
                     typeof keyProp === "function"
@@ -307,6 +343,9 @@ export function DataGrid({
                       className={actionsCellClassName}
                       target={item}
                       actions={actionsConfig}
+                      wrapperProps={
+                        index === 0 ? firstActionButtonProps : undefined
+                      }
                     />
                   )}
                 </DataGridItem>
@@ -322,6 +361,7 @@ export function DataGrid({
             pluralName={pluralName}
             singularName={singularName}
             className="data-grid__pagination-info"
+            {...paginationInfoProps}
           />
 
           <PaginationLinks
@@ -332,6 +372,7 @@ export function DataGrid({
             totalPages={page.totalPages}
             className="data-grid__pagination-links"
             buttonClassName="data-grid__pagination-link"
+            {...paginationProps}
           />
         </div>
       </section>

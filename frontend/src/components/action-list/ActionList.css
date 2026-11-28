@@ -129,20 +129,3 @@
     }
   }
 }
-
-.action-tooltip {
-  background-color: rgb(var(--colors-primary-dark-base) / 90%);
-  border: 0;
-  border-radius: 4px;
-  text-transform: none;
-  padding: 8px 16px;
-  box-shadow:
-    0 4px 20px rgb(0 0 0 / 15%),
-    0 4px 6px rgb(0 0 0 / 15%);
-  backdrop-filter: blur(1px);
-  color: var(--colors-text-white);
-  font-size: 14px;
-  margin: 0;
-  inset: 0;
-  transform: translate(-50%);
-}

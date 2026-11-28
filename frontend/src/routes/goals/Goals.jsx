@@ -8,12 +8,7 @@ import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
 import GoalsService from "../../service/GoalsService";
 
 import "./Goals.css";
-
-function formatDate(value) {
-  if (!value) return "—";
-  const date = new Date(`${value.slice(0, 10)}T00:00:00`);
-  return Number.isNaN(date.getTime()) ? "—" : date.toLocaleDateString("pt-BR");
-}
+import formatDate from "../../lib/format/date.js";
 
 export const Goals = WithAuthGuard(() => {
   const navigate = useNavigate();
@@ -28,19 +23,23 @@ export const Goals = WithAuthGuard(() => {
       className: "goal__col --name",
     },
     {
-      DataGridCell: ({ startAt }) => <span>{formatDate(startAt)}</span>,
+      DataGridCell: ({ startAt }) => (
+        <span>{formatDate(startAt, "Não Informado")}</span>
+      ),
       title: "Início",
       id: "start",
       className: "goal__col",
     },
     {
-      DataGridCell: ({ endAt }) => <span>{formatDate(endAt)}</span>,
+      DataGridCell: ({ endAt }) => (
+        <span>{formatDate(endAt, "Não Informado")}</span>
+      ),
       title: "Término",
       id: "end",
       className: "goal__col",
     },
     {
-      DataGridCell: ({ type }) => <span>{type || "—"}</span>,
+      DataGridCell: ({ type }) => <span>{type || "Não Identificado"}</span>,
       title: "Tipo",
       id: "type",
       className: "goal__col",

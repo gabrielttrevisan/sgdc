@@ -36,6 +36,9 @@ export default function ListField({
   buttonLabel,
   label,
   noItemSelectedMessage = "Nenhum item selecionado",
+  style,
+  buttonProps,
+  firstRemoveButtonProps,
 }) {
   const { items, remove } = useListStorage(listId);
 
@@ -52,7 +55,7 @@ export default function ListField({
   const isNormal = variant === "normal";
 
   return (
-    <div className={`list-field list-field--${variant}`}>
+    <div className={`list-field list-field--${variant}`} style={style}>
       <header>
         {isNormal && (
           <label className="input-field pill pill--purple-label pill--small">
@@ -64,6 +67,7 @@ export default function ListField({
           type="button"
           className="list-field__add-button button-block --solid --primary"
           onClick={onAddProduct}
+          {...buttonProps}
         >
           <AddLargeIcon />
           <span>{buttonLabel}</span>
@@ -72,8 +76,14 @@ export default function ListField({
 
       <div className="list-field__list">
         {items.length ? (
-          items.map((item) => (
-            <div className="list-field__list-item" key={item.id}>
+          items.map((item, index) => (
+            <div
+              className="list-field__list-item"
+              key={item.id}
+              {...(index === 0 && firstRemoveButtonProps
+                ? firstRemoveButtonProps
+                : {})}
+            >
               {ProductLabel ? (
                 <ProductLabel {...item} />
               ) : (

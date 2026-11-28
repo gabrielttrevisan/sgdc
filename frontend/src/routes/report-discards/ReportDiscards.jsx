@@ -1,0 +1,216 @@
+import { useCallback, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
+import { WithAuthGuard } from "../../components/auth/WithAuthGuard.hoc.jsx";
+import { DataGrid } from "../../components/data-grid/DataGrid.jsx";
+import DiscardsService from "../../service/DiscardsService.js";
+import formatDate from "../../lib/format/date.js";
+import ExportButton from "../../components/export-button/ExportButton.jsx";
+import PrintButton from "../../components/print-button/PrintButton.jsx";
+import getSafeListId from "../../store/list/getSafeListId.js";
+import FilterButton from "../../components/filter-button/FilterButton.jsx";
+import useTourGuide from "../../hooks/useTourGuide.js";
+import HelpButton from "../../components/help-button/HelpButton.jsx";
+import { ShowIcon } from "../../components/icons/ShowIcon.jsx";
+import { VisuallyHidden } from "../../components/accessibility/visually-hidden/VisuallyHidden.jsx";
+import Toast from "../../components/toast/ToastStorage.js";
+import ReportDiscardsTitle from "./components/ReportDiscardsTitle.jsx";
+import { getDateTimestamp } from "./utils/getDateTimestamp.js";
+import { toDateInputValue } from "./utils/toDateInputValue.js";
+
+const reportDiscardsService = {
+  list: (filters) => DiscardsService.listReport(filters),
+};
+
+function getCurrentMonthRange() {
+  const today = new Date();
+  return {
+    startAt: toDateInputValue(
+      new Date(today.getFullYear(), today.getMonth(), 1),
+    ),
+    endAt: toDateInputValue(
+      new Date(today.getFullYear(), today.getMonth() + 1, 0),
+    ),
+  };
+}
+
+export const ReportDiscards = WithAuthGuard(function Discards() {
+  const dataGridRef = useRef(null);
+  const navigate = useNavigate();
+  const { state: historyState } = useLocation();
+  const [filters] = useState(() => {
+    const currentMonth = getCurrentMonthRange();
+    return {
+      startAt:
+        typeof historyState?.startAt === "string" &&
+        !Number.isNaN(getDateTimestamp(historyState.startAt))
+          ? historyState.startAt
+          : currentMonth.startAt,
+      endAt:
+        typeof historyState?.endAt === "string" &&
+        !Number.isNaN(getDateTimestamp(historyState.endAt))
+          ? historyState.endAt
+          : currentMonth.endAt,
+      products: Array.isArray(historyState?.products)
+        ? historyState.products
+        : [],
+    };
+  });
+  const [listId] = useState(
+    () =>
+      getSafeListId(historyState?.listId) ||
+      `report-discard-products:${crypto.randomUUID()}`,
+  );
+  const actionsButtonRef = useRef(null);
+  const { start, registerStepEl } = useTourGuide("report-discards", {
+    onBeforeStart() {
+      const isMobile = matchMedia("(max-width: 768px)").matches;
+
+      if (isMobile && actionsButtonRef.current) {
+        actionsButtonRef.current.open();
+      }
+    },
+    onBeforeStepChange(from, to) {
+      if (actionsButtonRef.current) {
+        const isMobile = matchMedia("(max-width: 768px)").matches;
+
+        if (isMobile) {
+          if ((from === 0 && to === 1) || (from === 3 && to === 2)) {
+            actionsButtonRef.current.close();
+          } else if (from === 2) {
+            actionsButtonRef.current.open();
+          }
+        }
+      }
+    },
+    onFinish() {
+      if (actionsButtonRef.current) {
+        actionsButtonRef.current.close();
+      }
+    },
+  });
+
+  const columns = [
+    {
+      DataGridCell: ({ details }) => <span title={details}>{details}</span>,
+      title: "Motivo/Descrição",
+      id: "details",
+    },
+    {
+      DataGridCell: ({ createdAt }) => <span>{formatDate(createdAt)}</span>,
+      title: "Data",
+      id: "createdAt",
+    },
+    {
+      DataGridCell: ({ createdBy }) => <span>{createdBy.name}</span>,
+      title: "Registrado por",
+      id: "createdBy",
+    },
+  ];
+
+  const getCustomFilter = useCallback(
+    () => ({
+      startAt: filters.startAt,
+      endAt: filters.endAt,
+      products: filters.products.map((product) => product.id).join(","),
+    }),
+    [filters],
+  );
+
+  const exportReport = async (format) => {
+    const response = await DiscardsService.exportReport({
+      ...getCustomFilter(),
+      format,
+    });
+    if (!response.data) {
+      Toast.error(response.error.message);
+      return;
+    }
+
+    const url = URL.createObjectURL(response.data);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `relatorio-descartes.${format === "xls" ? "xlsx" : "csv"}`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+  };
+
+  const hasFilter = Object.values(filters).filter(Boolean).length > 0;
+
+  return (
+    <DataGrid
+      ref={dataGridRef}
+      columns={columns}
+      paginatableService={reportDiscardsService}
+      singularName="descarte"
+      pluralName="descartes"
+      title={<ReportDiscardsTitle {...filters} />}
+      keyProp="id"
+      noSearch
+      emptyMessage={
+        hasFilter
+          ? "Nenhum resultado encontrado para o filtro selecionado"
+          : "Nenhum filtro selecionado. Clique em 'Filtrar' para buscar por resultados"
+      }
+      getCustomFilter={getCustomFilter}
+      afterLabel={<HelpButton onClick={start} />}
+      paginationInfoProps={registerStepEl({
+        content:
+          "Aqui estão exibidos a quantidade de registros mostrados e o total de registros do relatório",
+        order: 2,
+        title: "Pré-visualização de Resultados",
+      })}
+      paginationProps={registerStepEl({
+        content:
+          "Utilize a paginação para pré-visualizar os resultados do relatório",
+        order: 3,
+        title: "Pré-visualização de Resultados",
+      })}
+      actionsButtonRef={actionsButtonRef}
+      actionsConfig={[
+        {
+          type: "show",
+          content: (
+            <>
+              <ShowIcon />
+              <VisuallyHidden>Ver descarte</VisuallyHidden>
+            </>
+          ),
+          onAction: (_, target) =>
+            navigate(`/descartes/${target.id}/visualizar`),
+          tooltip: "Visualizar descarte",
+        },
+      ]}
+    >
+      <FilterButton
+        {...registerStepEl({
+          content:
+            "Clique em 'Filtrar' para configurar o período de ocorrência dos descartes e quais produtos foram descartados",
+          order: 1,
+          title: "Filtro",
+        })}
+        onClick={() =>
+          navigate("/relatorios/descartes/filtro", {
+            state: { ...filters, listId },
+          })
+        }
+      />
+
+      <ExportButton
+        formatProps={registerStepEl({
+          order: 4,
+          title: "Exportação",
+          content:
+            "Clique no botão branco para selecionar o formato de exportação desejado",
+        })}
+        exportProps={registerStepEl({
+          order: 5,
+          title: "Exportação",
+          content:
+            "Clique no botão verde para exportar os descartes no formato selecionado.<br/>Todo resultados serão exportados em um único arquivo.",
+        })}
+        onClick={exportReport}
+      />
+      <PrintButton />
+    </DataGrid>
+  );
+});

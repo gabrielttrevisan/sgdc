@@ -1,5 +1,6 @@
 
 import promisePool from "../config/database.js";
+<<<<<<< HEAD
 import ExcelJS from "exceljs";
 import PDFDocument from "pdfkit";
 
@@ -189,6 +190,10 @@ function createPdfReport(report) {
     document.end();
   });
 }
+=======
+import InStockProductModel from "../models/InStockProduct.model.js";
+import { createSQLFunctor } from "../models/core/sql.js";
+>>>>>>> cd827e630c6be5bb8f8ad3a5b7e7d3661bb00a0d
 
 // ============================================
 // RF_F1 - LANÇAR ARRECADAÇÃO
@@ -618,7 +623,40 @@ export async function criarArrecadacao(req, res) {
     }
 
     // ========================================
-    // 7. CONFIRMAR TRANSAÇÃO
+    // 7. ATUALIZAR O ESTOQUE
+    // ========================================
+
+    const stockChanges = itensValidados.map((item) => ({
+      productId: item.productId,
+      total: item.quantidade,
+      expiresAt: item.dataVencimento,
+      rooms: [{
+        id: item.salaId,
+        count: item.quantidade,
+      }],
+    }));
+
+    const [stockUpdated, stockError] =
+      await InStockProductModel.updateStock(
+        stockChanges,
+        createSQLFunctor(conexao)
+      );
+
+    if (!stockUpdated) {
+      await conexao.rollback();
+
+      console.error(
+        "Erro ao atualizar o estoque da arrecadação:",
+        stockError
+      );
+
+      return res.status(500).json({
+        message: "Erro ao atualizar o estoque.",
+      });
+    }
+
+    // ========================================
+    // 8. CONFIRMAR TRANSAÇÃO
     // ========================================
 
     await conexao.commit();

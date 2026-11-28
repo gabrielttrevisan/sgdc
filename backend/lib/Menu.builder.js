@@ -163,8 +163,8 @@ export class MenuBuilder {
           },
           {
             id: new RandID(),
-            title: "Donativos a Vencer",
-            path: "/relatorios/donativos",
+            title: "Produtos a Vencer",
+            path: "/relatorios/produtos-a-vencer",
           },
           {
             id: new RandID(),

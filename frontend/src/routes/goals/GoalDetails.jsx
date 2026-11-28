@@ -18,7 +18,7 @@ export default WithAuthGuard(function GoalDetails() {
               data: {
                 ...response.data,
                 isGlobal: response.data.isGlobal ? "Sim" : "Não",
-                unitName: response.data.unitName || "—",
+                unitName: response.data.unitName || "Unidade Não Nomeada",
               },
             }
           : response;

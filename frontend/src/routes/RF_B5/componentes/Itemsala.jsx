@@ -5,9 +5,6 @@ function ItemSala({ sala, onExcluir, onEditar }) {
     <Card className="mb-2">
       <Card.Body>
         <Card.Title>{sala.nome}</Card.Title>
-        <Card.Text>
-          Capacidade: {sala.capacidade}
-        </Card.Text>
 
         <Button
           variant="warning"

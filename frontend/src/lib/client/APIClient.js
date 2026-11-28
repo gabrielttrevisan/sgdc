@@ -47,6 +47,26 @@ export default class APIClient {
   }
 
   /**
+   * @param {string} path
+   * @param {Record<string, string>} [query]
+   * @param {import("../../global").FetchOptions} [init]
+   * @returns {Promise<Response>}
+   */
+  async getFile(path, query = {}, init = {}) {
+    const params = Object.entries(query).filter(([, value]) => Boolean(value));
+    const search = new URLSearchParams(params);
+    const url = search.size
+      ? `${this.#url}${path}?${search.toString()}`
+      : `${this.#url}${path}`;
+
+    return fetch(url, {
+      ...init,
+      headers: this.#getHeaders({ init }),
+      method: "GET",
+    });
+  }
+
+  /**
    * @template {T}
    * @param {string} path
    * @param {Record<string, string>} [body]

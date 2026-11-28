@@ -35,6 +35,41 @@ class InStockProductsService extends Service {
     }
   }
 
+  async listExpiringReport({ days = 15, ...rest } = {}) {
+    try {
+      return await this.#client.get("in-stock-products/report", {
+        ...rest,
+        days: String(days),
+      });
+    } catch {
+      return this.internal("Não foi possível carregar o relatório de vencimentos");
+    }
+  }
+
+  async exportExpiringReport({ days, ...rest }) {
+    try {
+      const response = await this.#client.getFile("in-stock-products/report", {
+        ...rest,
+        days: String(days),
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        return {
+          data: null,
+          error: result.error ?? {
+            code: "EXPORT_FAILED",
+            message: "Não foi possível exportar o relatório de vencimentos",
+          },
+        };
+      }
+
+      return { data: await response.blob(), error: null };
+    } catch {
+      return this.internal("Não foi possível exportar o relatório de vencimentos");
+    }
+  }
+
   /**
    * @param {number|string} id
    * @returns {Promise<import("../global").APIResponse<InStockProductDetails>>}

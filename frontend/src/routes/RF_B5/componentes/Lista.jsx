@@ -12,10 +12,6 @@ function Lista({ salas, onExcluir, onEditar }) {
 
           <div className="lista-topo">
             <strong>{sala.nome}</strong>
-
-            <span className="capacidade">
-              Capacidade: {sala.capacidade}
-            </span>
           </div>
 
           <p className="descricao">

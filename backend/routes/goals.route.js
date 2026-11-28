@@ -4,7 +4,10 @@ import identifier from "../middlewares/validator/id.js";
 import { pagination } from "../middlewares/validator/pagination.js";
 import { validateRequest } from "../middlewares/validator/validator.js";
 import requiresPermission from "../middlewares/permission.js";
-import { CREATE_GOAL_RULES } from "../validators/goal.validator.js";
+import {
+  CREATE_GOAL_RULES,
+  FILTER_GOALS_REPORT_RULES,
+} from "../validators/goal.validator.js";
 
 const goalsRouter = Router();
 const canManageGoals = requiresPermission.forResource("product");
@@ -14,6 +17,13 @@ goalsRouter.get(
   canManageGoals.withAction("list"),
   pagination(),
   GoalController.findAll,
+);
+
+goalsRouter.get(
+  "/report",
+  canManageGoals.withAction("list"),
+  pagination(FILTER_GOALS_REPORT_RULES),
+  GoalController.findForReport,
 );
 
 goalsRouter.get(

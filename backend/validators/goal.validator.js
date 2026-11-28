@@ -70,3 +70,15 @@ export const CREATE_GOAL_RULES = [
         : "Tipo de meta inválido",
   },
 ];
+
+/** @type {import("../middlewares/validator/validator.js").ValidationRule[]} */
+export const FILTER_GOALS_REPORT_RULES = [
+  {
+    property: "format",
+    required: false,
+    validate: (value) =>
+      value === "csv" || value === "xls"
+        ? true
+        : "Formato de exportação inválido",
+  },
+];

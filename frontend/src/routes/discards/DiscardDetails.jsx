@@ -34,7 +34,7 @@ export default WithAuthGuard(function DiscardDetails() {
       }}
       breadcrumbs={[{ id: "discards", name: "Descartes" }]}
       title="Visualizar descarte"
-      onCancel={() => navigate("/descartes")}
+      onCancel={() => navigate(-1)}
     >
       <DiscardDetailsContent />
     </ReadOnlyResourceForm>

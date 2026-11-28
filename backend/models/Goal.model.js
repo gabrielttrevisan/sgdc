@@ -5,24 +5,40 @@ import sql from "./core/sql.js";
  * @prop {string} [query]
  * @prop {number} [page]
  * @prop {number} [perPage]
+ * @prop {boolean} [all]
  */
 
 export default class GoalModel {
   /**
    * @param {FindAllGoalsFilter} filter
    */
-  static async findAll({ query, page = 1, perPage = 10 }) {
+  static async findAll({ query, page = 1, perPage = 10, all = false }) {
     try {
       const likeQuery = `%${query}%`;
       const whereClause = query
         ? sql`WHERE G.NAME LIKE ${likeQuery} OR G.DESCRIPTION LIKE ${likeQuery}`
         : sql.empty;
+      const limitClause = all
+        ? sql.empty
+        : sql`LIMIT ${perPage} OFFSET ${(page - 1) * perPage}`;
       const progressJoin = sql`
         LEFT JOIN (
-          SELECT GR.GOAL_ID, SUM(A.VALOR) AS COMPLETED
-          FROM GOAL_REGISTRIES GR
-          INNER JOIN ARRECADACOES A ON A.ID = GR.ITEM_DRIVE_ID
-          GROUP BY GR.GOAL_ID
+          SELECT
+            G.ID AS GOAL_ID,
+            SUM(
+              CASE
+                WHEN G.IS_GLOBAL = 1 OR G.UNIT_ID IS NULL THEN CI.\`COUNT\`
+                WHEN P.MEASURING_UNIT_ID = G.UNIT_ID THEN CI.\`COUNT\`
+                ELSE 0
+              END
+            ) AS COMPLETED
+          FROM GOALS G
+          INNER JOIN COLLECTIONS C
+            ON COALESCE(C.COLLECTED_AT, C.CREATED_AT) >= G.START_AT
+           AND COALESCE(C.COLLECTED_AT, C.CREATED_AT) < DATE_ADD(G.END_AT, INTERVAL 1 DAY)
+          INNER JOIN COLLECTED_ITEMS CI ON CI.COLLECTION_ID = C.ID
+          LEFT JOIN PRODUCTS P ON P.ID = CI.PRODUCT_ID
+          GROUP BY G.ID
         ) GP ON GP.GOAL_ID = G.ID
       `;
 
@@ -42,7 +58,7 @@ export default class GoalModel {
           ${progressJoin}
           ${whereClause}
           ORDER BY G.START_AT DESC, G.ID DESC
-          LIMIT ${perPage} OFFSET ${(page - 1) * perPage}
+          ${limitClause}
         `.run(),
         sql.query`
           SELECT COUNT(*) AS TOTAL
@@ -56,7 +72,7 @@ export default class GoalModel {
           items: data.map((row) => GoalModel.#toListItem(row)),
           totalRecords: total,
           page,
-          totalPages: Math.ceil(total / perPage),
+          totalPages: all ? 1 : Math.ceil(total / perPage),
           query,
         },
         null,
@@ -65,6 +81,13 @@ export default class GoalModel {
       console.error(error);
       return [null, error];
     }
+  }
+
+  /**
+   * @param {{page?: number, perPage?: number, all?: boolean}} filter
+   */
+  static async findForReport({ page = 1, perPage = 10, all = false }) {
+    return this.findAll({ page, perPage, all });
   }
 
   /**
@@ -86,10 +109,22 @@ export default class GoalModel {
         FROM GOALS G
         LEFT JOIN MEASURING_UNITS MU ON MU.ID = G.UNIT_ID
         LEFT JOIN (
-          SELECT GR.GOAL_ID, SUM(A.VALOR) AS COMPLETED
-          FROM GOAL_REGISTRIES GR
-          INNER JOIN ARRECADACOES A ON A.ID = GR.ITEM_DRIVE_ID
-          GROUP BY GR.GOAL_ID
+          SELECT
+            G.ID AS GOAL_ID,
+            SUM(
+              CASE
+                WHEN G.IS_GLOBAL = 1 OR G.UNIT_ID IS NULL THEN CI.\`COUNT\`
+                WHEN P.MEASURING_UNIT_ID = G.UNIT_ID THEN CI.\`COUNT\`
+                ELSE 0
+              END
+            ) AS COMPLETED
+          FROM GOALS G
+          INNER JOIN COLLECTIONS C
+            ON COALESCE(C.COLLECTED_AT, C.CREATED_AT) >= G.START_AT
+           AND COALESCE(C.COLLECTED_AT, C.CREATED_AT) < DATE_ADD(G.END_AT, INTERVAL 1 DAY)
+          INNER JOIN COLLECTED_ITEMS CI ON CI.COLLECTION_ID = C.ID
+          LEFT JOIN PRODUCTS P ON P.ID = CI.PRODUCT_ID
+          GROUP BY G.ID
         ) GP ON GP.GOAL_ID = G.ID
         WHERE G.ID = ${id}
         LIMIT 1
@@ -160,7 +195,7 @@ export default class GoalModel {
       name: row.NAME,
       startAt: GoalModel.#toDateString(row.START_AT),
       endAt: GoalModel.#toDateString(row.END_AT),
-      type: isGlobal ? "geral" : row.UNIT_NAME || "—",
+      type: isGlobal ? "geral" : row.UNIT_NAME || "Unidade Não Nomeada",
       goal: Number(row.GOAL),
       percentage: GoalModel.#percentage(row.COMPLETED, row.GOAL),
     };
@@ -178,7 +213,7 @@ export default class GoalModel {
       goal: Number(row.GOAL),
       isGlobal,
       unitName: row.UNIT_NAME,
-      type: isGlobal ? "geral" : row.UNIT_NAME || "—",
+      type: isGlobal ? "geral" : row.UNIT_NAME || "Unidade Não Nomeada",
       percentage: GoalModel.#percentage(row.COMPLETED, row.GOAL),
     };
   }
